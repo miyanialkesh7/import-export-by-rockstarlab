@@ -1391,11 +1391,11 @@ class Content_Sync_API_Controller {
 	}
 
 	/**
-	 * Set the product type (simple, variable, grouped, external) of a synced WooCommerce product after it is saved.
+	 * Let the PRO add-on set the product type (simple, variable, grouped, external) of a synced WooCommerce product after it is saved.
 	 *
-	 * @param mixed $post_id   Local product post ID.
+	 * @param int   $post_id   Local product post ID.
 	 * @param array $post_data Incoming product payload.
-	 * @return void
+	 * @return mixed Result of the rsl_ie_sync_extension filter; false when no extension handles it.
 	 */
 	private function sync_woocommerce_product_type( $post_id, array $post_data ) {
 		$helpers = array(

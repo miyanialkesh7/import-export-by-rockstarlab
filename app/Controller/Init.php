@@ -1485,7 +1485,7 @@ class Init {
 				var exportButtonId = 'rsl-ie-export-selected-terms-btn';
 				var syncButtonId = 'rsl-ie-sync-selected-terms-btn';
 
-				public function ready( callback ) {
+				function ready( callback ) {
 					if ( document.readyState === 'loading' ) {
 						document.addEventListener( 'DOMContentLoaded', callback );
 					} else {
@@ -1493,7 +1493,7 @@ class Init {
 					}
 				}
 
-				public function getSelectedIds() {
+				function getSelectedIds() {
 					var checkboxes = document.querySelectorAll( 'tbody .check-column input[type="checkbox"]:checked' );
 					var ids = [];
 
@@ -1507,7 +1507,7 @@ class Init {
 					return ids;
 				}
 
-				public function updateButtons() {
+				function updateButtons() {
 					var ids = getSelectedIds();
 					var hasSelection = ids.length > 0;
 					var exportButton = document.getElementById( exportButtonId );
@@ -1526,7 +1526,7 @@ class Init {
 					}
 				}
 
-				public function createButton( id, label, disabled, title ) {
+				function createButton( id, label, disabled, title ) {
 					var button = document.createElement( 'button' );
 					button.type = 'button';
 					button.id = id;
