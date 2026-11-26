@@ -84,11 +84,11 @@ class CSV_Format implements File_Format_Interface {
 				}
 			}
 
-			if ( $row === null ) {
+			if ( null === $row ) {
 				continue;
 			}
 
-			if ( $encoding !== 'UTF-8' ) {
+			if ( 'UTF-8' !== $encoding ) {
 				$row = array_map(
 					function ( $value ) use ( $encoding ) {
 						return mb_convert_encoding( $value, 'UTF-8', $encoding );
@@ -175,11 +175,11 @@ class CSV_Format implements File_Format_Interface {
 					}
 				}
 
-				if ( $row === null ) {
+				if ( null === $row ) {
 					continue;
 				}
 
-				if ( $encoding !== 'UTF-8' ) {
+				if ( 'UTF-8' !== $encoding ) {
 					$row = array_map(
 						function ( $value ) use ( $encoding ) {
 							return mb_convert_encoding( $value, 'UTF-8', $encoding );
@@ -315,7 +315,7 @@ class CSV_Format implements File_Format_Interface {
 				}
 			}
 
-			if ( $encoding !== 'UTF-8' ) {
+			if ( 'UTF-8' !== $encoding ) {
 				$row = array_map(
 					function ( $value ) use ( $encoding ) {
 						return mb_convert_encoding( $value, 'UTF-8', $encoding );
@@ -776,11 +776,11 @@ class CSV_Format implements File_Format_Interface {
 	 * @return string Normalized delimiter
 	 */
 	protected function normalize_delimiter( $delimiter ) {
-		if ( $delimiter === '\\t' || $delimiter === "\t" || strtolower( $delimiter ) === 'tab' ) {
+		if ( '\\t' === $delimiter || "\t" === $delimiter || 'tab' === strtolower( $delimiter ) ) {
 			return "\t";
 		}
 
-		if ( $delimiter === '' ) {
+		if ( '' === $delimiter ) {
 			return self::DEFAULT_DELIMITER;
 		}
 
@@ -798,7 +798,7 @@ class CSV_Format implements File_Format_Interface {
 	 * @return bool
 	 */
 	protected function write_csv_row( $handle, $row, $delimiter, $enclosure, $escape ) {
-		if ( strlen( $delimiter ) === 1 ) {
+		if ( 1 === strlen( $delimiter ) ) {
 			return (bool) fputcsv( $handle, $row, $delimiter, $enclosure, $escape );
 		}
 
@@ -810,11 +810,11 @@ class CSV_Format implements File_Format_Interface {
 
 			$value = (string) $value;
 
-			if ( $enclosure !== '' ) {
+			if ( '' !== $enclosure ) {
 				$value = str_replace( $enclosure, $enclosure . $enclosure, $value );
 			}
 
-			if ( $enclosure !== '' && ( strpos( $value, $delimiter ) !== false || strpos( $value, "\n" ) !== false || strpos( $value, "\r" ) !== false || strpos( $value, $enclosure ) !== false ) ) {
+			if ( '' !== $enclosure && ( false !== strpos( $value, $delimiter ) || false !== strpos( $value, "\n" ) || false !== strpos( $value, "\r" ) || false !== strpos( $value, $enclosure ) ) ) {
 				$value = $enclosure . $value . $enclosure;
 			}
 
@@ -844,7 +844,7 @@ class CSV_Format implements File_Format_Interface {
 			for ( $i = 0; $i < strlen( $line ); $i++ ) {
 				$char = $line[ $i ];
 
-				if ( $char === $escape && $escape !== '' && $i + 1 < strlen( $line ) && $line[ $i + 1 ] === $enclosure ) {
+				if ( $char === $escape && '' !== $escape && $i + 1 < strlen( $line ) && $line[ $i + 1 ] === $enclosure ) {
 					++$i;
 					continue;
 				}
@@ -859,7 +859,7 @@ class CSV_Format implements File_Format_Interface {
 			}
 		}
 
-		return $record === '' ? false : $record;
+		return '' === $record ? false : $record;
 	}
 
 	/**
@@ -903,7 +903,7 @@ class CSV_Format implements File_Format_Interface {
 					continue;
 				}
 
-				if ( $line[ $i ] === "\r" || $line[ $i ] === "\n" ) {
+				if ( "\r" === $line[ $i ] || "\n" === $line[ $i ] ) {
 					continue;
 				}
 
@@ -975,7 +975,7 @@ class CSV_Format implements File_Format_Interface {
 		}
 
 		do {
-			if ( strlen( $delimiter ) === 1 ) {
+			if ( 1 === strlen( $delimiter ) ) {
 				$headers = fgetcsv( $handle, 0, $delimiter, $enclosure, $escape );
 			} else {
 				$line    = $this->read_csv_record( $handle, $enclosure, $escape );
@@ -994,7 +994,7 @@ class CSV_Format implements File_Format_Interface {
 			return new \WP_Error( 'read_error', __( 'Cannot read CSV headers', 'import-export-by-rockstarlab' ) );
 		}
 
-		if ( $encoding !== 'UTF-8' ) {
+		if ( 'UTF-8' !== $encoding ) {
 			$headers = array_map(
 				function ( $value ) use ( $encoding ) {
 					return mb_convert_encoding( $value, 'UTF-8', $encoding );

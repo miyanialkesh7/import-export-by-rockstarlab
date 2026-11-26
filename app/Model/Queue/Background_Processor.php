@@ -383,7 +383,7 @@ class Background_Processor {
 	protected function trigger_ajax_processing( $job_id ) {
 		// Only trigger for media sync jobs (they have dedicated AJAX endpoint)
 		$job = $this->job_model->find( $job_id );
-		if ( ! $job || ( $job->type !== 'media_sync' && 'media_sync' !== (string) $job->data_type ) ) {
+		if ( ! $job || ( 'media_sync' !== $job->type && 'media_sync' !== (string) $job->data_type ) ) {
 			return;
 		}
 

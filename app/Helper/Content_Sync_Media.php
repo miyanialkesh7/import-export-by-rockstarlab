@@ -1151,7 +1151,7 @@ class Content_Sync_Media {
 			if ( $file_id ) {
 				// Check if it's an image or other media type
 				$mime_type = get_post_mime_type( $file_id );
-				if ( $mime_type && strpos( $mime_type, 'image' ) === 0 ) {
+				if ( $mime_type && 0 === strpos( $mime_type, 'image' ) ) {
 					$image_data = self::prepare_image_data( $file_id, 'acf_file_' . $field['name'] );
 					if ( $image_data ) {
 						$images[] = $image_data;
@@ -1246,7 +1246,7 @@ class Content_Sync_Media {
 				if ( is_array( $row ) ) {
 					foreach ( $row as $sub_field_name => $sub_field_value ) {
 						// Skip ACF internal field (acf_fc_layout)
-						if ( $sub_field_name === 'acf_fc_layout' ) {
+						if ( 'acf_fc_layout' === $sub_field_name ) {
 							continue;
 						}
 
@@ -1254,7 +1254,7 @@ class Content_Sync_Media {
 						$sub_field = null;
 
 						// For flexible content, check layouts first
-						if ( $field['type'] === 'flexible_content' && isset( $field['layouts'] ) && isset( $row['acf_fc_layout'] ) ) {
+						if ( 'flexible_content' === $field['type'] && isset( $field['layouts'] ) && isset( $row['acf_fc_layout'] ) ) {
 							$layout_name = $row['acf_fc_layout'];                           // Find the layout
 							foreach ( $field['layouts'] as $layout ) {
 								if ( isset( $layout['name'] ) && $layout['name'] === $layout_name ) {
@@ -1471,7 +1471,7 @@ class Content_Sync_Media {
 					}
 
 					// Look for image ID fields
-					if ( is_numeric( $value ) && strpos( $key, 'image' ) !== false ) {
+					if ( is_numeric( $value ) && false !== strpos( $key, 'image' ) ) {
 						$image_data = self::prepare_image_data( $value, 'elementor_' . $key );
 						if ( $image_data ) {
 							$images[] = $image_data;
@@ -1491,12 +1491,12 @@ class Content_Sync_Media {
 
 					// Repeater controls (icon list, slides, carousels, price lists...) keep
 					// their media and SVG icons one or more levels down.
-					if ( is_array( $value ) && ! isset( $value['id'] ) && ! isset( $value['library'] ) && strpos( $key, 'gallery' ) === false ) {
+					if ( is_array( $value ) && ! isset( $value['id'] ) && ! isset( $value['library'] ) && false === strpos( $key, 'gallery' ) ) {
 						$images = array_merge( $images, self::extract_elementor_nested_media( $value, (string) $key ) );
 					}
 
 					// Look for gallery fields
-					if ( is_array( $value ) && strpos( $key, 'gallery' ) !== false ) {
+					if ( is_array( $value ) && false !== strpos( $key, 'gallery' ) ) {
 						foreach ( $value as $gallery_item ) {
 							if ( is_array( $gallery_item ) && isset( $gallery_item['id'] ) ) {
 								$image_data = self::prepare_image_data( $gallery_item['id'], 'elementor_gallery' );

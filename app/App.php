@@ -119,7 +119,7 @@ class App {
 		$directory = RSL_IE_PATH . '/app/' . $layer . $dir;
 		$handle    = opendir( $directory );
 
-		if ( count( glob( "$directory/*" ) ) === 0 ) {
+		if ( 0 === count( glob( "$directory/*" ) ) ) {
 			return false;
 		}
 

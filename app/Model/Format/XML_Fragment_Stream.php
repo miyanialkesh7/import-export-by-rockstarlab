@@ -22,7 +22,7 @@ class XML_Fragment_Stream {
 		$this->width    = $encoding['width'];
 		$this->little   = $encoding['little'];
 		$this->stream   = fopen( $path, 'rb' );
-		if ( ! $this->stream || fseek( $this->stream, $offset ) !== 0 ) {
+		if ( ! $this->stream || 0 !== fseek( $this->stream, $offset ) ) {
 			throw new \RuntimeException( esc_html__( 'Cannot seek XML source.', 'import-export-by-rockstarlab' ) );}
 		$this->base = $offset;
 	}
@@ -42,7 +42,7 @@ class XML_Fragment_Stream {
 		$raw = '';for ( $i = 0;$i < $this->width;++$i ) {
 			$byte = $this->byte();
 			if ( null === $byte ) {
-				if ( $raw !== '' ) {
+				if ( '' !== $raw ) {
 					throw new \RuntimeException( esc_html__( 'Incomplete XML encoding unit.', 'import-export-by-rockstarlab' ) );
 				}return null;
 			}$raw .= $byte;}
@@ -119,7 +119,7 @@ class XML_Fragment_Stream {
 			if ( preg_match( '/^<\?xml\s/', $token ) ) {
 				$declaration = $token; }
 			$fragment .= $token;
-			if ( strncmp( $token, '<!DOCTYPE', 9 ) === 0 ) {
+			if ( 0 === strncmp( $token, '<!DOCTYPE', 9 ) ) {
 				throw new \RuntimeException( 'XML document types are unsupported.' );} elseif ( preg_match( '/^<\/([^\s>]+)\s*>$/D', $token, $match ) ) {
 				$last = array_pop( $stack );
 				if ( ! $last || $last['name'] !== $match[1] ) {
@@ -127,7 +127,7 @@ class XML_Fragment_Stream {
 				} elseif ( preg_match( '/^<([^!?\/\s>]+)(?:\s|\/?>)/', $token, $match ) ) {
 					if ( ! $stack && ++$roots > 1 ) {
 						throw new \RuntimeException( esc_html__( 'Multiple XML roots.', 'import-export-by-rockstarlab' ) );}
-					$empty = substr( $token, -2 ) === '/>';
+					$empty = '/>' === substr( $token, -2 );
 					if ( ( is_array( $item ) ? in_array( substr( strrchr( ':' . $match[1], ':' ), 1 ), $item, true ) : $match[1] === $item ) && null === $record ) {
 						$record = count( $stack );}
 					if ( ! $empty ) {

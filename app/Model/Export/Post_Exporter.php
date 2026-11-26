@@ -30,7 +30,7 @@ class Post_Exporter extends Abstract_Exporter {
 				$taxonomy = 'category';
 			} elseif ( 'tags' === $field ) {
 				$taxonomy = 'post_tag';
-			} elseif ( strpos( (string) $field, 'taxonomy_' ) === 0 ) {
+			} elseif ( 0 === strpos( (string) $field, 'taxonomy_' ) ) {
 				$taxonomy = substr( (string) $field, 9 );
 			} elseif ( taxonomy_exists( (string) $field ) ) {
 				$taxonomy = (string) $field;
@@ -365,7 +365,7 @@ class Post_Exporter extends Abstract_Exporter {
 	 */
 	public function get_count( $options = array() ) {
 		// Special handling for menus - count nav_menu terms, not nav_menu_item posts
-		if ( isset( $options['post_type'] ) && $options['post_type'] === 'nav_menu_item' ) {
+		if ( isset( $options['post_type'] ) && 'nav_menu_item' === $options['post_type'] ) {
 			$term_args = array(
 				'taxonomy'   => 'nav_menu',
 				'hide_empty' => false,
@@ -439,17 +439,17 @@ class Post_Exporter extends Abstract_Exporter {
 						$condition = $filter['condition'];
 						$value     = $filter['value'];
 
-						if ( $condition === 'greater' ) {
+						if ( 'greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID > %d", absint( $value ) );
-						} elseif ( $condition === 'less' ) {
+						} elseif ( 'less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID < %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_greater' ) {
+						} elseif ( 'equals_or_greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID >= %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_less' ) {
+						} elseif ( 'equals_or_less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID <= %d", absint( $value ) );
-						} elseif ( $condition === 'between' ) {
+						} elseif ( 'between' === $condition ) {
 							$values = array_map( 'absint', explode( ',', $value ) );
-							if ( count( $values ) === 2 ) {
+							if ( 2 === count( $values ) ) {
 								$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID BETWEEN %d AND %d", $values[0], $values[1] );
 							}
 						}
@@ -488,7 +488,7 @@ class Post_Exporter extends Abstract_Exporter {
 	 */
 	public function get_data( $options = array() ) {
 		// Special handling for menus - export nav_menu terms with items
-		if ( isset( $options['post_type'] ) && $options['post_type'] === 'nav_menu_item' ) {
+		if ( isset( $options['post_type'] ) && 'nav_menu_item' === $options['post_type'] ) {
 			return $this->get_menu_data( $options );
 		}
 
@@ -529,17 +529,17 @@ class Post_Exporter extends Abstract_Exporter {
 						$condition = $filter['condition'];
 						$value     = $filter['value'];
 
-						if ( $condition === 'greater' ) {
+						if ( 'greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID > %d", absint( $value ) );
-						} elseif ( $condition === 'less' ) {
+						} elseif ( 'less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID < %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_greater' ) {
+						} elseif ( 'equals_or_greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID >= %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_less' ) {
+						} elseif ( 'equals_or_less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID <= %d", absint( $value ) );
-						} elseif ( $condition === 'between' ) {
+						} elseif ( 'between' === $condition ) {
 							$values = array_map( 'absint', explode( ',', $value ) );
-							if ( count( $values ) === 2 ) {
+							if ( 2 === count( $values ) ) {
 								$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID BETWEEN %d AND %d", $values[0], $values[1] );
 							}
 						}
@@ -605,7 +605,7 @@ class Post_Exporter extends Abstract_Exporter {
 					$taxonomy = 'category';
 				} elseif ( 'tags' === $field ) {
 					$taxonomy = 'post_tag';
-				} elseif ( strpos( (string) $field, 'taxonomy_' ) === 0 ) {
+				} elseif ( 0 === strpos( (string) $field, 'taxonomy_' ) ) {
 					$taxonomy = substr( (string) $field, 9 );
 				} elseif ( taxonomy_exists( (string) $field ) ) {
 					$taxonomy = (string) $field;
@@ -908,7 +908,7 @@ class Post_Exporter extends Abstract_Exporter {
 		}
 
 		// When querying products, exclude variations (child post_type = product_variation)
-		if ( $post_type === 'product' ) {
+		if ( 'product' === $post_type ) {
 			$args['post_parent'] = 0; // Only top-level products, no variations
 		}
 
@@ -1101,9 +1101,9 @@ class Post_Exporter extends Abstract_Exporter {
 
 			// Map condition to operator
 			$operator = 'IN';
-			if ( $condition === 'not_in' ) {
+			if ( 'not_in' === $condition ) {
 				$operator = 'NOT IN';
-			} elseif ( $condition === 'and' || $condition === 'AND' ) {
+			} elseif ( 'and' === $condition || 'AND' === $condition ) {
 				$operator = 'AND';
 			}
 
@@ -1221,7 +1221,7 @@ class Post_Exporter extends Abstract_Exporter {
 			$value     = $filter['value'] ?? '';
 
 			// Handle post_type field
-			if ( $field === 'post_type' ) {
+			if ( 'post_type' === $field ) {
 				if ( ! empty( $value ) ) {
 					// If specific post type is selected, override the default
 					$args['post_type'] = sanitize_text_field( $value );
@@ -1251,13 +1251,13 @@ class Post_Exporter extends Abstract_Exporter {
 			}
 
 			// Handle featured as product_visibility taxonomy
-			if ( $field === 'featured' ) { // phpcs:ignore WordPress.DB.SlowDBQuery -- Direct DB query required here.
+			if ( 'featured' === $field ) { // phpcs:ignore WordPress.DB.SlowDBQuery -- Direct DB query required here.
 				if ( ! isset( $args['tax_query'] ) ) {
 					$args['tax_query'] = array(); // phpcs:ignore WordPress.DB.SlowDBQuery -- tax_query required for filtering.
 				}
 
 				// Featured is a term in product_visibility taxonomy
-				if ( $condition === 'equals' ) {
+				if ( 'equals' === $condition ) {
 					// Check if value indicates featured (yes, true, 1, featured)
 					$is_featured = in_array( strtolower( $value ), array( 'yes', 'true', '1', 'featured' ), true );
 					if ( $is_featured ) {
@@ -1275,7 +1275,7 @@ class Post_Exporter extends Abstract_Exporter {
 							'operator' => 'NOT IN',
 						);
 					}
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$is_featured = in_array( strtolower( $value ), array( 'yes', 'true', '1', 'featured' ), true );
 					if ( $is_featured ) {
 						$args['tax_query'][] = array(
@@ -1297,7 +1297,7 @@ class Post_Exporter extends Abstract_Exporter {
 			}
 
 			// Handle visibility as product_visibility taxonomy
-			if ( $field === 'visibility' ) { // phpcs:ignore WordPress.DB.SlowDBQuery -- Direct DB query required here.
+			if ( 'visibility' === $field ) { // phpcs:ignore WordPress.DB.SlowDBQuery -- Direct DB query required here.
 				if ( ! isset( $args['tax_query'] ) ) {
 					$args['tax_query'] = array(); // phpcs:ignore WordPress.DB.SlowDBQuery -- tax_query required for filtering.
 				}
@@ -1318,7 +1318,7 @@ class Post_Exporter extends Abstract_Exporter {
 
 					if ( empty( $terms ) ) {
 						// Visible = no visibility terms
-						if ( $condition === 'equals' ) {
+						if ( 'equals' === $condition ) {
 							$args['tax_query'][] = array(
 								'taxonomy' => 'product_visibility',
 								'field'    => 'slug',
@@ -1328,14 +1328,14 @@ class Post_Exporter extends Abstract_Exporter {
 						}
 					} else {
 						// Has specific visibility terms
-						if ( $condition === 'equals' ) {
+						if ( 'equals' === $condition ) {
 							$args['tax_query'][] = array(
 								'taxonomy' => 'product_visibility',
 								'field'    => 'slug',
 								'terms'    => $terms,
 								'operator' => 'IN',
 							);
-						} elseif ( $condition === 'not_equals' ) {
+						} elseif ( 'not_equals' === $condition ) {
 							$args['tax_query'][] = array(
 								'taxonomy' => 'product_visibility',
 								'field'    => 'slug',
@@ -1349,27 +1349,27 @@ class Post_Exporter extends Abstract_Exporter {
 			}
 
 			// Handle product_type as taxonomy
-			if ( $field === 'product_type' ) {
+			if ( 'product_type' === $field ) {
 				// product_type is actually a taxonomy in WooCommerce // phpcs:ignore WordPress.DB.SlowDBQuery -- Direct DB query required here.
 				if ( ! isset( $args['tax_query'] ) ) {
 					$args['tax_query'] = array(); // phpcs:ignore WordPress.DB.SlowDBQuery -- tax_query required for filtering.
 				}
 
-				if ( $condition === 'equals' ) {
+				if ( 'equals' === $condition ) {
 					$args['tax_query'][] = array(
 						'taxonomy' => 'product_type',
 						'field'    => 'slug',
 						'terms'    => sanitize_title( $value ),
 						'operator' => 'IN',
 					);
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['tax_query'][] = array(
 						'taxonomy' => 'product_type',
 						'field'    => 'slug',
 						'terms'    => sanitize_title( $value ),
 						'operator' => 'NOT IN',
 					);
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$term_values         = array_map( 'trim', explode( ',', $value ) );
 					$term_slugs          = array_map( 'sanitize_title', $term_values );
 					$args['tax_query'][] = array(
@@ -1378,7 +1378,7 @@ class Post_Exporter extends Abstract_Exporter {
 						'terms'    => $term_slugs,
 						'operator' => 'IN',
 					);
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$term_values         = array_map( 'trim', explode( ',', $value ) );
 					$term_slugs          = array_map( 'sanitize_title', $term_values );
 					$args['tax_query'][] = array(
@@ -1408,22 +1408,22 @@ class Post_Exporter extends Abstract_Exporter {
 			}
 
 			// Handle specific post fields
-			if ( $field === 'ID' ) {
+			if ( 'ID' === $field ) {
 				// ID filtering — accumulate so multiple filters OR together
-				if ( $condition === 'equals' ) {
+				if ( 'equals' === $condition ) {
 					$args['post__in'] = array_merge( $args['post__in'] ?? array(), array( absint( $value ) ) ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct filtering.
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['post__not_in'] = array_merge( $args['post__not_in'] ?? array(), array( absint( $value ) ) ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct export filtering.
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$new_ids          = array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) );
 					$args['post__in'] = array_merge( $args['post__in'] ?? array(), $new_ids ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct filtering.
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$new_ids              = array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) );
 					$args['post__not_in'] = array_merge( $args['post__not_in'] ?? array(), $new_ids ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct export filtering.
-				} elseif ( $condition === 'is_empty' ) {
+				} elseif ( 'is_empty' === $condition ) {
 					// ID cannot be empty - return no results
 					$args['post__in'] = array( 0 );
-				} elseif ( $condition === 'is_not_empty' ) {
+				} elseif ( 'is_not_empty' === $condition ) {
 					// ID is always not empty - this condition is always true, no filter needed
 					// Do nothing, return all posts
 				} elseif ( in_array( $condition, array( 'greater', 'less', 'equals_or_greater', 'equals_or_less', 'between' ), true ) ) {
@@ -1440,13 +1440,13 @@ class Post_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			if ( $field === 'post_author' ) {
+			if ( 'post_author' === $field ) {
 				$args['author'] = absint( $value );
 				continue;
 			}
 
 			// Handle author_name and author_email fields (need JOIN with users table)
-			if ( $field === 'author_name' || $field === 'author_email' ) {
+			if ( 'author_name' === $field || 'author_email' === $field ) {
 				// Store condition for custom WHERE clause with JOIN
 				if ( ! isset( $args['_custom_author_filters'] ) ) {
 					$args['_custom_author_filters'] = array();
@@ -1459,12 +1459,12 @@ class Post_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			if ( $field === 'post_parent' ) {
+			if ( 'post_parent' === $field ) {
 				$args['post_parent'] = absint( $value );
 				continue;
 			}
 
-			if ( $field === 'post_status' ) {
+			if ( 'post_status' === $field ) {
 				$args['post_status'] = sanitize_text_field( $value );
 				continue;
 			}
@@ -1500,7 +1500,7 @@ class Post_Exporter extends Abstract_Exporter {
 				}
 
 				// Handle different conditions for taxonomies
-				if ( $condition === 'equals' || $condition === 'contains' ) {
+				if ( 'equals' === $condition || 'contains' === $condition ) {
 					// Single term by slug or name
 					$args['tax_query'][] = array(
 						'taxonomy' => $taxonomy,
@@ -1508,7 +1508,7 @@ class Post_Exporter extends Abstract_Exporter {
 						'terms'    => sanitize_title( $value ),
 						'operator' => 'IN',
 					);
-				} elseif ( $condition === 'not_equals' || $condition === 'not_contains' ) {
+				} elseif ( 'not_equals' === $condition || 'not_contains' === $condition ) {
 					// Exclude term
 					$args['tax_query'][] = array(
 						'taxonomy' => $taxonomy,
@@ -1516,7 +1516,7 @@ class Post_Exporter extends Abstract_Exporter {
 						'terms'    => sanitize_title( $value ),
 						'operator' => 'NOT IN',
 					);
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					// Multiple terms
 					$term_values         = array_map( 'trim', explode( ',', $value ) );
 					$term_slugs          = array_map( 'sanitize_title', $term_values );
@@ -1526,7 +1526,7 @@ class Post_Exporter extends Abstract_Exporter {
 						'terms'    => $term_slugs,
 						'operator' => 'IN',
 					);
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					// Exclude multiple terms
 					$term_values         = array_map( 'trim', explode( ',', $value ) );
 					$term_slugs          = array_map( 'sanitize_title', $term_values );
@@ -1536,9 +1536,9 @@ class Post_Exporter extends Abstract_Exporter {
 						'terms'    => $term_slugs,
 						'operator' => 'NOT IN',
 					);
-				} elseif ( $condition === 'is_empty' ) {
+				} elseif ( 'is_empty' === $condition ) {
 					// Posts without this taxonomy OR with only Uncategorized category
-					if ( $taxonomy === 'category' ) {
+					if ( 'category' === $taxonomy ) {
 						// Get default category ID (usually "Uncategorized")
 						$default_category = get_option( 'default_category' );
 
@@ -1563,9 +1563,9 @@ class Post_Exporter extends Abstract_Exporter {
 							'operator' => 'NOT EXISTS',
 						);
 					}
-				} elseif ( $condition === 'is_not_empty' ) {
+				} elseif ( 'is_not_empty' === $condition ) {
 					// Posts with any term in this taxonomy (excluding Uncategorized for categories)
-					if ( $taxonomy === 'category' ) {
+					if ( 'category' === $taxonomy ) {
 						// Get default category ID (usually "Uncategorized")
 						$default_category    = get_option( 'default_category' );                   // For categories, exclude default category
 						$args['tax_query'][] = array(
@@ -2497,7 +2497,7 @@ class Post_Exporter extends Abstract_Exporter {
 			$value     = $filter['value'] ?? '';
 
 			// Map field to users table column
-			$user_field = $field === 'author_name' ? 'display_name' : 'user_email';
+			$user_field = 'author_name' === $field ? 'display_name' : 'user_email';
 
 			switch ( $condition ) {
 				case 'equals':
@@ -2874,7 +2874,7 @@ class Post_Exporter extends Abstract_Exporter {
 				$data[ $field ] = $this->get_portable_terms_json( (int) $post->ID, 'category' );
 			} elseif ( 'tags' === $field ) {
 				$data[ $field ] = $this->get_portable_terms_json( (int) $post->ID, 'post_tag' );
-			} elseif ( strpos( $field, 'taxonomy_' ) === 0 ) {
+			} elseif ( 0 === strpos( $field, 'taxonomy_' ) ) {
 				$taxonomy_name  = substr( $field, 9 ); // Remove 'taxonomy_' prefix
 				$data[ $field ] = $this->get_portable_terms_json( (int) $post->ID, $taxonomy_name );
 			}
@@ -2894,7 +2894,7 @@ class Post_Exporter extends Abstract_Exporter {
 			if ( ! in_array( $field, $basic_fields, true ) &&
 				! in_array( $field, array( 'author_name', 'author_email', 'author_login', 'author_roles', 'post_meta', 'taxonomies', 'featured_image', 'featured_image_id', 'featured_image_url', 'featured_image_title', 'featured_image_caption', 'is_sticky', 'permalink', 'word_count', 'parent_title', 'category_names', 'tag_names' ), true ) &&
 				! in_array( $field, array( 'categories', 'tags' ), true ) &&
-				strpos( $field, 'taxonomy_' ) !== 0 &&
+				0 !== strpos( $field, 'taxonomy_' ) &&
 				! taxonomy_exists( $field ) ) {
 				if ( 'elementor_document' === $field ) {
 					$data[ $field ] = \RockStarLab\ImportExport\Helper\Elementor_Fields::export_document( (int) $post->ID );
@@ -2918,7 +2918,7 @@ class Post_Exporter extends Abstract_Exporter {
 				}
 
 				// Handle ACF fields (with acf_ prefix)
-				if ( strpos( $field, 'acf_' ) === 0 ) {
+				if ( 0 === strpos( $field, 'acf_' ) ) {
 					$acf_field_name = substr( $field, 4 ); // Remove 'acf_' prefix (4 characters)
 
 					// Export ACF values using raw meta + ACF field definitions from DB.
@@ -2941,7 +2941,7 @@ class Post_Exporter extends Abstract_Exporter {
 							$exported = $this->acf_export_value_from_meta( $post->ID, $field_cfg, $acf_field_name );
 							if ( is_array( $exported ) || is_object( $exported ) ) {
 								$data[ $field ] = wp_json_encode( $exported, JSON_UNESCAPED_UNICODE );
-							} elseif ( $exported === null || $exported === false ) {
+							} elseif ( null === $exported || false === $exported ) {
 								$data[ $field ] = '';
 							} else {
 								$data[ $field ] = $exported;
@@ -2961,7 +2961,7 @@ class Post_Exporter extends Abstract_Exporter {
 						if ( $field_key && 0 === strpos( $field_key, 'field_' ) ) {
 							$acf_value = get_field( $field_key, $post->ID );
 						}
-						if ( $acf_value === false || $acf_value === null ) {
+						if ( false === $acf_value || null === $acf_value ) {
 							$acf_value = get_field( $acf_field_name, $post->ID );
 						}
 					}
@@ -2970,7 +2970,7 @@ class Post_Exporter extends Abstract_Exporter {
 					// false for nested fields (repeaters/flexible/group) even when the field
 					// reference key is present.  Fall back to ACF internals to load and format
 					// the field by KEY.
-					if ( ( $acf_value === false || $acf_value === null ) && $field_key && function_exists( 'acf_get_field' )
+					if ( ( false === $acf_value || null === $acf_value ) && $field_key && function_exists( 'acf_get_field' )
 					&& function_exists( 'acf_get_value' ) && function_exists( 'acf_format_value' ) ) {
 						$field_obj = acf_get_field( $field_key );
 						if ( is_array( $field_obj ) ) {
@@ -2981,7 +2981,7 @@ class Post_Exporter extends Abstract_Exporter {
 
 					// If get_field() returns false or null (field not found / ACF 6.x empty field),
 					// fall back to direct get_post_meta() and collect all related meta
-					if ( $acf_value === false || $acf_value === null ) {
+					if ( false === $acf_value || null === $acf_value ) {
 						$acf_value = get_post_meta( $post->ID, $acf_field_name, true );
 
 						// Check if this is a repeater/component field (numeric value AND has sub-fields)
@@ -3036,9 +3036,9 @@ class Post_Exporter extends Abstract_Exporter {
 							// Otherwise it's just a number field, keep the numeric value
 						}
 						// If it's a serialized array, unserialize it
-						elseif ( is_string( $acf_value ) && $acf_value !== '' ) {
+						elseif ( is_string( $acf_value ) && '' !== $acf_value ) {
 							$unserialized = @unserialize( $acf_value );
-							if ( $unserialized !== false || $acf_value === 'b:0;' ) {
+							if ( false !== $unserialized || 'b:0;' === $acf_value ) {
 								$acf_value = $unserialized;
 							}
 						}
@@ -3054,7 +3054,7 @@ class Post_Exporter extends Abstract_Exporter {
 						} else {
 							$data[ $field ] = $this->export_acf_complex_array( $acf_value, $acf_field_name, $post->ID );
 						}
-					} elseif ( $acf_value === false || $acf_value === null || $acf_value === '' ) {
+					} elseif ( false === $acf_value || null === $acf_value || '' === $acf_value ) {
 						// Empty field
 						$data[ $field ] = '';
 					} else {
@@ -3066,7 +3066,7 @@ class Post_Exporter extends Abstract_Exporter {
 
 				// Remove 'meta_' prefix if present (added by frontend for custom fields)
 				$meta_key = $field;
-				if ( strpos( $field, 'meta_' ) === 0 ) {
+				if ( 0 === strpos( $field, 'meta_' ) ) {
 					$meta_key = substr( $field, 5 ); // Remove 'meta_' prefix (5 characters)
 				}
 
@@ -3083,7 +3083,7 @@ class Post_Exporter extends Abstract_Exporter {
 						$exported = $this->acf_export_value_from_meta( $post->ID, $field_cfg, $meta_key );
 						if ( is_array( $exported ) || is_object( $exported ) ) {
 							$data[ $field ] = wp_json_encode( $exported, JSON_UNESCAPED_UNICODE );
-						} elseif ( $exported === null || $exported === false ) {
+						} elseif ( null === $exported || false === $exported ) {
 							$data[ $field ] = '';
 						} else {
 							$data[ $field ] = $exported;
@@ -3093,7 +3093,7 @@ class Post_Exporter extends Abstract_Exporter {
 				}
 
 				// Special handling for WooCommerce fields - use WC_Product object
-				if ( $post->post_type === 'product' && class_exists( 'WC_Product' ) && function_exists( 'wc_get_product' ) ) {
+				if ( 'product' === $post->post_type && class_exists( 'WC_Product' ) && function_exists( 'wc_get_product' ) ) {
 					$wc_product = wc_get_product( $post->ID );
 
 					if ( $wc_product ) {
@@ -3176,7 +3176,7 @@ class Post_Exporter extends Abstract_Exporter {
 									}
 								}
 								// Ensure empty strings for null values
-								elseif ( $value === null || $value === false ) {
+								elseif ( null === $value || false === $value ) {
 									$value = '';
 								}
 
@@ -3186,13 +3186,13 @@ class Post_Exporter extends Abstract_Exporter {
 						}
 
 						// Handle _featured / featured field
-						if ( $field === '_featured' || $meta_key === '_featured' || $field === 'featured' ) {
+						if ( '_featured' === $field || '_featured' === $meta_key || 'featured' === $field ) {
 							$data[ $field ] = $wc_product->get_featured() ? 'yes' : 'no';
 							continue;
 						}
 
 						// Handle _visibility / visibility field
-						if ( $field === '_visibility' || $meta_key === '_visibility' || $field === 'visibility' ) {
+						if ( '_visibility' === $field || '_visibility' === $meta_key || 'visibility' === $field ) {
 							$catalog_visibility = $wc_product->get_catalog_visibility();
 							$data[ $field ]     = $catalog_visibility ? $catalog_visibility : 'visible';
 							continue;
@@ -3248,7 +3248,7 @@ class Post_Exporter extends Abstract_Exporter {
 						}
 
 						// Handle _shipping_class field (already in map but keep for backward compatibility)
-						if ( $field === '_shipping_class' || $meta_key === '_shipping_class' ) {
+						if ( '_shipping_class' === $field || '_shipping_class' === $meta_key ) {
 							$shipping_class = $wc_product->get_shipping_class();
 							$data[ $field ] = $shipping_class ? $shipping_class : '';
 							continue;
@@ -3259,7 +3259,7 @@ class Post_Exporter extends Abstract_Exporter {
 				// Get meta value - always include the field if it was explicitly selected
 				$meta_value = get_post_meta( $post->ID, $meta_key, true );
 
-				$data[ $field ] = $meta_value !== false ? $meta_value : '';
+				$data[ $field ] = false !== $meta_value ? $meta_value : '';
 			}
 		}
 
@@ -3280,7 +3280,7 @@ class Post_Exporter extends Abstract_Exporter {
 				$taxonomy = 'category';
 			} elseif ( 'tags' === $field ) {
 				$taxonomy = 'post_tag';
-			} elseif ( strpos( (string) $field, 'taxonomy_' ) === 0 ) {
+			} elseif ( 0 === strpos( (string) $field, 'taxonomy_' ) ) {
 				$taxonomy = substr( (string) $field, 9 );
 			} elseif ( taxonomy_exists( (string) $field ) ) {
 				$taxonomy = (string) $field;
@@ -4685,7 +4685,7 @@ class Post_Exporter extends Abstract_Exporter {
 			// Process each field
 			foreach ( $fields as $field ) {
 				// Handle ACF fields (with acf_ prefix) for menu term
-				if ( strpos( $field, 'acf_' ) === 0 ) {
+				if ( 0 === strpos( $field, 'acf_' ) ) {
 					$menu_data[ $field ] = ACF_Fields::export_value( 'menu', $term->term_id, substr( $field, 4 ), 'nav_menu' );
 				}
 			}
@@ -4723,7 +4723,7 @@ class Post_Exporter extends Abstract_Exporter {
 					}
 
 					// Extra hints to allow cross-site ID mapping on import.
-					if ( $item->type === 'post_type' && ! empty( $item->object ) && ! empty( $item->object_id ) ) {
+					if ( 'post_type' === $item->type && ! empty( $item->object ) && ! empty( $item->object_id ) ) {
 						$post = get_post( (int) $item->object_id );
 						if ( $post ) {
 							$item_data['object_name']      = $post->post_name;
@@ -4731,7 +4731,7 @@ class Post_Exporter extends Abstract_Exporter {
 							$item_data['object_title']     = $post->post_title;
 							$item_data['object_post_type'] = $post->post_type;
 						}
-					} elseif ( $item->type === 'taxonomy' && ! empty( $item->object ) && ! empty( $item->object_id ) ) {
+					} elseif ( 'taxonomy' === $item->type && ! empty( $item->object ) && ! empty( $item->object_id ) ) {
 						$term = get_term( (int) $item->object_id, $item->object );
 						if ( $term && ! is_wp_error( $term ) ) {
 							$item_data['source_term_id'] = (int) $term->term_id;
@@ -5382,13 +5382,13 @@ class Post_Exporter extends Abstract_Exporter {
 				return $field_value != $test_value;
 
 			case 'contains':
-				return \RockStarLab\ImportExport\Helper\Text_Match::ipos( $field_value, $test_value ) !== false;
+				return false !== \RockStarLab\ImportExport\Helper\Text_Match::ipos( $field_value, $test_value );
 
 			case 'not_contains':
-				return \RockStarLab\ImportExport\Helper\Text_Match::ipos( $field_value, $test_value ) === false;
+				return false === \RockStarLab\ImportExport\Helper\Text_Match::ipos( $field_value, $test_value );
 
 			case 'starts_with':
-				return \RockStarLab\ImportExport\Helper\Text_Match::ipos( $field_value, $test_value ) === 0;
+				return 0 === \RockStarLab\ImportExport\Helper\Text_Match::ipos( $field_value, $test_value );
 
 			case 'ends_with':
 				return substr( \RockStarLab\ImportExport\Helper\Text_Match::lower( $field_value ), -strlen( $test_value ) ) === \RockStarLab\ImportExport\Helper\Text_Match::lower( $test_value );
@@ -5407,7 +5407,7 @@ class Post_Exporter extends Abstract_Exporter {
 
 			case 'between':
 				$values = array_map( 'trim', explode( ',', $test_value ) );
-				if ( count( $values ) === 2 ) {
+				if ( 2 === count( $values ) ) {
 					return $field_value >= $values[0] && $field_value <= $values[1];
 				}
 				return true;

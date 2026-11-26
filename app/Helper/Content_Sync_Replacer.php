@@ -76,7 +76,7 @@ class Content_Sync_Replacer {
 		}
 
 		foreach ( $meta as $key => $value ) {
-			if ( ! is_string( $key ) || strpos( $key, '_' ) === 0 ) {
+			if ( ! is_string( $key ) || 0 === strpos( $key, '_' ) ) {
 				continue;
 			}
 
@@ -84,7 +84,7 @@ class Content_Sync_Replacer {
 			$field_ref_key = '_' . $key;
 			if ( isset( $meta[ $field_ref_key ] ) && is_string( $meta[ $field_ref_key ] ) ) {
 				$field_ref = $meta[ $field_ref_key ];
-				if ( strpos( $field_ref, 'field_' ) === 0 ) {
+				if ( 0 === strpos( $field_ref, 'field_' ) ) {
 					$field_obj = acf_get_field( $field_ref );
 				}
 			}
@@ -795,7 +795,7 @@ class Content_Sync_Replacer {
 					$field_ref_key = '_' . $key;
 					$has_acf_ref   = isset( $meta[ $field_ref_key ] )
 						&& is_string( $meta[ $field_ref_key ] )
-						&& strpos( $meta[ $field_ref_key ], 'field_' ) === 0;
+						&& 0 === strpos( $meta[ $field_ref_key ], 'field_' );
 					if ( $has_acf_ref ) {
 						$attachment = get_post( $image_map[ $value ] );
 						if ( $attachment && 'attachment' === $attachment->post_type ) {
@@ -1290,7 +1290,7 @@ class Content_Sync_Replacer {
 				foreach ( $element['settings'] as $key => &$value ) {
 					// Replace image IDs
 					if ( ! empty( $image_map ) ) {
-						if ( is_numeric( $value ) && strpos( $key, 'image' ) !== false && isset( $image_map[ $value ] ) ) {
+						if ( is_numeric( $value ) && false !== strpos( $key, 'image' ) && isset( $image_map[ $value ] ) ) {
 							$value = $image_map[ $value ];
 							continue;
 						}
@@ -1525,7 +1525,7 @@ class Content_Sync_Replacer {
 			}
 
 			// Only process non-underscore-prefixed keys (skip ACF reference entries).
-			if ( strpos( $key, '_' ) === 0 ) {
+			if ( 0 === strpos( $key, '_' ) ) {
 				continue;
 			}
 
@@ -1535,7 +1535,7 @@ class Content_Sync_Replacer {
 				continue;
 			}
 			$field_ref = $meta[ $field_ref_key ];
-			if ( ! is_string( $field_ref ) || strpos( $field_ref, 'field_' ) !== 0 ) {
+			if ( ! is_string( $field_ref ) || 0 !== strpos( $field_ref, 'field_' ) ) {
 				continue;
 			}
 
@@ -1543,7 +1543,7 @@ class Content_Sync_Replacer {
 			// skip any field type that is definitely NOT a taxonomy field.
 			if ( function_exists( 'acf_get_field' ) ) {
 				$field_obj = acf_get_field( $field_ref );
-				if ( $field_obj && isset( $field_obj['type'] ) && $field_obj['type'] !== 'taxonomy' ) {
+				if ( $field_obj && isset( $field_obj['type'] ) && 'taxonomy' !== $field_obj['type'] ) {
 					continue;
 				}
 				// $field_obj === false → field not registered here → fall through and translate.
@@ -1778,7 +1778,7 @@ class Content_Sync_Replacer {
 
 		foreach ( $meta as $key => $value ) {
 			// Only process non-underscore-prefixed keys (skip ACF reference entries).
-			if ( strpos( $key, '_' ) === 0 ) {
+			if ( 0 === strpos( $key, '_' ) ) {
 				continue;
 			}
 
@@ -1786,7 +1786,7 @@ class Content_Sync_Replacer {
 			$field_ref_key = '_' . $key;
 			if ( isset( $meta[ $field_ref_key ] ) && is_string( $meta[ $field_ref_key ] ) ) {
 				$field_ref = $meta[ $field_ref_key ];
-				if ( strpos( $field_ref, 'field_' ) === 0 ) {
+				if ( 0 === strpos( $field_ref, 'field_' ) ) {
 					$field_obj = acf_get_field( $field_ref );
 				}
 			}

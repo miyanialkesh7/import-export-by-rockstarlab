@@ -226,7 +226,7 @@ class Migration_Map_Store {
 				}
 				$maps[ $row['identity_key'] ] = $id;
 			}
-		} while ( count( $rows ) === 500 );
+		} while ( 500 === count( $rows ) );
 		if ( count( $maps ) !== $state['map_count'] ) {
 			return Migration_Sync_Maps::error();
 		}
@@ -280,7 +280,7 @@ class Migration_Map_Store {
 		$page = array();
 		foreach ( $state['maps'] as $key => $id ) {
 			$page[ $key ] = $id;
-			if ( count( $page ) === 500 ) {
+			if ( 500 === count( $page ) ) {
 				$saved = self::append_page( $job_id, $page, $count );
 				if ( is_wp_error( $saved ) ) {
 					return $saved;

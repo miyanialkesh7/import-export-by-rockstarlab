@@ -4452,7 +4452,7 @@ class Post_Importer extends Abstract_Importer {
 			}
 
 			// Skip ACF reference keys (they start with _)
-			if ( strpos( $meta_key, '_' ) === 0 ) {
+			if ( 0 === strpos( $meta_key, '_' ) ) {
 				continue;
 			}
 
@@ -4806,7 +4806,7 @@ class Post_Importer extends Abstract_Importer {
 		// If it's already a local media URL, try to map it back to an attachment ID
 		// without downloading. This keeps ACF fields functional when importing a file
 		// that references media already present on this site.
-		if ( strpos( $url, wp_upload_dir()['baseurl'] ) === 0 ) {
+		if ( 0 === strpos( $url, wp_upload_dir()['baseurl'] ) ) {
 			$existing = $this->attachment_id_for_local_url( $url );
 			if ( $existing ) {
 				$this->store_imported_media_source( (int) $existing, $url, $source_attachment_id );
@@ -4953,7 +4953,7 @@ class Post_Importer extends Abstract_Importer {
 			// A URL on this site's uploads path is only "local" when the file really exists.
 			// "Replace links" rewrites source URLs before this step, so a missing file is
 			// downloaded from its original address instead of being left as a broken image.
-			if ( strpos( $url, wp_upload_dir()['baseurl'] ) === 0 ) {
+			if ( 0 === strpos( $url, wp_upload_dir()['baseurl'] ) ) {
 				if ( $this->local_upload_file_exists( $url ) ) {
 					// An earlier pass may already have imported this file and swapped its URL; make
 					// sure the block attributes and wp-image classes point at that local attachment.
@@ -4980,7 +4980,7 @@ class Post_Importer extends Abstract_Importer {
 			}
 
 			// Skip data URIs
-			if ( strpos( $url, 'data:' ) === 0 ) {
+			if ( 0 === strpos( $url, 'data:' ) ) {
 				continue;
 			}
 
@@ -5587,7 +5587,7 @@ class Post_Importer extends Abstract_Importer {
 				continue;
 			}
 
-			if ( strpos( $url, wp_upload_dir()['baseurl'] ) === 0 ) {
+			if ( 0 === strpos( $url, wp_upload_dir()['baseurl'] ) ) {
 				continue;
 			}
 

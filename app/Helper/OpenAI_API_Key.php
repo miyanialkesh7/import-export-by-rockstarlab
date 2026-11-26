@@ -62,7 +62,7 @@ class OpenAI_API_Key {
 		}
 
 		$plugin_key = get_option( 'rsl_ie_openai_api_key', '' );
-		if ( is_string( $plugin_key ) && $plugin_key !== '' ) {
+		if ( is_string( $plugin_key ) && '' !== $plugin_key ) {
 			return $plugin_key;
 		}
 
@@ -79,6 +79,6 @@ class OpenAI_API_Key {
 			return self::has_wp_ai_client();
 		}
 
-		return self::get_api_key() !== '';
+		return '' !== self::get_api_key();
 	}
 }

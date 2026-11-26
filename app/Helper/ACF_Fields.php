@@ -323,7 +323,7 @@ class ACF_Fields {
 	private static function field_group_matches_location( array $group, $param, $target ) {
 		foreach ( (array) $group['location'] as $or_rules ) {
 			foreach ( (array) $or_rules as $rule ) {
-				if ( ! is_array( $rule ) || ( $rule['param'] ?? '' ) !== $param || ( $rule['operator'] ?? '==' ) !== '==' ) {
+				if ( ! is_array( $rule ) || ( $rule['param'] ?? '' ) !== $param || '==' !== ( $rule['operator'] ?? '==' ) ) {
 					continue;
 				}
 

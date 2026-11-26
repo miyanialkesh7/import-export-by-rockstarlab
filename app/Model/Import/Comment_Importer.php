@@ -518,7 +518,7 @@ class Comment_Importer extends Abstract_Importer {
 		$source_id = absint( $item['_aie_source_post_id'] ?? ( $item['source_post_id'] ?? 0 ) );
 		$title     = isset( $item['post_title'] ) ? (string) $item['post_title'] : '';
 
-		return $source_id > 0 || trim( $permalink ) !== '' || trim( $slug ) !== '' || trim( $type ) !== '' || trim( $title ) !== '';
+		return $source_id > 0 || '' !== trim( $permalink ) || '' !== trim( $slug ) || '' !== trim( $type ) || '' !== trim( $title );
 	}
 
 	/**
@@ -735,7 +735,7 @@ class Comment_Importer extends Abstract_Importer {
 		}
 
 		$post_permalink = isset( $item['_aie_source_post_permalink'] ) ? (string) $item['_aie_source_post_permalink'] : ( (string) ( $item['post_permalink'] ?? '' ) );
-		if ( $post_permalink !== '' ) {
+		if ( '' !== $post_permalink ) {
 			$local_url = $this->rewrite_url_to_local_site( $post_permalink );
 			$mapped    = url_to_postid( $local_url );
 			if ( $mapped > 0 ) {
@@ -756,11 +756,11 @@ class Comment_Importer extends Abstract_Importer {
 
 		$post_slug = isset( $item['_aie_source_post_slug'] ) ? (string) $item['_aie_source_post_slug'] : ( (string) ( $item['post_slug'] ?? '' ) );
 		$post_type = isset( $item['_aie_source_post_type'] ) ? (string) $item['_aie_source_post_type'] : ( (string) ( $item['post_type'] ?? '' ) );
-		if ( $post_slug !== '' ) {
+		if ( '' !== $post_slug ) {
 			$post_slug = trim( $post_slug, '/' );
-			$post_type = $post_type !== '' ? sanitize_key( $post_type ) : 'any';
+			$post_type = '' !== $post_type ? sanitize_key( $post_type ) : 'any';
 
-			$post = get_page_by_path( $post_slug, OBJECT, $post_type === 'any' ? array( 'post', 'page', 'attachment' ) : $post_type );
+			$post = get_page_by_path( $post_slug, OBJECT, 'any' === $post_type ? array( 'post', 'page', 'attachment' ) : $post_type );
 			if ( $post ) {
 				return (int) $post->ID;
 			}
@@ -776,7 +776,7 @@ class Comment_Importer extends Abstract_Importer {
 
 		// Last resort: try post_title.
 		$title = isset( $item['post_title'] ) ? (string) $item['post_title'] : '';
-		if ( $title !== '' ) {
+		if ( '' !== $title ) {
 			$post_id_by_title = $this->find_post_id_by_title( $title, 'post' );
 			if ( $post_id_by_title > 0 ) {
 				return $post_id_by_title;
@@ -876,17 +876,17 @@ class Comment_Importer extends Abstract_Importer {
 		$date     = isset( $item['comment_date'] ) ? trim( (string) $item['comment_date'] ) : '';
 		$date_gmt = isset( $item['comment_date_gmt'] ) ? trim( (string) $item['comment_date_gmt'] ) : '';
 
-		if ( $date !== '' && $date_gmt === '' ) {
+		if ( '' !== $date && '' === $date_gmt ) {
 			$date_gmt = get_gmt_from_date( $date );
-		} elseif ( $date === '' && $date_gmt !== '' ) {
+		} elseif ( '' === $date && '' !== $date_gmt ) {
 			$date = get_date_from_gmt( $date_gmt );
 		}
 
 		$update = array();
-		if ( $date !== '' ) {
+		if ( '' !== $date ) {
 			$update['comment_date'] = $date;
 		}
-		if ( $date_gmt !== '' ) {
+		if ( '' !== $date_gmt ) {
 			$update['comment_date_gmt'] = $date_gmt;
 		}
 
@@ -925,7 +925,7 @@ class Comment_Importer extends Abstract_Importer {
 		}
 
 		$content = $this->prepare_comment_content( $item );
-		if ( $content === '' ) {
+		if ( '' === $content ) {
 			return;
 		}
 
@@ -1011,7 +1011,7 @@ class Comment_Importer extends Abstract_Importer {
 		}
 
 		$email = isset( $item['comment_author_email'] ) ? (string) $item['comment_author_email'] : '';
-		if ( $email !== '' && is_email( $email ) ) {
+		if ( '' !== $email && is_email( $email ) ) {
 			$user = get_user_by( 'email', $email );
 			if ( $user ) {
 				return (int) $user->ID;
@@ -1029,7 +1029,7 @@ class Comment_Importer extends Abstract_Importer {
 	 */
 	private function rewrite_url_to_local_site( $url ) {
 		$url = trim( (string) $url );
-		if ( $url === '' ) {
+		if ( '' === $url ) {
 			return '';
 		}
 
@@ -1236,7 +1236,7 @@ class Comment_Importer extends Abstract_Importer {
 		}
 
 		foreach ( $item as $field_name => $field_value ) {
-			if ( strpos( $field_name, 'acf_' ) === 0 && '' !== $field_value ) {
+			if ( 0 === strpos( $field_name, 'acf_' ) && '' !== $field_value ) {
 				$this->import_acf_value( $comment_id, substr( $field_name, 4 ), $field_value );
 			}
 		}

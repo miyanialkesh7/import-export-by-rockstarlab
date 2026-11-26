@@ -116,7 +116,7 @@ class XML_Format implements File_Format_Interface {
 			return false; }
 		try {
 			$head = fread( $input, 1024 );
-			while ( preg_match( '/^(?:\xEF\xBB\xBF)?<\?xml\s/', $head ) && strpos( $head, '?>' ) === false && ! feof( $input ) ) {
+			while ( preg_match( '/^(?:\xEF\xBB\xBF)?<\?xml\s/', $head ) && false === strpos( $head, '?>' ) && ! feof( $input ) ) {
 				$head .= fread( $input, 1024 ); }
 		} finally {
 			fclose( $input ); }
@@ -179,7 +179,7 @@ class XML_Format implements File_Format_Interface {
 		foreach ( $input->segments( $options['item_tag'] ?? self::DEFAULT_ITEM, $state ) as $segment ) {
 			$xml = $segment['xml'];
 			if ( 'UTF-8' !== $encoding['name'] ) {
-				if ( 2 === $encoding['width'] && substr( $xml, 0, 3 ) !== "\xef\xbb\xbf" ) {
+				if ( 2 === $encoding['width'] && "\xef\xbb\xbf" !== substr( $xml, 0, 3 ) ) {
 					$xml = "\xef\xbb\xbf" . $xml; }
 				$xml = @iconv( 'UTF-8', $encoding['name'], $xml );
 				if ( false === $xml ) {
