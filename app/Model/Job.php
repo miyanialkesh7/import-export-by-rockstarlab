@@ -16,6 +16,9 @@ namespace RockStarLab\ImportExport\Model;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Model for the import and export job records stored in the jobs table.
+ */
 class Job extends Model {
 
 	/**
@@ -97,11 +100,11 @@ class Job extends Model {
 	 * Update job progress with item counts
 	 * Automatically calculates percentage based on total and processed
 	 *
-	 * @param int $job_id   Job ID to update.
-	 * @param int $total    Total number of items to process.
+	 * @param int $job_id    Job ID to update.
+	 * @param int $total     Total number of items to process.
 	 * @param int $processed Number of items processed so far.
-	 * @param int $success  Number of successfully processed items.
-	 * @param int $failed   Number of failed items.
+	 * @param int $success   Number of successfully processed items.
+	 * @param int $failed    Number of failed items.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public function update_progress( $job_id, $total, $processed, $success, $failed ) {

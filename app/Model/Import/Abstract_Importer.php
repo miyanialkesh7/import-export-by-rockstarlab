@@ -15,6 +15,9 @@ use RockStarLab\ImportExport\Model\Job;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Base class for importers: shared options, validation, statistics and job tracking.
+ */
 abstract class Abstract_Importer implements Importer_Interface {
 
 	/**

@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Validation rule: the value must have the expected data type.
+ */
 class Data_Type_Rule extends Validation_Rule {
 
 	/**
@@ -73,9 +76,9 @@ class Data_Type_Rule extends Validation_Rule {
 	/**
 	 * Validate string type
 	 *
-	 * @param mixed  $value       Value to validate.
-	 * @param string $field_name  Field name.
-	 * @param array  $context     Validation context.
+	 * @param mixed  $value      Value to validate.
+	 * @param string $field_name Field name.
+	 * @param array  $context    Validation context.
 	 * @return true|WP_Error
 	 */
 	private function validate_string( $value, $field_name, $context ) {
@@ -97,9 +100,9 @@ class Data_Type_Rule extends Validation_Rule {
 	/**
 	 * Validate integer type
 	 *
-	 * @param mixed  $value       Value to validate.
-	 * @param string $field_name  Field name.
-	 * @param array  $context     Validation context.
+	 * @param mixed  $value      Value to validate.
+	 * @param string $field_name Field name.
+	 * @param array  $context    Validation context.
 	 * @return true|WP_Error
 	 */
 	private function validate_integer( $value, $field_name, $context ) {
@@ -121,9 +124,9 @@ class Data_Type_Rule extends Validation_Rule {
 	/**
 	 * Validate float type
 	 *
-	 * @param mixed  $value       Value to validate.
-	 * @param string $field_name  Field name.
-	 * @param array  $context     Validation context.
+	 * @param mixed  $value      Value to validate.
+	 * @param string $field_name Field name.
+	 * @param array  $context    Validation context.
 	 * @return true|WP_Error
 	 */
 	private function validate_float( $value, $field_name, $context ) {
@@ -145,9 +148,9 @@ class Data_Type_Rule extends Validation_Rule {
 	/**
 	 * Validate boolean type
 	 *
-	 * @param mixed  $value       Value to validate.
-	 * @param string $field_name  Field name.
-	 * @param array  $context     Validation context.
+	 * @param mixed  $value      Value to validate.
+	 * @param string $field_name Field name.
+	 * @param array  $context    Validation context.
 	 * @return true|WP_Error
 	 */
 	private function validate_boolean( $value, $field_name, $context ) {
@@ -171,9 +174,9 @@ class Data_Type_Rule extends Validation_Rule {
 	/**
 	 * Validate email format
 	 *
-	 * @param mixed  $value       Value to validate.
-	 * @param string $field_name  Field name.
-	 * @param array  $context     Validation context.
+	 * @param mixed  $value      Value to validate.
+	 * @param string $field_name Field name.
+	 * @param array  $context    Validation context.
 	 * @return true|WP_Error
 	 */
 	private function validate_email( $value, $field_name, $context ) {
@@ -198,9 +201,9 @@ class Data_Type_Rule extends Validation_Rule {
 	/**
 	 * Validate URL format
 	 *
-	 * @param mixed  $value       Value to validate.
-	 * @param string $field_name  Field name.
-	 * @param array  $context     Validation context.
+	 * @param mixed  $value      Value to validate.
+	 * @param string $field_name Field name.
+	 * @param array  $context    Validation context.
 	 * @return true|WP_Error
 	 */
 	private function validate_url( $value, $field_name, $context ) {
@@ -225,9 +228,9 @@ class Data_Type_Rule extends Validation_Rule {
 	/**
 	 * Validate date format
 	 *
-	 * @param mixed  $value       Value to validate.
-	 * @param string $field_name  Field name.
-	 * @param array  $context     Validation context.
+	 * @param mixed  $value      Value to validate.
+	 * @param string $field_name Field name.
+	 * @param array  $context    Validation context.
 	 * @return true|WP_Error
 	 */
 	private function validate_date( $value, $field_name, $context ) {
@@ -258,9 +261,9 @@ class Data_Type_Rule extends Validation_Rule {
 	/**
 	 * Validate datetime format
 	 *
-	 * @param mixed  $value       Value to validate.
-	 * @param string $field_name  Field name.
-	 * @param array  $context     Validation context.
+	 * @param mixed  $value      Value to validate.
+	 * @param string $field_name Field name.
+	 * @param array  $context    Validation context.
 	 * @return true|WP_Error
 	 */
 	private function validate_datetime( $value, $field_name, $context ) {

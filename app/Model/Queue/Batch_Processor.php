@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Queue;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Processes data in batches so large jobs stay within memory and time limits.
+ */
 class Batch_Processor {
 
 	/**

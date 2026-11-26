@@ -18,6 +18,9 @@ use RockStarLab\ImportExport\Helper\Media_Hash;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Imports media files such as images and documents.
+ */
 class Media_Importer extends Abstract_Importer {
 
 	/**
@@ -799,6 +802,7 @@ class Media_Importer extends Abstract_Importer {
 
 
 	/**
+	 * Remember which local attachment an imported source attachment became, for this job.
 	 *
 	 * @param array $item          Imported item data.
 	 * @param int   $attachment_id Target attachment ID.

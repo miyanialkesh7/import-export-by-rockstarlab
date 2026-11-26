@@ -12,6 +12,9 @@ namespace RockStarLab\ImportExport\Model;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Registers model instances and gives access to them as properties.
+ */
 class Model_Registry {
 
 	/**
@@ -24,7 +27,7 @@ class Model_Registry {
 	/**
 	 * Register a model instance
 	 *
-	 * @param string $name Model name.
+	 * @param string $name     Model name.
 	 * @param object $instance Model instance.
 	 */
 	public function register( $name, $instance ) {

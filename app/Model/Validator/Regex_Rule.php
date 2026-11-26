@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Validation rule: the value must match a regular expression or a named pattern.
+ */
 class Regex_Rule extends Validation_Rule {
 
 	/**

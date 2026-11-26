@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Validation rule: the value length must be within the allowed minimum and maximum.
+ */
 class Length_Rule extends Validation_Rule {
 
 	/**

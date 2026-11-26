@@ -12,6 +12,9 @@ namespace RockStarLab\ImportExport\Model;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Stores the sites this site is connected to for content sync, with their API keys and sync statistics.
+ */
 class Connected_Site {
 
 	/**
@@ -166,9 +169,9 @@ class Connected_Site {
 	/**
 	 * Update last sync time
 	 *
-	 * @param int    $id         Site ID.
-	 * @param string $error      Optional error message.
-	 * @param bool   $synced     False for a connection test: keep the last sync time.
+	 * @param int    $id     Site ID.
+	 * @param string $error  Optional error message.
+	 * @param bool   $synced False for a connection test: keep the last sync time.
 	 * @return bool True on success, false on failure
 	 */
 	public static function update_last_sync( $id, $error = null, $synced = true ) {

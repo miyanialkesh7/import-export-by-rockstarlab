@@ -14,9 +14,17 @@ use RockStarLab\ImportExport\Helper\AI_Content_Extractor;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Runs AI URL import jobs in the background.
+ */
 class AI_URL_Import_Processor {
 
-	/** Replace only successfully downloaded image sources, preserving failed URLs. */
+	/**
+	 * Replace only successfully downloaded image sources, preserving failed URLs.
+	 *
+	 * @param mixed $content    Post content HTML.
+	 * @param mixed $image_urls Remote image URL => local image URL for the files that were downloaded.
+	 */
 	private function localize_content_images( $content, $image_urls ) {
 		$processor = new \WP_HTML_Tag_Processor( $content );
 		while ( $processor->next_tag( 'IMG' ) ) {
@@ -57,6 +65,7 @@ class AI_URL_Import_Processor {
 	 *
 	 * @param int $job_id Job ID.
 	 * @return array Processing result
+	 * @throws \Exception When the job or its parameters are invalid, or an import step fails.
 	 */
 	public function process( $job_id ) {
 		$managed = \RockStarLab\ImportExport\Service\AI_URL_Service::supports( $this->job_model->find( $job_id ) );

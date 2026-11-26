@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Exports the public front-end URLs of posts, taxonomies and generated sources.
+ */
 class Urls_Exporter extends Abstract_Exporter {
 
 	/**

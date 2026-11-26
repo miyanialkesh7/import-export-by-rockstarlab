@@ -13,6 +13,9 @@ use RockStarLab\ImportExport\Helper\ACF_Fields;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Exports WordPress comments.
+ */
 class Comment_Exporter extends Abstract_Exporter {
 
 	/**

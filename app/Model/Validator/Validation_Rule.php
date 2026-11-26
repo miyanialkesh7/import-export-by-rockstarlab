@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Base class of the validation rules, which are linked into a chain.
+ */
 abstract class Validation_Rule {
 
 	/**

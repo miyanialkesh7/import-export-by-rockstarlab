@@ -13,6 +13,9 @@ use RockStarLab\ImportExport\Helper\Data_Transformer;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Base class for exporters: shared options, validation and statistics.
+ */
 abstract class Abstract_Exporter implements Exporter_Interface {
 
 	/**

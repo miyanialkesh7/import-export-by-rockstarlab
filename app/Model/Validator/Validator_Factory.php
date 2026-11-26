@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Creates validation rules and chains them for validating fields.
+ */
 class Validator_Factory {
 
 	/**
@@ -113,7 +116,7 @@ class Validator_Factory {
 	/**
 	 * Validate multiple fields with their rules
 	 *
-	 * @param array $data       Data to validate (associative array).
+	 * @param array $data        Data to validate (associative array).
 	 * @param array $field_rules Field rules configuration
 	 *                           Format: ['email' => [['rule' => 'required'], ['rule' => 'type', 'type' => 'email']]].
 	 * @return true|array True if all valid, array of errors if validation fails

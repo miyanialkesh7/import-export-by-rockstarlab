@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Queue;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Manages the WP-Cron schedules that drive background jobs.
+ */
 class Cron_Manager {
 
 	/**

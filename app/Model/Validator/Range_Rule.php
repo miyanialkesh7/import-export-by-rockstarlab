@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Validation rule: the numeric value must be within the allowed range.
+ */
 class Range_Rule extends Validation_Rule {
 
 	/**

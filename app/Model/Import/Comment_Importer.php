@@ -15,6 +15,9 @@ use RockStarLab\ImportExport\Helper\ACF_Fields;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Imports WordPress comments.
+ */
 class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Comment source-id meta key used for cross-site dedupe and comparisons.
@@ -418,7 +421,9 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Create new comment
 	 *
-	 * @param array $item Comment data.
+	 * @param array $item                  Comment data.
+	 * @param int   $source_comment_id     ID of the comment on the source site, remembered for later updates.
+	 * @param int   $source_comment_parent ID of the parent comment on the source site.
 	 * @return int|WP_Error Comment ID or WP_Error
 	 */
 	private function create_comment( $item, $source_comment_id = 0, $source_comment_parent = 0 ) {
@@ -455,8 +460,10 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Update existing comment
 	 *
-	 * @param int   $comment_id Existing comment ID.
-	 * @param array $item       Comment data.
+	 * @param int   $comment_id        Existing comment ID.
+	 * @param array $item              Comment data.
+	 * @param int   $source_comment_id ID of the comment on the source site.
+	 * @param mixed $provided_fields   Names of the columns present in the file, or null to update every field.
 	 * @return string|WP_Error 'updated' or WP_Error
 	 */
 	private function update_comment( $comment_id, $item, $source_comment_id = 0, $provided_fields = null ) {
@@ -588,6 +595,7 @@ class Comment_Importer extends Abstract_Importer {
 	 * Find an existing target comment by stored source ID.
 	 *
 	 * @param int $source_comment_id Source site comment_ID.
+	 * @param int $post_id           Post to look in, or 0 for any post.
 	 * @return int|null Target comment ID or null.
 	 */
 	private function find_existing_comment_by_source_id( $source_comment_id, $post_id = 0 ) {
@@ -679,8 +687,8 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Adopt one unmarked local match on first import, independent of install date/ID.
 	 *
-	 * @param int   $post_id Resolved destination post.
-	 * @param array $item Source content and author.
+	 * @param int   $post_id       Resolved destination post.
+	 * @param array $item          Source content and author.
 	 * @param int   $source_parent Source parent identity.
 	 * @return int|null Unique destination match, or null when ambiguous.
 	 */
@@ -791,6 +799,12 @@ class Comment_Importer extends Abstract_Importer {
 		return 0;
 	}
 
+	/**
+	 * Find the local post that was imported from a source-site post ID.
+	 *
+	 * @param mixed $source_post_id Post ID on the source site.
+	 * @return int Local post ID, or 0 when none matches.
+	 */
 	private function find_post_by_source_id( $source_post_id ) {
 		$source_post_id = absint( $source_post_id );
 		if ( $source_post_id <= 0 ) {

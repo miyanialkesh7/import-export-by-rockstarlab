@@ -16,6 +16,9 @@ use RockStarLab\ImportExport\Helper\Media_Hash;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Exports WordPress media attachments.
+ */
 class Media_Exporter extends Abstract_Exporter {
 
 	/**
@@ -590,7 +593,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Check all media and custom-meta filters for one attachment.
 	 *
-	 * @param \WP_Post $attachment   Attachment post.
+	 * @param \WP_Post $attachment    Attachment post.
 	 * @param array    $filters       Dynamic media filters.
 	 * @param array    $custom_fields Custom-meta filters.
 	 * @return bool

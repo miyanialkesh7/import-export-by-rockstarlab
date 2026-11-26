@@ -33,17 +33,29 @@ class Form_Entry_Exporter extends Abstract_Exporter {
 		$this->service = new Form_Entries_Service();
 	}
 
-	/** @return string */
+	/**
+	 * Get the exporter name.
+	 *
+	 * @return string
+	 */
 	public function get_name() {
 		return 'form_entries';
 	}
 
-	/** @return string */
+	/**
+	 * Get the exporter description.
+	 *
+	 * @return string
+	 */
 	public function get_description() {
 		return __( 'Export entries of a Gravity Forms or Contact Form 7 (Flamingo) form', 'import-export-by-rockstarlab' );
 	}
 
-	/** @return array */
+	/**
+	 * List the filters this exporter supports, with their descriptions.
+	 *
+	 * @return array
+	 */
 	public function get_supported_filters() {
 		return array(
 			'form_source'  => __( 'gravityforms or flamingo (required)', 'import-export-by-rockstarlab' ),
@@ -55,7 +67,11 @@ class Form_Entry_Exporter extends Abstract_Exporter {
 		);
 	}
 
-	/** @return array */
+	/**
+	 * List the fields that can be exported for the selected form.
+	 *
+	 * @return array
+	 */
 	public function get_available_fields() {
 		$fields = $this->form_fields();
 		return is_wp_error( $fields ) ? array_merge( Form_Entries_Service::BASE_START, Form_Entries_Service::BASE_END ) : array_keys( $fields );
@@ -90,7 +106,11 @@ class Form_Entry_Exporter extends Abstract_Exporter {
 		);
 	}
 
-	/** @return array */
+	/**
+	 * List the fields exported when none are chosen.
+	 *
+	 * @return array
+	 */
 	public function get_default_fields() {
 		if ( empty( $this->options['form_source'] ) ) {
 			return array( '*' );

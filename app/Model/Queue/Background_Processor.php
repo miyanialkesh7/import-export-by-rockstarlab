@@ -16,6 +16,9 @@ use RockStarLab\ImportExport\Helper\Progress_Tracker;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Runs queued jobs in the background through WP-Cron.
+ */
 class Background_Processor {
 
 	/**
@@ -109,6 +112,7 @@ class Background_Processor {
 	 * Process a job
 	 *
 	 * @param array $job Job data.
+	 * @throws \Exception When the job type is not supported.
 	 */
 	protected function process_job( $job ) {
 		$job_id = $job['id'];
@@ -197,7 +201,7 @@ class Background_Processor {
 			/**
 			 * Process export job
 			 *
-			 * @param int   $job_id Job ID.
+			 * @param int   $job_id     Job ID.
 			 * @param array $parameters Job parameters.
 			 * @return array Processing result
 			 */
@@ -210,9 +214,9 @@ class Background_Processor {
 	/**
 	 * Append data to export file
 	 *
-	 * @param int    $job_id Job ID.
-	 * @param string $format File format.
-	 * @param array  $data Export data.
+	 * @param int    $job_id      Job ID.
+	 * @param string $format      File format.
+	 * @param array  $data        Export data.
 	 * @param bool   $first_batch Is first batch.
 	 */
 	protected function append_export_data( $job_id, $format, $data, $first_batch = false ) {
@@ -238,8 +242,8 @@ class Background_Processor {
 	/**
 	 * Finalize export file
 	 *
-	 * @param int    $job_id Job ID.
-	 * @param string $format File format.
+	 * @param int    $job_id     Job ID.
+	 * @param string $format     File format.
 	 * @param array  $parameters Job parameters.
 	 */
 	protected function finalize_export( $job_id, $format, $parameters ) {
@@ -295,7 +299,7 @@ class Background_Processor {
 	 * Handle job error
 	 *
 	 * @param int        $job_id Job ID.
-	 * @param \Exception $e Exception.
+	 * @param \Exception $e      Exception.
 	 */
 	protected function handle_job_error( $job_id, $e ) {
 		// Get current retry count.
@@ -336,7 +340,7 @@ class Background_Processor {
 	/**
 	 * Process media sync job
 	 *
-	 * @param int   $job_id Job ID.
+	 * @param int   $job_id     Job ID.
 	 * @param array $parameters Job parameters.
 	 * @return array Processing result
 	 */
@@ -350,6 +354,7 @@ class Background_Processor {
 	 *
 	 * @param int $job_id Job ID.
 	 * @return array
+	 * @throws \RuntimeException When no Content Updater processor is registered.
 	 */
 	protected function process_update_job( $job_id ) {
 		$result = apply_filters( 'rsl_ie_process_update_job', null, $job_id );

@@ -16,6 +16,9 @@ use RockStarLab\ImportExport\Helper\Content_Sync_Media;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Imports posts, pages and custom post types.
+ */
 class Post_Importer extends Abstract_Importer {
 	/**
 	 * Meta key used to store the source-site post ID for reruns.
@@ -1348,7 +1351,7 @@ class Post_Importer extends Abstract_Importer {
 	 * Apply WordPress sticky state from portable export field.
 	 *
 	 * @param int   $post_id Target post ID.
-	 * @param array $item Imported row.
+	 * @param array $item    Imported row.
 	 * @return void
 	 */
 	private function maybe_apply_sticky_state( $post_id, array $item ) {
@@ -1376,6 +1379,7 @@ class Post_Importer extends Abstract_Importer {
 	 * @param array $item      Raw post data.
 	 * @param bool  $is_update Whether the row updates an existing post (no creation defaults).
 	 * @return array Prepared post data
+	 * @throws \RuntimeException When the imported author roles cannot be assigned.
 	 */
 	private function prepare_post_data( $item, $is_update = false ) {
 		$defaults = $is_update ? array() : array(
@@ -1825,9 +1829,9 @@ class Post_Importer extends Abstract_Importer {
 	/**
 	 * Import post meta
 	 *
-	 * @param int   $post_id   Post ID.
-	 * @param array $meta      Meta data (key => value).
-	 * @param array $acf_keys  Keys that originated from acf_* CSV columns.
+	 * @param int   $post_id         Post ID.
+	 * @param array $meta            Meta data (key => value).
+	 * @param array $acf_keys        Keys that originated from acf_* CSV columns.
 	 *                         When ACF is active, update_field() is used for these
 	 *                         keys so the ACF reference meta (_field_name) is stored
 	 *                         automatically and the field is recognised on this site.
@@ -2924,6 +2928,13 @@ class Post_Importer extends Abstract_Importer {
 		return $id && ! is_wp_error( $id ) ? (int) $id : null;
 	}
 
+	/**
+	 * Get the ACF field type behind a meta key.
+	 *
+	 * @param int    $post_id Post ID.
+	 * @param string $key     Meta key.
+	 * @return string Field type, or an empty string when the key is not an ACF field.
+	 */
 	private function get_acf_field_type_for_meta_key( int $post_id, string $key ): string {
 		if ( function_exists( 'get_field_object' ) ) {
 			$field_object = get_field_object( $key, $post_id, false, false );
@@ -4028,7 +4039,7 @@ class Post_Importer extends Abstract_Importer {
 	/**
 	 * Import a portable taxonomy term payload and its term ACF fields.
 	 *
-	 * @param string $taxonomy Taxonomy name.
+	 * @param string $taxonomy  Taxonomy name.
 	 * @param array  $term_data Portable term data.
 	 * @return int Local term ID.
 	 */
@@ -4772,6 +4783,8 @@ class Post_Importer extends Abstract_Importer {
 	 * @param string $url                  Media URL.
 	 * @param int    $post_id              Post ID.
 	 * @param string $media_duplicate_mode Duplicate handling mode.
+	 * @param int    $source_attachment_id Attachment ID on the source site.
+	 * @param bool   $explicit             Whether the URL was given explicitly for this field, which allows files from any host.
 	 * @return int|false New attachment ID or false
 	 */
 	private function import_media_for_acf( $url, $post_id, $media_duplicate_mode, int $source_attachment_id = 0, $explicit = false ) {
@@ -5882,7 +5895,8 @@ class Post_Importer extends Abstract_Importer {
 	/**
 	 * Normalize a source media URL before sideloading.
 	 *
-	 * @param string $url URL.
+	 * @param string $url      URL.
+	 * @param bool   $explicit Whether the URL was given explicitly, which allows files from any host.
 	 * @return string Canonical import URL or empty string when it should be skipped.
 	 */
 	private function canonicalize_importable_media_url( string $url, bool $explicit = false ): string {
@@ -5922,8 +5936,8 @@ class Post_Importer extends Abstract_Importer {
 	/**
 	 * Find existing media by filename, size and hash
 	 *
-	 * @param string $filename  Media filename.
-	 * @param string $url       Media URL to download and check.
+	 * @param string $filename Media filename.
+	 * @param string $url      Media URL to download and check.
 	 * @return int|null Attachment ID or null
 	 */
 	private function find_existing_media( $filename, $url = '' ) {
@@ -6113,8 +6127,9 @@ class Post_Importer extends Abstract_Importer {
 	/**
 	 * Import media from URL
 	 *
-	 * @param string $url     Media URL.
-	 * @param int    $post_id Post ID to attach media to.
+	 * @param string $url      Media URL.
+	 * @param int    $post_id  Post ID to attach media to.
+	 * @param bool   $explicit Whether the URL was given explicitly, which allows files from any host.
 	 * @return int|WP_Error Attachment ID or WP_Error
 	 */
 	private function import_media_from_url( $url, $post_id = 0, $explicit = false ) {
@@ -6194,8 +6209,9 @@ class Post_Importer extends Abstract_Importer {
 	/**
 	 * Store source metadata for imported media.
 	 *
-	 * @param int    $attachment_id Attachment ID.
-	 * @param string $url           Original media URL.
+	 * @param int    $attachment_id        Attachment ID.
+	 * @param string $url                  Original media URL.
+	 * @param int    $source_attachment_id Attachment ID on the source site.
 	 * @return void
 	 */
 	private function store_imported_media_source( int $attachment_id, string $url, int $source_attachment_id = 0 ): void {

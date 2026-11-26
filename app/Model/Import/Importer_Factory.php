@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Import;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Creates the importer for a content type and runs imports through it.
+ */
 class Importer_Factory {
 
 	/**
@@ -23,8 +26,8 @@ class Importer_Factory {
 	/**
 	 * Get importer by type
 	 *
-	 * @param string $type    Importer type (posts, users, comments, media).
-	 * @param int    $job_id  Optional. Job ID for logging.
+	 * @param string $type   Importer type (posts, users, comments, media).
+	 * @param int    $job_id Optional. Job ID for logging.
 	 * @return Importer_Interface|WP_Error Importer instance or WP_Error
 	 */
 	public static function get_importer( $type, $job_id = 0 ) {

@@ -13,13 +13,21 @@ use RockStarLab\ImportExport\Helper\ACF_Fields;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Exports posts, pages and custom post types.
+ */
 class Post_Exporter extends Abstract_Exporter {
 	/**
 	 * Meta key wrapper for several rows of one meta key in exports.
 	 */
 	const META_ROWS_KEY = '_rsl_ie_meta_rows';
 
-	/** Rebuild taxonomy fields before batch serialization. */
+	/**
+	 * Rebuild taxonomy fields before batch serialization.
+	 *
+	 * @param array $item   Exported item with its raw term data.
+	 * @param array $fields Names of the selected export fields.
+	 */
 	public function normalize_taxonomy_media_for_export( array $item, array $fields ): array {
 		if ( empty( $item['ID'] ) ) {
 			return $item; // Term data was already prepared before column selection.
@@ -1840,9 +1848,9 @@ class Post_Exporter extends Abstract_Exporter {
 	/**
 	 * Apply WooCommerce product filters to the values produced by the exporter.
 	 *
-	 * @param array $args            Query arguments (by reference).
-	 * @param array $filters         Product field filters.
-	 * @param array $custom_fields   Product meta filters.
+	 * @param array $args             Query arguments (by reference).
+	 * @param array $filters          Product field filters.
+	 * @param array $custom_fields    Product meta filters.
 	 * @param array $taxonomy_filters Taxonomy-panel filters.
 	 * @return void
 	 */
@@ -2582,11 +2590,11 @@ class Post_Exporter extends Abstract_Exporter {
 	/**
 	 * Prepare a field comparison using allowlisted table and column identifiers.
 	 *
-	 * @param string $table         Table name.
-	 * @param string $field         Column name.
-	 * @param string $operator      SQL operator.
-	 * @param mixed  $value         Value.
-	 * @param bool   $compare_date  Compare DATE(column).
+	 * @param string $table        Table name.
+	 * @param string $field        Column name.
+	 * @param string $operator     SQL operator.
+	 * @param mixed  $value        Value.
+	 * @param bool   $compare_date Compare DATE(column).
 	 * @return string
 	 */
 	private function prepare_sql_field_comparison( $table, $field, $operator, $value, $compare_date = false ) {
@@ -2643,11 +2651,11 @@ class Post_Exporter extends Abstract_Exporter {
 	/**
 	 * Prepare list comparison without generated placeholder strings.
 	 *
-	 * @param string $table         Table name.
-	 * @param string $field         Column name.
-	 * @param array  $values        Values.
-	 * @param bool   $negated       Whether the comparison is NOT IN.
-	 * @param bool   $compare_date  Compare DATE(column).
+	 * @param string $table        Table name.
+	 * @param string $field        Column name.
+	 * @param array  $values       Values.
+	 * @param bool   $negated      Whether the comparison is NOT IN.
+	 * @param bool   $compare_date Compare DATE(column).
 	 * @return string
 	 */
 	private function prepare_sql_field_list_comparison( $table, $field, $values, $negated = false, $compare_date = false ) {
@@ -4280,7 +4288,8 @@ class Post_Exporter extends Abstract_Exporter {
 	 *  - urls: list of attachment URLs
 	 *  - items: list of attachment URLs and display metadata
 	 *
-	 * @param string $value String that may contain media shortcodes.
+	 * @param string $value   String that may contain media shortcodes.
+	 * @param int    $post_id ID of the post the value belongs to.
 	 * @return string
 	 */
 	private function acf_export_string_with_media_shortcode_tokens( string $value, int $post_id = 0 ): string {
@@ -5095,8 +5104,8 @@ class Post_Exporter extends Abstract_Exporter {
 	/**
 	 * Export product taxonomy terms as portable JSON with hierarchy.
 	 *
-	 * @param int    $product_id Product ID.
-	 * @param string $taxonomy   Taxonomy name.
+	 * @param int    $post_id  Post ID.
+	 * @param string $taxonomy Taxonomy name.
 	 * @return string JSON string or empty string.
 	 */
 	private function get_portable_terms_json( int $post_id, string $taxonomy ): string {

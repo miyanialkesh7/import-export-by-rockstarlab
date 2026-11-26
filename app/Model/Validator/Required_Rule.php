@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Validator;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Validation rule: the value must not be empty.
+ */
 class Required_Rule extends Validation_Rule {
 
 	/**

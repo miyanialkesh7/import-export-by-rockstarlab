@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Creates the exporter for a content type and runs exports through it.
+ */
 class Exporter_Factory {
 
 	/**
