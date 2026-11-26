@@ -26,7 +26,7 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Constructor
 	 *
-	 * @param int $job_id Optional. Job ID for logging
+	 * @param int $job_id Optional. Job ID for logging.
 	 */
 	public function __construct( $job_id = 0 ) {
 		parent::__construct( $job_id );
@@ -122,14 +122,14 @@ class Comment_Importer extends Abstract_Importer {
 			parent::get_default_options(),
 			array(
 				'duplicate_check'      => 'comment_ID',
-				'default_status'       => '1', // approved
+				'default_status'       => '1', // approved.
 				'default_type'         => 'comment',
 				'update_existing'      => false,
 				'import_acf'           => true,
 				'auto_import_media'    => false,
-				'validate_post_exists' => false, // Don't validate by default for performance
+				'validate_post_exists' => false, // Don't validate by default for performance.
 				'create_missing_posts' => true,
-				'skip_missing_posts'   => false, // Don't skip by default - let it fail with clear error
+				'skip_missing_posts'   => false, // Don't skip by default - let it fail with clear error.
 			)
 		);
 	}
@@ -139,21 +139,21 @@ class Comment_Importer extends Abstract_Importer {
 	 *
 	 * Overrides parent to map UI field names to internal option names
 	 *
-	 * @param array $options Options to set
+	 * @param array $options Options to set.
 	 * @return void
 	 */
 	public function set_options( $options ) {
-		// Map duplicate_handling (from UI) to duplicate_mode (used internally)
+		// Map duplicate_handling (from UI) to duplicate_mode (used internally).
 		if ( isset( $options['duplicate_handling'] ) && ! isset( $options['duplicate_mode'] ) ) {
 			$options['duplicate_mode'] = $options['duplicate_handling'];
 		}
 
-		// Map if_exists (from UI) to duplicate_mode (used internally)
+		// Map if_exists (from UI) to duplicate_mode (used internally).
 		if ( isset( $options['if_exists'] ) && ! isset( $options['duplicate_mode'] ) ) {
 			$options['duplicate_mode'] = $options['if_exists'];
 		}
 
-		// Map unique_field (from UI) to duplicate_check (used internally)
+		// Map unique_field (from UI) to duplicate_check (used internally).
 		if ( isset( $options['unique_field'] ) && ! isset( $options['duplicate_check'] ) ) {
 			$options['duplicate_check'] = $options['unique_field'];
 		}
@@ -164,8 +164,8 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Prepare data with mapping
 	 *
-	 * @param array $data    Raw data from parser
-	 * @param array $mapping Field mapping
+	 * @param array $data    Raw data from parser.
+	 * @param array $mapping Field mapping.
 	 * @return array Prepared data
 	 */
 	public function prepare( $data, $mapping = array() ) {
@@ -174,7 +174,7 @@ class Comment_Importer extends Abstract_Importer {
 		foreach ( $data as $row ) {
 			$item = array();
 
-			// Process mapping array
+			// Process mapping array.
 			foreach ( $mapping as $map ) {
 				$source_field = $map['source_field'] ?? '';
 				$target_field = $map['target_field'] ?? '';
@@ -183,7 +183,7 @@ class Comment_Importer extends Abstract_Importer {
 					continue;
 				}
 
-				// Get value from source
+				// Get value from source.
 				$value = '';
 				if ( isset( $map['source_index'] ) && isset( $row[ $map['source_index'] ] ) ) {
 					$value = $row[ $map['source_index'] ];
@@ -209,8 +209,8 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Import single comment
 	 *
-	 * @param array $item  Comment data
-	 * @param int   $index Item index
+	 * @param array $item  Comment data.
+	 * @param int   $index Item index.
 	 * @return int|string|WP_Error Comment ID, 'skipped', 'updated', or WP_Error
 	 */
 	public function import_item( $item, $index ) {
@@ -223,7 +223,7 @@ class Comment_Importer extends Abstract_Importer {
 			return 'skipped';
 		}
 
-		// Sanitize data
+		// Sanitize data.
 		$item = $this->sanitize_item( $item );
 		if ( isset( $item['comment_approved'] ) ) {
 			$item['comment_approved'] = $this->normalize_status( $item['comment_approved'] );
@@ -288,7 +288,7 @@ class Comment_Importer extends Abstract_Importer {
 			}
 		}
 
-		// Validate required fields
+		// Validate required fields.
 		if ( empty( $item['comment_content'] ) ) {
 			return new \WP_Error(
 				'missing_comment_content',
@@ -296,7 +296,7 @@ class Comment_Importer extends Abstract_Importer {
 			);
 		}
 
-		// Check if post exists
+		// Check if post exists.
 		$post_id = absint( $item['comment_post_ID'] ?? 0 );
 
 		if ( ! $post_id ) {
@@ -318,17 +318,17 @@ class Comment_Importer extends Abstract_Importer {
 			);
 		}
 
-		// Validate post exists if either option is enabled
+		// Validate post exists if either option is enabled.
 		$validate_post_exists = $this->get_option( 'validate_post_exists', false );
 		$skip_missing_posts   = $this->get_option( 'skip_missing_posts', false );
 
-		// Only check post existence if validation is enabled OR we need to skip missing posts
+		// Only check post existence if validation is enabled OR we need to skip missing posts.
 		if ( $validate_post_exists || $skip_missing_posts ) {
 			$post = get_post( $post_id );
 			if ( ! $post ) {
-				// Post doesn't exist
+				// Post doesn't exist.
 				if ( $this->get_option( 'create_missing_posts', false ) ) {
-					// Create placeholder post
+					// Create placeholder post.
 					$new_post_id = wp_insert_post(
 						wp_slash(
 							array(
@@ -350,12 +350,12 @@ class Comment_Importer extends Abstract_Importer {
 						);
 					}
 					$post_id                 = $new_post_id;
-					$item['comment_post_ID'] = $post_id; // Update item with new post ID
+					$item['comment_post_ID'] = $post_id; // Update item with new post ID.
 				} elseif ( $skip_missing_posts ) {
-					// Skip comment if post doesn't exist
+					// Skip comment if post doesn't exist.
 					return 'skipped';
 				} else {
-					// Return error if post doesn't exist and we're validating
+					// Return error if post doesn't exist and we're validating.
 					return new \WP_Error(
 						'post_not_found',
 						sprintf(
@@ -368,7 +368,7 @@ class Comment_Importer extends Abstract_Importer {
 			}
 		}
 
-		// Check for existing comment based on duplicate_check setting
+		// Check for existing comment based on duplicate_check setting.
 		$existing_comment_id = null;
 		$duplicate_check     = $this->get_option( 'duplicate_check', 'comment_ID' );
 
@@ -387,7 +387,7 @@ class Comment_Importer extends Abstract_Importer {
 			);
 		}
 
-		// Handle duplicate
+		// Handle duplicate.
 		if ( $existing_comment_id ) {
 			$duplicate_mode = $this->get_option( 'duplicate_mode', 'skip' );
 
@@ -404,10 +404,10 @@ class Comment_Importer extends Abstract_Importer {
 				}
 				return $result;
 			}
-			// If 'create' mode, continue to create new comment
+			// If 'create' mode, continue to create new comment.
 		}
 
-		// Create new comment
+		// Create new comment.
 		$created = $this->create_comment( $item, $source_comment_id, $source_comment_parent );
 		if ( is_int( $created ) && $created > 0 ) {
 			$this->record_source_id_map( $source_comment_id, $created );
@@ -418,13 +418,13 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Create new comment
 	 *
-	 * @param array $item Comment data
+	 * @param array $item Comment data.
 	 * @return int|WP_Error Comment ID or WP_Error
 	 */
 	private function create_comment( $item, $source_comment_id = 0, $source_comment_parent = 0 ) {
 		$comment_data = $this->prepare_comment_data( $item );
 
-		// Remove comment_ID if present to force creation
+		// Remove comment_ID if present to force creation.
 		unset( $comment_data['comment_ID'] );
 
 		$comment_id = wp_insert_comment( wp_slash( $comment_data ) );
@@ -436,7 +436,7 @@ class Comment_Importer extends Abstract_Importer {
 			);
 		}
 
-		// Import metadata
+		// Import metadata.
 		$this->import_comment_meta( $comment_id, $item );
 
 		// Persist source IDs so subsequent imports can update instead of duplicating.
@@ -455,8 +455,8 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Update existing comment
 	 *
-	 * @param int   $comment_id Existing comment ID
-	 * @param array $item       Comment data
+	 * @param int   $comment_id Existing comment ID.
+	 * @param array $item       Comment data.
 	 * @return string|WP_Error 'updated' or WP_Error
 	 */
 	private function update_comment( $comment_id, $item, $source_comment_id = 0, $provided_fields = null ) {
@@ -481,7 +481,7 @@ class Comment_Importer extends Abstract_Importer {
 		}
 		$comment_data['comment_ID'] = $comment_id;
 
-		// wp_update_comment returns 1 on success, 0 on failure, or WP_Error
+		// wp_update_comment returns 1 on success, 0 on failure, or WP_Error.
 		$result = \RockStarLab\ImportExport\Helper\Comment_Update::update( wp_slash( $comment_data ), true );
 
 		if ( is_wp_error( $result ) ) {
@@ -490,9 +490,9 @@ class Comment_Importer extends Abstract_Importer {
 
 		// Note: wp_update_comment returns 0 when no changes were made (data identical)
 		// This is NOT an error, it just means the comment is already up-to-date
-		// We should still count this as successfully processed
+		// We should still count this as successfully processed.
 
-		// Update metadata
+		// Update metadata.
 		$this->import_comment_meta( $comment_id, $item );
 		$this->store_source_comment_meta( $comment_id, $source_comment_id, absint( $item['_aie_source_comment_parent_id'] ?? ( $item['source_comment_parent_id'] ?? 0 ) ) );
 
@@ -1113,7 +1113,7 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Prepare comment data for wp_insert_comment or wp_update_comment
 	 *
-	 * @param array $item Raw comment data
+	 * @param array $item Raw comment data.
 	 * @return array Prepared comment data
 	 */
 	private function prepare_comment_data( $item ) {
@@ -1134,7 +1134,7 @@ class Comment_Importer extends Abstract_Importer {
 			'comment_agent'        => $item['comment_agent'] ?? '',
 		);
 
-		// Handle dates
+		// Handle dates.
 		if ( ! empty( $item['comment_date'] ) ) {
 			$comment_data['comment_date'] = $item['comment_date'];
 		}
@@ -1143,14 +1143,14 @@ class Comment_Importer extends Abstract_Importer {
 			$comment_data['comment_date_gmt'] = $item['comment_date_gmt'];
 		}
 
-		// Validate email if provided
+		// Validate email if provided.
 		if ( ! empty( $comment_data['comment_author_email'] ) ) {
 			if ( ! is_email( $comment_data['comment_author_email'] ) ) {
 				$comment_data['comment_author_email'] = '';
 			}
 		}
 
-		// Validate URL if provided
+		// Validate URL if provided.
 		if ( ! empty( $comment_data['comment_author_url'] ) ) {
 			$comment_data['comment_author_url'] = esc_url_raw( $comment_data['comment_author_url'] );
 		}
@@ -1180,16 +1180,16 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Import comment metadata
 	 *
-	 * @param int   $comment_id Comment ID
-	 * @param array $item       Comment data
+	 * @param int   $comment_id Comment ID.
+	 * @param array $item       Comment data.
 	 * @return void
 	 */
 	private function import_comment_meta( $comment_id, $item ) {
-		// Import comment_meta if provided
+		// Import comment_meta if provided.
 		if ( ! empty( $item['comment_meta'] ) ) {
 			$meta_data = $item['comment_meta'];
 
-			// Parse if string (JSON)
+			// Parse if string (JSON).
 			if ( is_string( $meta_data ) ) {
 				$meta_data = json_decode( $meta_data, true );
 			}
@@ -1217,7 +1217,7 @@ class Comment_Importer extends Abstract_Importer {
 		 */
 		do_action( 'rsl_ie_comment_meta_imported', (int) $comment_id, $item );
 
-		// Import ACF fields if enabled
+		// Import ACF fields if enabled.
 		if ( $this->get_option( 'import_acf', true ) ) {
 			$this->import_acf_fields( $comment_id, $item );
 		}
@@ -1226,8 +1226,8 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Import ACF fields for comment
 	 *
-	 * @param int   $comment_id Comment ID
-	 * @param array $item       Comment data
+	 * @param int   $comment_id Comment ID.
+	 * @param array $item       Comment data.
 	 * @return void
 	 */
 	private function import_acf_fields( $comment_id, $item ) {
@@ -1309,7 +1309,7 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Sanitize item data
 	 *
-	 * @param array $item Item data
+	 * @param array $item Item data.
 	 * @return array Sanitized data
 	 */
 	protected function sanitize_item( $item ) {
@@ -1320,13 +1320,13 @@ class Comment_Importer extends Abstract_Importer {
 		$sanitized = array();
 
 		foreach ( $item as $key => $value ) {
-			// Skip if value is empty
+			// Skip if value is empty.
 			if ( '' === $value || null === $value ) {
 				$sanitized[ $key ] = $value;
 				continue;
 			}
 
-			// Sanitize based on field type
+			// Sanitize based on field type.
 			switch ( $key ) {
 				case 'comment_author_email':
 					$sanitized[ $key ] = sanitize_email( $value );
@@ -1367,8 +1367,8 @@ class Comment_Importer extends Abstract_Importer {
 	/**
 	 * Find comment by content
 	 *
-	 * @param string $content Comment content
-	 * @param int    $post_id Post ID
+	 * @param string $content Comment content.
+	 * @param int    $post_id Post ID.
 	 * @return int|null Comment ID or null if not found
 	 */
 	private function find_comment_by_content( $content, $post_id = 0 ) {

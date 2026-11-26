@@ -16,8 +16,8 @@ class Required_Rule extends Validation_Rule {
 	/**
 	 * Check if value is not empty
 	 *
-	 * @param mixed $value   Value to validate
-	 * @param array $context Optional. Additional context
+	 * @param mixed $value   Value to validate.
+	 * @param array $context Optional. Additional context.
 	 * @return true|WP_Error True if valid, WP_Error if validation fails
 	 */
 	protected function check( $value, $context ) {

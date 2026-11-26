@@ -55,7 +55,7 @@ class AI_URL_Import_Processor {
 	/**
 	 * Process AI URL import job
 	 *
-	 * @param int $job_id Job ID
+	 * @param int $job_id Job ID.
 	 * @return array Processing result
 	 */
 	public function process( $job_id ) {
@@ -64,14 +64,14 @@ class AI_URL_Import_Processor {
 			return ( new \RockStarLab\ImportExport\Service\AI_URL_Service() )->process_background_batch( $job_id );
 		}
 		try {
-			// Get job data
+			// Get job data.
 			$job = $this->job_model->find( $job_id );
 
 			if ( ! $job ) {
 				throw new \Exception( sprintf( /* translators: %d: job id. */ __( 'Job #%d not found', 'import-export-by-rockstarlab' ), $job_id ) );
 			}
 
-			// Check if job is paused or cancelled
+			// Check if job is paused or cancelled.
 			if ( in_array( $job->status, array( 'paused', 'cancelled', 'completed', 'failed' ), true ) ) {
 				return array(
 					'status'    => $job->status,
@@ -79,7 +79,7 @@ class AI_URL_Import_Processor {
 				);
 			}
 
-			// Set job to processing if it's pending
+			// Set job to processing if it's pending.
 			if ( 'pending' === $job->status ) {
 				$this->job_model->update(
 					$job_id,
@@ -90,7 +90,7 @@ class AI_URL_Import_Processor {
 				);
 			}
 
-			// Parse parameters
+			// Parse parameters.
 			$parameters = json_decode( $job->parameters, true );
 			if ( ! $parameters ) {
 				throw new \Exception( __( 'Invalid job parameters', 'import-export-by-rockstarlab' ) );
@@ -105,13 +105,13 @@ class AI_URL_Import_Processor {
 			$request_delay  = $parameters['request_delay'] ?? ( $parameters['timeout'] ?? 0 );
 			$saved_log      = isset( $parameters['import_log'] ) && is_array( $parameters['import_log'] ) ? $parameters['import_log'] : array();
 
-			// Get current index
+			// Get current index.
 			$current_index = (int) ( $job->processed_items ?? 0 );
 
-			// Get total count
+			// Get total count.
 			$total_count = count( $urls );
 
-			// Update total items on first run
+			// Update total items on first run.
 			if ( 0 === $current_index ) {
 				$this->job_model->update(
 					$job_id,
@@ -121,7 +121,7 @@ class AI_URL_Import_Processor {
 				);
 			}
 
-			// Check if completed
+			// Check if completed.
 			if ( $current_index >= $total_count ) {
 				$this->complete_job( $job_id );
 				return array(
@@ -130,47 +130,47 @@ class AI_URL_Import_Processor {
 				);
 			}
 
-			// Process current URL
+			// Process current URL.
 			$url = $urls[ $current_index ];
 
 			$import_log = array();
 
 			try {
-				// Extract content using AI
+				// Extract content using AI.
 				$extracted_data = $this->ai_extractor->extract_from_url( $url, $request_delay, $parameters['extraction_mode'] ?? 'auto' );
 
 				if ( is_wp_error( $extracted_data ) ) {
 					throw new \Exception( $extracted_data->get_error_message() );
 				}
 
-				// Prepare post data
+				// Prepare post data.
 				$post_data = array(
 					'post_type'   => $post_type,
 					'post_status' => $post_status,
 					'post_title'  => $extracted_data['title'] ?? 'Untitled',
 				);
 
-				// Handle excerpt
+				// Handle excerpt.
 				if ( $import_excerpt && ! empty( $extracted_data['excerpt'] ) ) {
 					$post_data['post_excerpt'] = $extracted_data['excerpt'];
 				}
 
-				// Handle content field
+				// Handle content field.
 				if ( 'post_content' === $content_field ) {
 					$post_data['post_content'] = $extracted_data['content'] ?? '';
 				}
 
-				// Insert post
+				// Insert post.
 				$post_id = wp_insert_post( wp_slash( $post_data ), true );
 
 				if ( is_wp_error( $post_id ) ) {
 					throw new \Exception( $post_id->get_error_message() );
 				}
 
-				// Store source URL as meta
+				// Store source URL as meta.
 				update_post_meta( $post_id, '_rsl_ie_source_url', $url );
 
-				// Handle featured image
+				// Handle featured image.
 				$image_urls = array();
 				if ( $import_images && ! empty( ( $extracted_data['featured_image'] ?? '' ) ) ) {
 					$image_id = $this->ai_extractor->import_image(
@@ -184,7 +184,7 @@ class AI_URL_Import_Processor {
 					}
 				}
 
-				// Handle additional images
+				// Handle additional images.
 				if ( $import_images && ! empty( $extracted_data['images'] ) ) {
 					$imported_images = array();
 					foreach ( $extracted_data['images'] as $image ) {
@@ -195,7 +195,7 @@ class AI_URL_Import_Processor {
 							continue;
 						}
 
-						// Skip if it's the featured image
+						// Skip if it's the featured image.
 						if ( $image_url === ( $extracted_data['featured_image'] ?? '' ) ) {
 							continue;
 						}
@@ -208,7 +208,7 @@ class AI_URL_Import_Processor {
 						}
 					}
 
-					// Store imported image IDs as meta
+					// Store imported image IDs as meta.
 					if ( ! empty( $imported_images ) ) {
 						update_post_meta( $post_id, '_rsl_ie_imported_images', $imported_images );
 					}
@@ -233,7 +233,7 @@ class AI_URL_Import_Processor {
 					}
 				}
 
-				// Handle ACF field for content
+				// Handle ACF field for content.
 				if ( 'post_content' !== $content_field ) {
 					if ( function_exists( 'update_field' ) && ( ! $managed || 'acf_field' === ( $parameters['content_destination'] ?? '' ) ) ) {
 						$value = $extracted_data['content'] ?? '';
@@ -255,7 +255,7 @@ class AI_URL_Import_Processor {
 					}
 				}
 
-				// Success log
+				// Success log.
 				$import_log[] = array(
 					'url'       => $url,
 					'status'    => 'success',
@@ -265,7 +265,7 @@ class AI_URL_Import_Processor {
 				);
 
 			} catch ( \Exception $e ) {
-				// Error log
+				// Error log.
 				$import_log[] = array(
 					'url'       => $url,
 					'status'    => 'error',
@@ -274,11 +274,11 @@ class AI_URL_Import_Processor {
 				);
 			}
 
-			// Update job progress
+			// Update job progress.
 			$new_processed = $current_index + 1;
 			$progress      = ( $new_processed / $total_count ) * 100;
 
-			// Count success/failed from import_log
+			// Count success/failed from import_log.
 			$success_increment = 0;
 			$failed_increment  = 0;
 
@@ -306,7 +306,7 @@ class AI_URL_Import_Processor {
 				)
 			);
 
-			// Check if completed
+			// Check if completed.
 			$completed = ( $new_processed >= $total_count );
 
 			if ( $completed ) {
@@ -317,7 +317,7 @@ class AI_URL_Import_Processor {
 				);
 			}
 
-			// Return processing status (JavaScript will call next batch)
+			// Return processing status (JavaScript will call next batch).
 			return array(
 				'status'    => 'processing',
 				'completed' => false,
@@ -325,7 +325,7 @@ class AI_URL_Import_Processor {
 			);
 
 		} catch ( \Exception $e ) {
-			// Job failed
+			// Job failed.
 			$this->job_model->update(
 				$job_id,
 				array(
@@ -345,7 +345,7 @@ class AI_URL_Import_Processor {
 	/**
 	 * Complete job
 	 *
-	 * @param int $job_id Job ID
+	 * @param int $job_id Job ID.
 	 * @return void
 	 */
 	protected function complete_job( $job_id ) {

@@ -97,11 +97,11 @@ class Job extends Model {
 	 * Update job progress with item counts
 	 * Automatically calculates percentage based on total and processed
 	 *
-	 * @param int $job_id   Job ID to update
-	 * @param int $total    Total number of items to process
-	 * @param int $processed Number of items processed so far
-	 * @param int $success  Number of successfully processed items
-	 * @param int $failed   Number of failed items
+	 * @param int $job_id   Job ID to update.
+	 * @param int $total    Total number of items to process.
+	 * @param int $processed Number of items processed so far.
+	 * @param int $success  Number of successfully processed items.
+	 * @param int $failed   Number of failed items.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public function update_progress( $job_id, $total, $processed, $success, $failed ) {
@@ -124,8 +124,8 @@ class Job extends Model {
 	 * Increment processed item counters
 	 * Increases processed count by 1 and updates success or failed count
 	 *
-	 * @param int  $job_id  Job ID to increment
-	 * @param bool $success Whether the item was processed successfully
+	 * @param int  $job_id  Job ID to increment.
+	 * @param bool $success Whether the item was processed successfully.
 	 * @return int|WP_Error|false Number of rows affected or false
 	 */
 	public function increment( $job_id, $success = true ) {
@@ -151,7 +151,7 @@ class Job extends Model {
 	/**
 	 * Get current progress information for a job
 	 *
-	 * @param int $job_id Job ID to get progress for
+	 * @param int $job_id Job ID to get progress for.
 	 * @return array|null {
 	 *     Progress information array or null if job not found.
 	 *
@@ -186,8 +186,8 @@ class Job extends Model {
 	 * Update job status
 	 * Sets completed_at timestamp for final statuses (completed, failed, cancelled)
 	 *
-	 * @param int    $job_id Job ID to update
-	 * @param string $status New status: pending, processing, completed, failed, paused, cancelled
+	 * @param int    $job_id Job ID to update.
+	 * @param string $status New status: pending, processing, completed, failed, paused, cancelled.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public function update_status( $job_id, $status ) {
@@ -206,7 +206,7 @@ class Job extends Model {
 	/**
 	 * Mark job as running/processing
 	 *
-	 * @param int $job_id Job ID to mark as running
+	 * @param int $job_id Job ID to mark as running.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public function mark_running( $job_id ) {
@@ -216,7 +216,7 @@ class Job extends Model {
 	/**
 	 * Mark job as completed successfully
 	 *
-	 * @param int $job_id Job ID to mark as completed
+	 * @param int $job_id Job ID to mark as completed.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public function mark_completed( $job_id ) {
@@ -226,7 +226,7 @@ class Job extends Model {
 	/**
 	 * Mark job as failed
 	 *
-	 * @param int $job_id Job ID to mark as failed
+	 * @param int $job_id Job ID to mark as failed.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public function mark_failed( $job_id ) {
@@ -236,8 +236,8 @@ class Job extends Model {
 	/**
 	 * Get jobs created by a specific user
 	 *
-	 * @param int   $user_id User ID to search for
-	 * @param array $args    Optional. Same as all() method arguments
+	 * @param int   $user_id User ID to search for.
+	 * @param array $args    Optional. Same as all() method arguments.
 	 * @return array Array of job records
 	 */
 	public function get_by_user( $user_id, $args = array() ) {
@@ -262,7 +262,7 @@ class Job extends Model {
 	 * Get jobs by status
 	 *
 	 * @param string $status Status to filter by: pending, processing, completed, failed, etc.
-	 * @param array  $args   Optional. Same as all() method arguments
+	 * @param array  $args   Optional. Same as all() method arguments.
 	 * @return array Array of job records
 	 */
 	public function get_by_status( $status, $args = array() ) {
@@ -286,7 +286,7 @@ class Job extends Model {
 	 * Deletes jobs older than specified days (default 30)
 	 * Also cleans up orphaned logs via Log model
 	 *
-	 * @param int $days Number of days to keep, default 30
+	 * @param int $days Number of days to keep, default 30.
 	 * @return int|false Number of jobs deleted or false on failure
 	 */
 	public function cleanup_old( $days = 30 ) {
@@ -295,7 +295,7 @@ class Job extends Model {
 
 		$days = apply_filters( 'rsl_ie_cleanup_old_jobs_days', $days );
 
-		// Delete old jobs
+		// Delete old jobs.
 		$deleted = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Deleting expired rows from the plugin's custom jobs table.
 			$wpdb->prepare(
 				"DELETE FROM %i
@@ -316,7 +316,7 @@ class Job extends Model {
 	 * Clean up exported files older than specified days
 	 * Deletes physical files and clears file_path in database
 	 *
-	 * @param int $days Number of days to keep files, default 7
+	 * @param int $days Number of days to keep files, default 7.
 	 * @return int Number of files deleted
 	 */
 	public function cleanup_old_files( $days = 7 ) {
@@ -325,7 +325,7 @@ class Job extends Model {
 
 		$days = apply_filters( 'rsl_ie_cleanup_old_files_days', $days );
 
-		// Get old export jobs with file paths
+		// Get old export jobs with file paths.
 		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Querying expired export rows in the plugin's custom jobs table.
 			$wpdb->prepare(
 				"SELECT id, file_path FROM %i
@@ -342,13 +342,13 @@ class Job extends Model {
 		$deleted_count = 0;
 
 		foreach ( $results as $row ) {
-			// Delete physical file
+			// Delete physical file.
 			if ( file_exists( $row->file_path ) ) {
 				@wp_delete_file( $row->file_path );
 				++$deleted_count;
 			}
 
-			// Clear file_path in database
+			// Clear file_path in database.
 			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 				$table,
 				array( 'file_path' => null ),
@@ -366,10 +366,10 @@ class Job extends Model {
 	/**
 	 * Get all jobs with filters
 	 *
-	 * @param array  $where  WHERE conditions
-	 * @param int    $limit  Limit
-	 * @param int    $offset Offset
-	 * @param string $order  ORDER BY clause
+	 * @param array  $where  WHERE conditions.
+	 * @param int    $limit  Limit.
+	 * @param int    $offset Offset.
+	 * @param string $order  ORDER BY clause.
 	 * @return array Jobs
 	 */
 	public function get_all( $where = array(), $limit = 50, $offset = 0, $order = 'created_at DESC' ) {
@@ -514,7 +514,7 @@ class Job extends Model {
 	/**
 	 * Count jobs with filters
 	 *
-	 * @param array $where WHERE conditions
+	 * @param array $where WHERE conditions.
 	 * @return int Count
 	 */
 	public function count( $where = array() ) {
@@ -579,7 +579,7 @@ class Job extends Model {
 	 *
 	 * Overrides parent delete() to also remove export files and folders
 	 *
-	 * @param int $id Job ID to delete
+	 * @param int $id Job ID to delete.
 	 * @return int|false|WP_Error Number of rows affected, false on error, or WP_Error
 	 */
 	public function delete( $id ) {
@@ -599,19 +599,19 @@ class Job extends Model {
 			}
 		}
 
-		// Get job details before deletion
+		// Get job details before deletion.
 		$job = $this->find( $id );
 
 		if ( ! $job ) {
 			return new \WP_Error( 'job_not_found', __( 'Job not found', 'import-export-by-rockstarlab' ) );
 		}
 
-		// Delete associated export file if exists
+		// Delete associated export file if exists.
 		if ( 'import' !== $job->type && ! empty( $job->file_path ) ) {
 			$file_path = $job->file_path;
 
 			// Convert relative path to absolute if needed
-			// Check if path is absolute (starts with / on Unix or C:\ on Windows)
+			// Check if path is absolute (starts with / on Unix or C:\ on Windows).
 			$is_absolute = ( '/' === $file_path[0] || preg_match( '/^[a-zA-Z]:[\\\\\/]/', $file_path ) );
 
 			if ( ! $is_absolute ) {
@@ -619,11 +619,11 @@ class Job extends Model {
 				$file_path  = trailingslashit( $upload_dir['basedir'] ) . ltrim( $file_path, '/' );
 			}
 
-			// Delete the file
+			// Delete the file.
 			if ( file_exists( $file_path ) ) {
 				wp_delete_file( $file_path );
 
-				// Try to delete the parent directory if it's empty
+				// Try to delete the parent directory if it's empty.
 				$dir = dirname( $file_path );
 				if ( is_dir( $dir ) && $this->is_directory_empty( $dir ) ) {
 					rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
@@ -653,7 +653,7 @@ class Job extends Model {
 	/**
 	 * Check if directory is empty
 	 *
-	 * @param string $dir Directory path
+	 * @param string $dir Directory path.
 	 * @return bool True if empty or only contains . and ..
 	 */
 	private function is_directory_empty( $dir ) {

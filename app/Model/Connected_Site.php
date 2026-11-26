@@ -97,14 +97,14 @@ class Connected_Site {
 			$table,
 			$data,
 			array(
-				'%s', // name
-				'%s', // remote_url
-				'%s', // api_key
-				'%s', // direction
-				'%s', // status
-				'%d', // created_by
-				'%s', // created_at
-				'%s', // updated_at
+				'%s', // name.
+				'%s', // remote_url.
+				'%s', // api_key.
+				'%s', // direction.
+				'%s', // status.
+				'%d', // created_by.
+				'%s', // created_at.
+				'%s', // updated_at.
 			)
 		);
 
@@ -129,14 +129,14 @@ class Connected_Site {
 			$data,
 			array( 'id' => $id ),
 			array(
-				'%s', // name
-				'%s', // remote_url
-				'%s', // api_key
-				'%s', // direction
-				'%s', // status
-				'%s', // last_sync_at
-				'%s', // last_error
-				'%s', // updated_at
+				'%s', // name.
+				'%s', // remote_url.
+				'%s', // api_key.
+				'%s', // direction.
+				'%s', // status.
+				'%s', // last_sync_at.
+				'%s', // last_error.
+				'%s', // updated_at.
 			),
 			array( '%d' )
 		);

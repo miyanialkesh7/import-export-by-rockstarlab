@@ -8,14 +8,14 @@
  * @package RockStarLab\ImportExport
  */
 
-// If uninstall not called from WordPress, exit
+// If uninstall not called from WordPress, exit.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned tables: no WordPress API exists for them, and these are transient job rows that must not be cached.
 
-// Load the database migration helper
+// Load the database migration helper.
 require_once plugin_dir_path( __FILE__ ) . 'app/Helper/Database_Migration.php';
 
 if ( ! function_exists( 'rsl_ie_delete_directory' ) ) {
@@ -49,7 +49,7 @@ if ( ! function_exists( 'rsl_ie_delete_directory' ) ) {
 function rsl_ie_uninstall_site() {
 	global $wpdb;
 
-	// Clean up options
+	// Clean up options.
 	delete_option( 'rsl_ie_db_version' );
 	delete_option( 'rsl_ie_abilities_enabled' );
 	delete_option( 'rsl_ie_updraftplus_abilities_enabled' );
@@ -67,7 +67,7 @@ function rsl_ie_uninstall_site() {
 	wp_unschedule_hook( 'rsl_ie_run_trigger' );
 	wp_unschedule_hook( 'rsl_ie_check_trigger_files' );
 
-	// Clean up transients
+	// Clean up transients.
 	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $wpdb->options is a controlled WordPress table name.
 	$wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE option_name LIKE %s", '_transient_rsl_ie_%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 	$wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE option_name LIKE %s", '_transient_timeout_rsl_ie_%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
@@ -104,7 +104,7 @@ function rsl_ie_uninstall_site() {
 		delete_option( $rsl_ie_request_key );
 	}
 
-	// Clean up uploaded files directory
+	// Clean up uploaded files directory.
 	$rsl_ie_upload_dir_info = wp_upload_dir();
 	$rsl_ie_upload_dir      = $rsl_ie_upload_dir_info['basedir'] . '/rsl-ie-uploads/';
 
@@ -139,5 +139,5 @@ if ( is_multisite() ) {
 	rsl_ie_uninstall_site();
 }
 
-// Fire action for additional cleanup by extensions
+// Fire action for additional cleanup by extensions.
 do_action( 'rsl_ie_uninstall' );

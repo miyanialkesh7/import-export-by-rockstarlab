@@ -24,8 +24,8 @@ class Model_Registry {
 	/**
 	 * Register a model instance
 	 *
-	 * @param string $name Model name
-	 * @param object $instance Model instance
+	 * @param string $name Model name.
+	 * @param object $instance Model instance.
 	 */
 	public function register( $name, $instance ) {
 		$this->models[ $name ] = $instance;
@@ -35,18 +35,18 @@ class Model_Registry {
 	 * Magic getter for model access
 	 * Returns model instance by name
 	 *
-	 * @param string $name Model name
+	 * @param string $name Model name.
 	 * @return object|null Model instance or null
 	 */
 	public function __get( $name ) {
-		// Normalize name to lowercase for lookup
+		// Normalize name to lowercase for lookup.
 		$lookup_name = strtolower( $name );
 
 		if ( isset( $this->models[ $lookup_name ] ) ) {
 			return $this->models[ $lookup_name ];
 		}
 
-		// Convert name to PascalCase for class name (ucfirst + any underscores)
+		// Convert name to PascalCase for class name (ucfirst + any underscores).
 		$class_name = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $name ) ) );
 		$class      = "RockStarLab\ImportExport\\Model\\{$class_name}";
 

@@ -59,7 +59,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Constructor
 	 *
-	 * @param int $job_id Optional. Job ID for logging
+	 * @param int $job_id Optional. Job ID for logging.
 	 */
 	public function __construct( $job_id = 0 ) {
 		$this->job_id = $job_id;
@@ -110,15 +110,15 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Import data
 	 *
-	 * @param array $data    Data to import
-	 * @param array $options Optional. Import options
+	 * @param array $data    Data to import.
+	 * @param array $options Optional. Import options.
 	 * @return array|WP_Error Import results or WP_Error
 	 */
 	public function import( $data, $options = array() ) {
 		$this->options = wp_parse_args( $options, $this->get_default_options() );
 		$this->reset_stats();
 
-		// Validate data first
+		// Validate data first.
 		$validation = $this->validate( $data );
 		if ( is_wp_error( $validation ) ) {
 			return $validation;
@@ -128,7 +128,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 
 		$this->stats['total'] = count( $data );
 
-		// Import each item
+		// Import each item.
 		foreach ( $data as $index => $item ) {
 			if ( $this->is_job_cancelled() ) {
 				$this->log_info( __( 'Import cancelled.', 'import-export-by-rockstarlab' ) );
@@ -169,7 +169,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 			)
 		);
 
-		// Cleanup temporary files if method exists
+		// Cleanup temporary files if method exists.
 		if ( method_exists( $this, 'cleanup_temp_media_files' ) ) {
 			$this->cleanup_temp_media_files();
 		}
@@ -180,7 +180,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Validate data
 	 *
-	 * @param array $data Data to validate
+	 * @param array $data Data to validate.
 	 * @return true|WP_Error
 	 */
 	public function validate( $data ) {
@@ -190,7 +190,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 
 		$required_fields = $this->get_required_fields();
 
-		// Check first item for required fields
+		// Check first item for required fields.
 		$first_item     = reset( $data );
 		$missing_fields = array();
 
@@ -221,8 +221,8 @@ abstract class Abstract_Importer implements Importer_Interface {
 	 *  - Legacy: [ 'source_field' => 'target_field', ... ]
 	 *  - UI format: [ ['source_field' => 'col', 'target_field' => 'wp_field', 'function_ids' => [], 'taxonomy_format' => 'name'], ... ]
 	 *
-	 * @param array $raw_data Raw data from file
-	 * @param array $mapping  Optional. Field mapping
+	 * @param array $raw_data Raw data from file.
+	 * @param array $mapping  Optional. Field mapping.
 	 * @return array Prepared data
 	 */
 	public function prepare( $raw_data, $mapping = array() ) {
@@ -378,8 +378,8 @@ abstract class Abstract_Importer implements Importer_Interface {
 	 *
 	 * Must be implemented by child classes.
 	 *
-	 * @param array $item  Item data
-	 * @param int   $index Item index
+	 * @param array $item  Item data.
+	 * @param int   $index Item index.
 	 * @return int|string|WP_Error Item ID, 'skipped', 'updated', or WP_Error
 	 */
 	abstract public function import_item( $item, $index );
@@ -391,7 +391,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 	 */
 	protected function get_default_options() {
 		return array(
-			'duplicate_mode' => 'skip', // skip, update, create
+			'duplicate_mode' => 'skip', // skip, update, create.
 			'batch_size'     => 100,
 		);
 	}
@@ -399,7 +399,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Set importer options
 	 *
-	 * @param array $options Options to set
+	 * @param array $options Options to set.
 	 * @return void
 	 */
 	public function set_options( $options ) {
@@ -413,7 +413,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 			}
 		}
 
-		// For Database_Table_Importer, set table_name
+		// For Database_Table_Importer, set table_name.
 		if ( method_exists( $this, 'get_name' ) && 'database_table' === $this->get_name() ) {
 			$this->table_name = $this->get_option( 'table_name', '' );
 		}
@@ -455,8 +455,8 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Log info message
 	 *
-	 * @param string $message Log message
-	 * @param array  $data    Optional. Additional data
+	 * @param string $message Log message.
+	 * @param array  $data    Optional. Additional data.
 	 */
 	protected function log_info( $message, $data = array() ) {
 		\RockStarLab\ImportExport\Service\Job_Log::write( $this->job_id, 'info', $message );
@@ -486,8 +486,8 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Log warning message
 	 *
-	 * @param string $message Log message
-	 * @param array  $data    Optional. Additional data
+	 * @param string $message Log message.
+	 * @param array  $data    Optional. Additional data.
 	 */
 	protected function log_warning( $message, $data = array() ) {
 		\RockStarLab\ImportExport\Service\Job_Log::write( $this->job_id, 'warning', $message );
@@ -496,8 +496,8 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Log error message
 	 *
-	 * @param string $message Log message
-	 * @param array  $data    Optional. Additional data
+	 * @param string $message Log message.
+	 * @param array  $data    Optional. Additional data.
 	 */
 	protected function log_error( $message, $data = array() ) {
 		\RockStarLab\ImportExport\Service\Job_Log::write( $this->job_id, 'error', $message );
@@ -506,7 +506,7 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Sanitize item data
 	 *
-	 * @param array $item Item data
+	 * @param array $item Item data.
 	 * @return array Sanitized data
 	 */
 	protected function sanitize_item( $item ) {
@@ -523,8 +523,8 @@ abstract class Abstract_Importer implements Importer_Interface {
 	/**
 	 * Get option value
 	 *
-	 * @param string $key     Option key
-	 * @param mixed  $default Default value
+	 * @param string $key     Option key.
+	 * @param mixed  $default Default value.
 	 * @return mixed Option value
 	 */
 	protected function get_option( $key, $default = null ) {

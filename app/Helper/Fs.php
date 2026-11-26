@@ -127,7 +127,7 @@ class FS {
 	 * Handle file upload from $_FILES
 	 * Moves uploaded file to plugin's upload directory with unique filename
 	 *
-	 * @param array $file File array from $_FILES
+	 * @param array $file File array from $_FILES.
 	 * @return array|WP_Error {
 	 *     Upload result on success, WP_Error on failure.
 	 *
@@ -335,7 +335,7 @@ class FS {
 	 * Prepares path for export file in a secure subdirectory
 	 * Path: WordPress uploads directory/import-export-by-rockstarlab-files/{secure_hash}/
 	 *
-	 * @param string $filename Desired filename
+	 * @param string $filename Desired filename.
 	 * @return array|WP_Error {
 	 *     File path information on success, WP_Error on failure.
 	 *
@@ -348,21 +348,21 @@ class FS {
 	public static function get_export_file_path( $filename ) {
 		$upload = wp_upload_dir();
 
-		// Create base directory for exports
+		// Create base directory for exports.
 		$base_dir = $upload['basedir'] . '/import-export-by-rockstarlab-files';
 		if ( ! file_exists( $base_dir ) ) {
 			wp_mkdir_p( $base_dir );
 
-			// Add .htaccess to prevent directory listing
+			// Add .htaccess to prevent directory listing.
 			$htaccess_content = "Options -Indexes\n<FilesMatch \"\\.(csv|json|xml|xlsx|ods)$\">\n  Order Deny,Allow\n  Deny from all\n</FilesMatch>";
 			file_put_contents( $base_dir . '/.htaccess', $htaccess_content );
 		}
 
 		// Generate secure hash for this export session
-		// Use time + user ID + salt for uniqueness and security
+		// Use time + user ID + salt for uniqueness and security.
 		$secure_hash = md5( current_time( 'timestamp' ) . get_current_user_id() . wp_salt( 'nonce' ) . uniqid( '', true ) );
 
-		// Create subdirectory with secure hash
+		// Create subdirectory with secure hash.
 		$export_dir = $base_dir . '/' . $secure_hash;
 		if ( ! file_exists( $export_dir ) ) {
 			wp_mkdir_p( $export_dir );

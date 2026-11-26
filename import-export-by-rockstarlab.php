@@ -27,7 +27,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 }
 
-// Autoloader - RockStarLab\ImportExport namespace only
+// Autoloader - RockStarLab\ImportExport namespace only.
 spl_autoload_register(
 	function ( $class ) {
 
@@ -45,7 +45,7 @@ spl_autoload_register(
 	}
 );
 
-// Global point of enter
+// Global point of enter.
 if ( ! function_exists( 'rsl_ie' ) ) {
 
 	function rsl_ie() {
@@ -144,7 +144,7 @@ if ( ! function_exists( 'rsl_ie_fs' ) ) {
 	do_action( 'rsl_ie_fs_loaded' );
 }
 
-// Run the plugin
+// Run the plugin.
 rsl_ie()->run();
 
 // WP-CLI commands: wp rsl-ie ...
@@ -152,13 +152,13 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	\RockStarLab\ImportExport\Cli\Cli_Helper::register();
 }
 
-// Activation hook - create database tables
+// Activation hook - create database tables.
 register_activation_hook(
 	RSL_IE_FILE,
 	function () {
 		\RockStarLab\ImportExport\Helper\Database_Migration::create_tables();
 
-		// Record the install date for the review-notice timer (fires only once)
+		// Record the install date for the review-notice timer (fires only once).
 		\RockStarLab\ImportExport\Helper\Review_Notice::set_install_date();
 
 		// Automatically activate the free plan — skip the Freemius opt-in screen.
@@ -187,5 +187,5 @@ add_action(
 	1
 );
 
-// Deactivation hook - cleanup
+// Deactivation hook - cleanup.
 register_deactivation_hook( RSL_IE_FILE, array( '\RockStarLab\ImportExport\App', 'deactivate_cleanup' ) );

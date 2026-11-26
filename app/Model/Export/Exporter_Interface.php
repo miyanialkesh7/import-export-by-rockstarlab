@@ -16,7 +16,7 @@ interface Exporter_Interface {
 	/**
 	 * Export data from WordPress
 	 *
-	 * @param array $options Optional. Export options (filters, fields, limits, etc.)
+	 * @param array $options Optional. Export options (filters, fields, limits, etc.).
 	 * @return array|WP_Error Exported data or WP_Error
 	 */
 	public function export( $options = array() );
@@ -26,7 +26,7 @@ interface Exporter_Interface {
 	 *
 	 * Retrieve data from database without formatting.
 	 *
-	 * @param array $options Export options (filters, limits, etc.)
+	 * @param array $options Export options (filters, limits, etc.).
 	 * @return array Raw data array
 	 */
 	public function get_data( $options = array() );
@@ -36,7 +36,7 @@ interface Exporter_Interface {
 	 *
 	 * Check if provided options are valid for this exporter.
 	 *
-	 * @param array $options Options to validate
+	 * @param array $options Options to validate.
 	 * @return true|WP_Error True if valid or WP_Error with validation errors
 	 */
 	public function validate_options( $options );
@@ -79,7 +79,7 @@ interface Exporter_Interface {
 	/**
 	 * Get total count of items available for export
 	 *
-	 * @param array $options Optional. Export filters
+	 * @param array $options Optional. Export filters.
 	 * @return int Total count
 	 */
 	public function get_count( $options = array() );

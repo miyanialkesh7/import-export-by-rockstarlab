@@ -39,8 +39,8 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Parse entire XML file
 	 *
-	 * @param string $file_path Absolute path to XML file
-	 * @param array  $options   Optional. Parser options (root, item_tag)
+	 * @param string $file_path Absolute path to XML file.
+	 * @param array  $options   Optional. Parser options (root, item_tag).
 	 * @return array|WP_Error Array of parsed data or WP_Error on failure
 	 */
 	public function parse( $file_path, $options = array() ) {
@@ -245,10 +245,10 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Parse XML file in chunks
 	 *
-	 * @param string $file_path Absolute path to XML file
-	 * @param int    $offset    Starting index
-	 * @param int    $limit     Number of items to read
-	 * @param array  $options   Optional. Parser options
+	 * @param string $file_path Absolute path to XML file.
+	 * @param int    $offset    Starting index.
+	 * @param int    $limit     Number of items to read.
+	 * @param array  $options   Optional. Parser options.
 	 * @return array|WP_Error Array of parsed data or WP_Error on failure
 	 */
 	public function parse_chunk( $file_path, $offset, $limit, $options = array() ) {
@@ -273,7 +273,7 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Parse single XML element into array
 	 *
-	 * @param \XMLReader $reader XMLReader instance
+	 * @param \XMLReader $reader XMLReader instance.
 	 * @return array|\WP_Error Parsed element data or WP_Error on failure.
 	 */
 	private function parse_xml_element( $reader, $flat = false ) {
@@ -871,9 +871,9 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Generate XML file from data
 	 *
-	 * @param array  $data      Data array to write
-	 * @param string $file_path Target file path
-	 * @param array  $options   Optional. Generation options (root, item_tag, pretty_print)
+	 * @param array  $data      Data array to write.
+	 * @param string $file_path Target file path.
+	 * @param array  $options   Optional. Generation options (root, item_tag, pretty_print).
 	 * @return bool|WP_Error True on success or WP_Error on failure
 	 */
 	public function generate( $data, $file_path, $options = array() ) {
@@ -913,17 +913,17 @@ class XML_Format implements File_Format_Interface {
 			$xml->setIndentString( '  ' );
 		}
 
-		// Start root element
+		// Start root element.
 		$xml->startElement( $root_tag );
 
-		// Write each item
+		// Write each item.
 		foreach ( $data as $item ) {
 			$xml->startElement( $item_tag );
 			$this->write_xml_array( $xml, $item );
 			$xml->endElement();
 		}
 
-		// End root element
+		// End root element.
 		$xml->endElement();
 		$xml->endDocument();
 
@@ -985,8 +985,8 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Write array data to XML
 	 *
-	 * @param \XMLWriter $xml  XMLWriter instance
-	 * @param array      $data Data to write
+	 * @param \XMLWriter $xml  XMLWriter instance.
+	 * @param array      $data Data to write.
 	 */
 	private function write_xml_array( $xml, $data, $depth = 0 ) {
 		foreach ( $data as $key => $value ) {
@@ -1010,7 +1010,7 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Validate XML file
 	 *
-	 * @param string $file_path Absolute path to file
+	 * @param string $file_path Absolute path to file.
 	 * @return bool|WP_Error True if valid or WP_Error with errors
 	 */
 	public function validate( $file_path ) {
@@ -1022,7 +1022,7 @@ class XML_Format implements File_Format_Interface {
 			return new \WP_Error( 'file_not_readable', __( 'XML file is not readable', 'import-export-by-rockstarlab' ) );
 		}
 
-		// Check file extension
+		// Check file extension.
 		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $extension, $this->get_extensions(), true ) ) {
 			return new \WP_Error( 'invalid_extension', __( 'Invalid XML file extension', 'import-export-by-rockstarlab' ) );
@@ -1058,8 +1058,8 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Get XML headers (field names from first item)
 	 *
-	 * @param string $file_path Absolute path to file
-	 * @param array  $options   Optional. Parser options
+	 * @param string $file_path Absolute path to file.
+	 * @param array  $options   Optional. Parser options.
 	 * @return array|WP_Error Array of headers or WP_Error on failure
 	 */
 	public function get_headers( $file_path, $options = array() ) {
@@ -1102,7 +1102,7 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Count items in XML file
 	 *
-	 * @param string $file_path Absolute path to file
+	 * @param string $file_path Absolute path to file.
 	 * @return int|WP_Error Item count or WP_Error on failure
 	 */
 	public function count_rows( $file_path ) {

@@ -199,7 +199,7 @@ class Import_Controller extends Base_Controller {
 			$this->send_error( $verification, null, 403 );
 		}
 
-		// Check if ACF is active
+		// Check if ACF is active.
 		if ( ! function_exists( 'acf_get_field_groups' ) ) {
 			$this->send_success( array( 'fields' => array() ) );
 			return;
@@ -224,7 +224,7 @@ class Import_Controller extends Base_Controller {
 			$this->send_error( $verification, null, 403 );
 		}
 
-		// Check if Yoast SEO is active
+		// Check if Yoast SEO is active.
 		if ( ! defined( 'WPSEO_VERSION' ) ) {
 			$this->send_success( array( 'fields' => array() ) );
 			return;
@@ -289,7 +289,7 @@ class Import_Controller extends Base_Controller {
 			$this->send_error( $verification, null, 403 );
 		}
 
-		// Use Database_Table_Exporter to get tables with row counts
+		// Use Database_Table_Exporter to get tables with row counts.
 		$exporter = new \RockStarLab\ImportExport\Model\Export\Database_Table_Exporter();
 		$tables   = $exporter->get_available_tables();
 
@@ -315,11 +315,11 @@ class Import_Controller extends Base_Controller {
 			$this->send_error( __( 'Invalid table name', 'import-export-by-rockstarlab' ), null, 400 );
 		}
 
-		// Use Database_Table_Exporter to get columns
+		// Use Database_Table_Exporter to get columns.
 		$exporter = new \RockStarLab\ImportExport\Model\Export\Database_Table_Exporter();
 		$columns  = $exporter->get_table_columns( $table_name );
 
-		// Get row count
+		// Get row count.
 		global $wpdb;
 		$row_count = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Counting rows in a user-selected, validated table for import preview.
 

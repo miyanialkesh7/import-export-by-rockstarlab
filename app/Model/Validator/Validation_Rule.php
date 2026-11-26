@@ -30,7 +30,7 @@ abstract class Validation_Rule {
 	/**
 	 * Constructor
 	 *
-	 * @param array $options Optional. Rule configuration options
+	 * @param array $options Optional. Rule configuration options.
 	 */
 	public function __construct( $options = array() ) {
 		$this->options = $options;
@@ -39,7 +39,7 @@ abstract class Validation_Rule {
 	/**
 	 * Set next rule in the chain
 	 *
-	 * @param Validation_Rule $rule Next validation rule
+	 * @param Validation_Rule $rule Next validation rule.
 	 * @return Validation_Rule Returns the next rule for chaining
 	 */
 	public function set_next( Validation_Rule $rule ) {
@@ -50,25 +50,25 @@ abstract class Validation_Rule {
 	/**
 	 * Validate value and pass to next rule if valid
 	 *
-	 * @param mixed $value   Value to validate
-	 * @param array $context Optional. Additional context (field name, all data, etc.)
+	 * @param mixed $value   Value to validate.
+	 * @param array $context Optional. Additional context (field name, all data, etc.).
 	 * @return true|WP_Error True if valid, WP_Error if validation fails
 	 */
 	public function validate( $value, $context = array() ) {
-		// Run this rule's check
+		// Run this rule's check.
 		$result = $this->check( $value, $context );
 
-		// If validation failed, return error
+		// If validation failed, return error.
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
-		// If there's a next rule, pass to it
+		// If there's a next rule, pass to it.
 		if ( null !== $this->next ) {
 			return $this->next->validate( $value, $context );
 		}
 
-		// All rules passed
+		// All rules passed.
 		return true;
 	}
 
@@ -77,8 +77,8 @@ abstract class Validation_Rule {
 	 *
 	 * Must be implemented by child classes.
 	 *
-	 * @param mixed $value   Value to validate
-	 * @param array $context Optional. Additional context
+	 * @param mixed $value   Value to validate.
+	 * @param array $context Optional. Additional context.
 	 * @return true|WP_Error True if valid, WP_Error if validation fails
 	 */
 	abstract protected function check( $value, $context );
@@ -86,7 +86,7 @@ abstract class Validation_Rule {
 	/**
 	 * Get field name from context
 	 *
-	 * @param array $context Validation context
+	 * @param array $context Validation context.
 	 * @return string Field name or 'Field'
 	 */
 	protected function get_field_name( $context ) {
@@ -96,8 +96,8 @@ abstract class Validation_Rule {
 	/**
 	 * Get option value
 	 *
-	 * @param string $key     Option key
-	 * @param mixed  $default Default value if not set
+	 * @param string $key     Option key.
+	 * @param mixed  $default Default value if not set.
 	 * @return mixed Option value
 	 */
 	protected function get_option( $key, $default = null ) {
@@ -107,7 +107,7 @@ abstract class Validation_Rule {
 	/**
 	 * Check if value is empty
 	 *
-	 * @param mixed $value Value to check
+	 * @param mixed $value Value to check.
 	 * @return bool True if empty
 	 */
 	protected function is_empty( $value ) {
@@ -129,9 +129,9 @@ abstract class Validation_Rule {
 	/**
 	 * Create validation error
 	 *
-	 * @param string $code    Error code
-	 * @param string $message Error message
-	 * @param array  $data    Optional. Additional error data
+	 * @param string $code    Error code.
+	 * @param string $message Error message.
+	 * @param array  $data    Optional. Additional error data.
 	 * @return WP_Error
 	 */
 	protected function create_error( $code, $message, $data = array() ) {

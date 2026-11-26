@@ -153,7 +153,7 @@ class Export_Controller extends Base_Controller {
 	/**
 	 * Calculate time estimates for job progress
 	 *
-	 * @param object $job_data Job data object
+	 * @param object $job_data Job data object.
 	 * @return array Time estimates
 	 */
 	private function calculate_time_estimates( $job_data ) {
@@ -163,7 +163,7 @@ class Export_Controller extends Base_Controller {
 			'items_per_second'    => 0,
 		);
 
-		// Calculate elapsed time
+		// Calculate elapsed time.
 		$started_at = $job_data->started_at ?? $job_data->created_at;
 		if ( $started_at ) {
 			$start_timestamp = strtotime( $started_at );
@@ -173,7 +173,7 @@ class Export_Controller extends Base_Controller {
 			$estimates['elapsed_formatted'] = $this->format_duration( $elapsed_seconds );
 			$estimates['elapsed_seconds']   = $elapsed_seconds;
 
-			// Calculate speed and remaining time
+			// Calculate speed and remaining time.
 			$processed = (int) $job_data->processed_items;
 			$total     = (int) $job_data->total_items;
 
@@ -199,7 +199,7 @@ class Export_Controller extends Base_Controller {
 	/**
 	 * Format duration in human-readable format
 	 *
-	 * @param int $seconds Duration in seconds
+	 * @param int $seconds Duration in seconds.
 	 * @return string Formatted duration
 	 */
 	private function format_duration( $seconds ) {
@@ -544,9 +544,9 @@ class Export_Controller extends Base_Controller {
 
 		// Get all post types
 		// When include_hidden is true, we need to explicitly get all post types
-		// because get_post_types() with empty args doesn't return non-public types
+		// because get_post_types() with empty args doesn't return non-public types.
 		$args = array(
-			'show_ui' => true, // Get all post types that have UI (includes custom post types)
+			'show_ui' => true, // Get all post types that have UI (includes custom post types).
 		);
 
 		if ( ! $include_hidden ) {
@@ -557,7 +557,7 @@ class Export_Controller extends Base_Controller {
 
 		$result = array();
 		foreach ( $post_types as $post_type ) {
-			// Skip attachments as they're handled separately as media
+			// Skip attachments as they're handled separately as media.
 			if ( 'attachment' === $post_type->name ) {
 				continue;
 			}
@@ -569,7 +569,7 @@ class Export_Controller extends Base_Controller {
 			);
 		}
 
-		// Sort by label
+		// Sort by label.
 		usort(
 			$result,
 			function ( $a, $b ) {
@@ -589,7 +589,7 @@ class Export_Controller extends Base_Controller {
 			$this->send_error( $verification, null, 403 );
 		}
 
-		// Use Database_Table_Exporter to get tables with row counts
+		// Use Database_Table_Exporter to get tables with row counts.
 		$exporter = new \RockStarLab\ImportExport\Model\Export\Database_Table_Exporter();
 		$tables   = $exporter->get_available_tables();
 
@@ -612,7 +612,7 @@ class Export_Controller extends Base_Controller {
 
 		$table_name = $this->get_request_param( 'table_name' );
 
-		// Use Database_Table_Exporter to get columns
+		// Use Database_Table_Exporter to get columns.
 		$exporter = new \RockStarLab\ImportExport\Model\Export\Database_Table_Exporter();
 		$columns  = $exporter->get_table_columns( $table_name );
 
@@ -640,7 +640,7 @@ class Export_Controller extends Base_Controller {
 	private function map_mysql_type_to_filter_type( $mysql_type ) {
 		$mysql_type = strtolower( $mysql_type );
 
-		// Number types
+		// Number types.
 		if ( in_array(
 			$mysql_type,
 			array( 'int', 'tinyint', 'smallint', 'mediumint', 'bigint', 'decimal', 'float', 'double' ),
@@ -649,7 +649,7 @@ class Export_Controller extends Base_Controller {
 			return 'number';
 		}
 
-		// Date types
+		// Date types.
 		if ( in_array(
 			$mysql_type,
 			array( 'date', 'datetime', 'timestamp', 'time', 'year' ),
@@ -658,7 +658,7 @@ class Export_Controller extends Base_Controller {
 			return 'date';
 		}
 
-		// Default to string for all text types
+		// Default to string for all text types.
 		return 'string';
 	}
 
@@ -673,7 +673,7 @@ class Export_Controller extends Base_Controller {
 
 		$post_type = $this->get_request_param( 'post_type', 'post' );
 
-		// Get all taxonomies registered for this post type
+		// Get all taxonomies registered for this post type.
 		$taxonomies = get_object_taxonomies( $post_type, 'objects' );
 
 		$taxonomy_list = array();
@@ -715,7 +715,7 @@ class Export_Controller extends Base_Controller {
 
 		$taxonomy_list = array();
 		foreach ( $taxonomies as $taxonomy ) {
-			// Skip post_format as it's not a real taxonomy for export
+			// Skip post_format as it's not a real taxonomy for export.
 			if ( 'post_format' === $taxonomy->name ) {
 				continue;
 			}
@@ -760,7 +760,7 @@ class Export_Controller extends Base_Controller {
 			return;
 		}
 
-		// Get unique meta keys for this post type
+		// Get unique meta keys for this post type.
 		// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQuery -- \\_% is a valid SQL LIKE escape pattern, not a printf-style placeholder.
 		$meta_keys = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
@@ -1026,7 +1026,7 @@ class Export_Controller extends Base_Controller {
 			$this->send_error( $verification, null, 403 );
 		}
 
-		// Check if ACF is active
+		// Check if ACF is active.
 		if ( ! function_exists( 'acf_get_field_groups' ) ) {
 			$this->send_success( array( 'fields' => array() ) );
 			return;
@@ -1051,7 +1051,7 @@ class Export_Controller extends Base_Controller {
 			$this->send_error( $verification, null, 403 );
 		}
 
-		// Check if Yoast SEO is active
+		// Check if Yoast SEO is active.
 		if ( ! defined( 'WPSEO_VERSION' ) ) {
 			$this->send_success( array( 'fields' => array() ) );
 			return;

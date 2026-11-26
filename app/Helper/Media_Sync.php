@@ -59,14 +59,14 @@ class Media_Sync {
 	 * @return array|\WP_Error Array of files or WP_Error on failure.
 	 */
 	public static function scan_folder( $folder_path, $options = array() ) {
-		// Convert string 'false'/'true' to boolean
+		// Convert string 'false'/'true' to boolean.
 		$recursive = filter_var( $options['recursive'] ?? false, FILTER_VALIDATE_BOOLEAN );
 
-		// Get file type filter
+		// Get file type filter.
 		$file_type    = $options['file_types'] ?? 'all';
 		$custom_types = $options['custom_types'] ?? array();
 
-		// Get allowed extensions array
+		// Get allowed extensions array.
 		$allowed = self::get_allowed_file_types( $file_type, $custom_types );
 
 		if ( ! is_dir( $folder_path ) ) {
@@ -220,7 +220,7 @@ class Media_Sync {
 		$filename = basename( $file_path );
 		$size     = filesize( $file_path );
 
-		// First check our custom meta
+		// First check our custom meta.
 		$args = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
@@ -240,7 +240,7 @@ class Media_Sync {
 			return (int) $query->posts[0];
 		}
 
-		// Fallback: check all attachments with same filename and compare sizes
+		// Fallback: check all attachments with same filename and compare sizes.
 		$args = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
@@ -282,13 +282,13 @@ class Media_Sync {
 			return $indexed_attachment;
 		}
 
-		// Fallback: check all attachments and compare their file hashes
+		// Fallback: check all attachments and compare their file hashes.
 		$filename = basename( $file_path );
 		$args     = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
 			'fields'         => 'ids',
-			'posts_per_page' => 100, // Check up to 100 files with same name
+			'posts_per_page' => 100, // Check up to 100 files with same name.
 			's'              => pathinfo( $filename, PATHINFO_FILENAME ),
 		);
 
@@ -323,7 +323,7 @@ class Media_Sync {
 			return $file_path;
 		}
 
-		// Get allowed mime types (this will include SVG if SVG Support plugin is active)
+		// Get allowed mime types (this will include SVG if SVG Support plugin is active).
 		$allowed_mimes = get_allowed_mime_types();
 		$filetype      = wp_check_filetype( $file_path, $allowed_mimes );
 
@@ -339,38 +339,38 @@ class Media_Sync {
 			return new \WP_Error( 'invalid_file_type', __( 'The file content does not match its extension', 'import-export-by-rockstarlab' ) );
 		}
 
-		// Handle duplicate checking based on duplicate_handling option
+		// Handle duplicate checking based on duplicate_handling option.
 		$duplicate_handling = $options['duplicate_handling'] ?? 'skip';
 		$duplicate_check    = $options['duplicate_check'] ?? 'hash';
 		$existing_attach_id = null;
 
 		if ( 'skip' === $duplicate_handling ) {
-			// Skip mode: check for duplicate and return error if found
+			// Skip mode: check for duplicate and return error if found.
 			$duplicate = self::check_duplicate( $file_path, $duplicate_check );
 			if ( $duplicate ) {
 				return new \WP_Error( 'duplicate_file', __( 'File already exists in media library', 'import-export-by-rockstarlab' ), array( 'attachment_id' => $duplicate ) );
 			}
 		} elseif ( 'overwrite' === $duplicate_handling || 'override' === $duplicate_handling ) {
-			// Override/Overwrite mode: find existing attachment to update
+			// Override/Overwrite mode: find existing attachment to update.
 			$existing_attach_id = self::check_duplicate( $file_path, $duplicate_check );
 		}
-		// If duplicate_handling is 'import' (or any other value), always import without checking
+		// If duplicate_handling is 'import' (or any other value), always import without checking.
 
-		// Determine file operation mode
+		// Determine file operation mode.
 		$file_operation = $options['file_operation'] ?? 'keep';
 
-		// If override mode and existing attachment found, replace its file
+		// If override mode and existing attachment found, replace its file.
 		if ( $existing_attach_id ) {
-			// Get existing attachment file path
+			// Get existing attachment file path.
 			$existing_file = get_attached_file( $existing_attach_id );
 			if ( ! current_user_can( 'edit_post', $existing_attach_id ) || is_wp_error( self::validate_source_file( $existing_file, wp_get_upload_dir()['basedir'] ) ) ) {
 				return new \WP_Error( 'media_destination_forbidden', __( 'The existing attachment destination is unavailable.', 'import-export-by-rockstarlab' ) );
 			}
 
-			// Replace the file
+			// Replace the file.
 			if ( 'keep' === $file_operation ) {
 				// For keep mode, we can't override (file is in different location)
-				// Fall through to create new attachment
+				// Fall through to create new attachment.
 				$existing_attach_id = null;
 				$dest_path          = $file_path;
 			} else {
@@ -394,9 +394,9 @@ class Media_Sync {
 			}
 		}
 
-		// For new attachments (not overriding existing), handle file location
+		// For new attachments (not overriding existing), handle file location.
 		if ( ! $existing_attach_id ) {
-			// For 'keep' mode - use file in current location without copying/moving
+			// For 'keep' mode - use file in current location without copying/moving.
 			if ( 'keep' === $file_operation ) {
 				$dest_path = $file_path;
 			} else {
@@ -405,17 +405,17 @@ class Media_Sync {
 				$uploads      = wp_upload_dir();
 				$uploads_root = trailingslashit( $uploads['basedir'] );
 
-				// Calculate relative path from uploads root to preserve structure
+				// Calculate relative path from uploads root to preserve structure.
 				$relative_path = '';
 				$file_dir      = trailingslashit( dirname( $file_path ) );
 
-				// Get path relative to uploads root
+				// Get path relative to uploads root.
 				if ( 0 === strpos( $file_dir, $uploads_root ) ) {
 					$relative_path = substr( $file_dir, strlen( $uploads_root ) );
 					$relative_path = trim( $relative_path, '/' );
 				}
 
-				// Build destination directory: uploads/YYYY/MM/relative/path
+				// Build destination directory: uploads/YYYY/MM/relative/path.
 				$dest_dir = $uploads['path'];
 				if ( ! empty( $relative_path ) ) {
 					$dest_dir = $dest_dir . '/' . $relative_path;
@@ -454,7 +454,7 @@ class Media_Sync {
 						return new \WP_Error( 'move_failed', __( 'Failed to move file to uploads directory', 'import-export-by-rockstarlab' ) );
 					}
 				} else {
-					// Default to 'copy'
+					// Default to 'copy'.
 					if ( ! copy( $file_path, $dest_path ) ) {
 						return new \WP_Error( 'copy_failed', __( 'Failed to copy file to uploads directory', 'import-export-by-rockstarlab' ) );
 					}
@@ -462,7 +462,7 @@ class Media_Sync {
 			}
 		}
 
-		// Create new attachment if not overriding existing
+		// Create new attachment if not overriding existing.
 		if ( ! $existing_attach_id ) {
 			// Create attachment.
 			$attachment = array(
@@ -546,7 +546,7 @@ class Media_Sync {
 			return;
 		}
 
-		// Get uploads root directory
+		// Get uploads root directory.
 		$uploads      = wp_upload_dir();
 		$uploads_root = trailingslashit( $uploads['basedir'] );
 
@@ -562,7 +562,7 @@ class Media_Sync {
 
 		// Strategy 2: if file is outside uploads (e.g. "keep" mode with an external directory),
 		// compute the relative path from the base_folder the user selected instead.
-		// Example: base=/home/.../imgs, file=/home/.../imgs/222/333/file.jpg → relative=222/333
+		// Example: base=/home/.../imgs, file=/home/.../imgs/222/333/file.jpg → relative=222/333.
 		if ( ( empty( $relative_dir ) || '.' === $relative_dir ) && ! empty( $base_folder ) ) {
 			$base_folder_slash = trailingslashit( $base_folder );
 			if ( 0 === strpos( trailingslashit( $file_dir ), $base_folder_slash ) ) {
@@ -576,7 +576,7 @@ class Media_Sync {
 		}
 
 		// Create RML folder hierarchy from uploads root.
-		// Example: ftp/ddd -> creates "ftp" folder in root, then "ddd" inside it
+		// Example: ftp/ddd -> creates "ftp" folder in root, then "ddd" inside it.
 		$folders   = explode( '/', $relative_dir );
 		$parent_id = -1; // Root folder.
 
@@ -588,7 +588,7 @@ class Media_Sync {
 			$folder_id = self::find_rml_folder_by_name( $folder_name, $parent_id );
 			if ( ! $folder_id ) {
 				// Create folder - type 0 = normal folder
-				// Using wp_rml_create_or_return_existing_id for better compatibility
+				// Using wp_rml_create_or_return_existing_id for better compatibility.
 				$folder_id = function_exists( 'wp_rml_create_or_return_existing_id' )
 					? wp_rml_create_or_return_existing_id( $folder_name, $parent_id, 0 )
 					: wp_rml_create( $folder_name, $parent_id, 0 );

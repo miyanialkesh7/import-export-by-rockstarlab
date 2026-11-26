@@ -1038,20 +1038,20 @@ class AI_Content_Extractor {
 	 * essential ones (src/alt on img, href on a), and applies a character limit.
 	 * This ensures that the actual article content fits within the context window.
 	 *
-	 * @param string $html Raw HTML
+	 * @param string $html Raw HTML.
 	 * @return string Cleaned HTML
 	 */
 	private function clean_html( $html ) {
-		// Remove scripts
+		// Remove scripts.
 		$html = preg_replace( '/<script\b[^>]*>.*?<\/script>/is', '', $html );
 
-		// Remove styles
+		// Remove styles.
 		$html = preg_replace( '/<style\b[^>]*>.*?<\/style>/is', '', $html );
 
-		// Remove HTML comments
+		// Remove HTML comments.
 		$html = preg_replace( '/<!--.*?-->/s', '', $html );
 
-		// Remove common noise block elements (nav, header, footer, aside, etc.)
+		// Remove common noise block elements (nav, header, footer, aside, etc.).
 		$noise_tags = array( 'nav', 'header', 'footer', 'aside', 'form', 'iframe', 'noscript', 'svg', 'canvas', 'figure' );
 		foreach ( $noise_tags as $tag ) {
 			$html = preg_replace( '/<' . $tag . '\b[^>]*>.*?<\/' . $tag . '>/is', '', $html );
@@ -1086,7 +1086,7 @@ class AI_Content_Extractor {
 			$html
 		);
 
-		// Remove excessive whitespace
+		// Remove excessive whitespace.
 		$html = preg_replace( '/\s+/', ' ', $html );
 
 		// Limit length to fit in context window.
@@ -1102,8 +1102,8 @@ class AI_Content_Extractor {
 	/**
 	 * Build extraction prompt
 	 *
-	 * @param string $html Cleaned HTML
-	 * @param string $url Original URL
+	 * @param string $html Cleaned HTML.
+	 * @param string $url Original URL.
 	 * @return string Prompt for GPT
 	 */
 	private function build_extraction_prompt( $html, $url ) {
@@ -1129,14 +1129,14 @@ class AI_Content_Extractor {
 	/**
 	 * Extract images from HTML content
 	 *
-	 * @param string $content HTML content
-	 * @param string $base_url Base URL for making relative URLs absolute
+	 * @param string $content HTML content.
+	 * @param string $base_url Base URL for making relative URLs absolute.
 	 * @return array Array of image URLs with metadata
 	 */
 	private function extract_images_from_content( $content, $base_url ) {
 		$images = array();
 
-		// Extract all img tags
+		// Extract all img tags.
 		preg_match_all( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $content, $matches );
 
 		if ( empty( $matches[1] ) ) {
@@ -1144,16 +1144,16 @@ class AI_Content_Extractor {
 		}
 
 		foreach ( $matches[1] as $index => $img_url ) {
-			// Make URL absolute
+			// Make URL absolute.
 			$absolute_url = $this->make_url_absolute( $img_url, $base_url );
 
-			// Extract alt text
+			// Extract alt text.
 			$alt = '';
 			if ( preg_match( '/alt=["\']([^"\']+)["\']/i', $matches[0][ $index ], $alt_match ) ) {
 				$alt = $alt_match[1];
 			}
 
-			// Try to get image dimensions
+			// Try to get image dimensions.
 			$width  = 0;
 			$height = 0;
 			if ( preg_match( '/width=["\']?(\d+)["\']?/i', $matches[0][ $index ], $w_match ) ) {
@@ -1177,7 +1177,7 @@ class AI_Content_Extractor {
 	/**
 	 * Get featured image (first non-small image)
 	 *
-	 * @param array $images Array of images
+	 * @param array $images Array of images.
 	 * @return string|null Featured image URL or null
 	 */
 	private function get_featured_image( $images ) {
@@ -1186,30 +1186,30 @@ class AI_Content_Extractor {
 		}
 
 		foreach ( $images as $image ) {
-			// Skip small images (likely icons or thumbnails)
+			// Skip small images (likely icons or thumbnails).
 			if ( ! empty( $image['width'] ) && ! empty( $image['height'] ) ) {
 				if ( $image['width'] >= 300 && $image['height'] >= 200 ) {
 					return $image['url'];
 				}
 			} else {
-				// If no dimensions, assume it's large enough and use it
+				// If no dimensions, assume it's large enough and use it.
 				return $image['url'];
 			}
 		}
 
-		// If no large image found, return first image
+		// If no large image found, return first image.
 		return $images[0]['url'];
 	}
 
 	/**
 	 * Make URL absolute
 	 *
-	 * @param string $url URL to convert
-	 * @param string $base_url Base URL
+	 * @param string $url URL to convert.
+	 * @param string $base_url Base URL.
 	 * @return string Absolute URL
 	 */
 	private function make_url_absolute( $url, $base_url ) {
-		// Already absolute
+		// Already absolute.
 		if ( preg_match( '/^https?:\/\//i', $url ) ) {
 			return $url;
 		}
@@ -1219,17 +1219,17 @@ class AI_Content_Extractor {
 			return $url;
 		}
 
-		// Protocol-relative URL
+		// Protocol-relative URL.
 		if ( substr( $url, 0, 2 ) === '//' ) {
 			return $base_parts['scheme'] . ':' . $url;
 		}
 
-		// Absolute path
+		// Absolute path.
 		if ( substr( $url, 0, 1 ) === '/' ) {
 			return $base_parts['scheme'] . '://' . $base_parts['host'] . $url;
 		}
 
-		// Relative path
+		// Relative path.
 		$base_path = isset( $base_parts['path'] ) ? dirname( $base_parts['path'] ) : '';
 		return $base_parts['scheme'] . '://' . $base_parts['host'] . $base_path . '/' . $url;
 	}
@@ -1237,19 +1237,19 @@ class AI_Content_Extractor {
 	/**
 	 * Import image to media library with duplicate checking
 	 *
-	 * @param string $image_url Image URL
-	 * @param string $alt_text Alt text for image
+	 * @param string $image_url Image URL.
+	 * @param string $alt_text Alt text for image.
 	 * @return int|\\WP_Error Attachment ID or error
 	 */
 	public function import_image( $image_url, $alt_text = '' ) {
-		// Check if image already exists by URL
+		// Check if image already exists by URL.
 		$existing_id = $this->find_image_by_url( $image_url );
 
 		if ( $existing_id ) {
 			return $existing_id;
 		}
 
-			// Download image
+			// Download image.
 			Fs::load_media_core();
 
 			$tmp = download_url( $image_url );
@@ -1258,10 +1258,10 @@ class AI_Content_Extractor {
 			return $tmp;
 		}
 
-		// Get filename
+		// Get filename.
 		$file_name = rawurldecode( wp_basename( (string) \RockStarLab\ImportExport\Helper\Content_Sync_Media::url_path( $image_url ) ) );
 
-		// Check for duplicate by file hash
+		// Check for duplicate by file hash.
 		$file_hash     = md5_file( $tmp );
 		$existing_hash = $this->find_image_by_hash( $file_hash );
 
@@ -1270,13 +1270,13 @@ class AI_Content_Extractor {
 			return $existing_hash;
 		}
 
-		// Prepare file array
+		// Prepare file array.
 		$file_array = array(
 			'name'     => $file_name,
 			'tmp_name' => $tmp,
 		);
 
-		// Upload file
+		// Upload file.
 		$id = media_handle_sideload( $file_array, 0 );
 
 		if ( is_wp_error( $id ) ) {
@@ -1284,13 +1284,13 @@ class AI_Content_Extractor {
 			return $id;
 		}
 
-		// Save file hash for future duplicate checking
+		// Save file hash for future duplicate checking.
 		Media_Hash::store_attachment_hash( $id, $file_hash );
 
-		// Save original URL
+		// Save original URL.
 		update_post_meta( $id, '_rsl_ie_source_url', $image_url );
 
-		// Set alt text
+		// Set alt text.
 		if ( ! empty( $alt_text ) ) {
 			update_post_meta( $id, '_wp_attachment_image_alt', $alt_text );
 		}
@@ -1301,7 +1301,7 @@ class AI_Content_Extractor {
 	/**
 	 * Find image by source URL
 	 *
-	 * @param string $url Source URL
+	 * @param string $url Source URL.
 	 * @return int|false Attachment ID or false
 	 */
 	private function find_image_by_url( $url ) {
@@ -1323,7 +1323,7 @@ class AI_Content_Extractor {
 	/**
 	 * Find image by file hash
 	 *
-	 * @param string $hash File hash
+	 * @param string $hash File hash.
 	 * @return int|false Attachment ID or false
 	 */
 	private function find_image_by_hash( $hash ) {

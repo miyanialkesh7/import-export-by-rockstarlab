@@ -16,19 +16,19 @@ class Range_Rule extends Validation_Rule {
 	/**
 	 * Check if value is within numeric range
 	 *
-	 * @param mixed $value   Value to validate
-	 * @param array $context Optional. Additional context
+	 * @param mixed $value   Value to validate.
+	 * @param array $context Optional. Additional context.
 	 * @return true|WP_Error True if valid, WP_Error if validation fails
 	 */
 	protected function check( $value, $context ) {
-		// Skip validation for empty values (use Required_Rule for that)
+		// Skip validation for empty values (use Required_Rule for that).
 		if ( $this->is_empty( $value ) ) {
 			return true;
 		}
 
 		$field_name = $this->get_field_name( $context );
 
-		// Ensure value is numeric
+		// Ensure value is numeric.
 		if ( ! is_numeric( $value ) ) {
 			return $this->create_error(
 				'not_numeric',
@@ -45,7 +45,7 @@ class Range_Rule extends Validation_Rule {
 		$min           = $this->get_option( 'min' );
 		$max           = $this->get_option( 'max' );
 
-		// Check minimum value
+		// Check minimum value.
 		if ( null !== $min && $numeric_value < $min ) {
 			return $this->create_error(
 				'min_value',
@@ -63,7 +63,7 @@ class Range_Rule extends Validation_Rule {
 			);
 		}
 
-		// Check maximum value
+		// Check maximum value.
 		if ( null !== $max && $numeric_value > $max ) {
 			return $this->create_error(
 				'max_value',

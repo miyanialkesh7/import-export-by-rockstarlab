@@ -144,17 +144,17 @@ class Content_Sync_Replacer {
 	 * @return array Modified post data
 	 */
 	public static function replace_post_domains( $post_data, $source_domain, $target_domain, $image_map = array(), $image_sources = array() ) {
-		// Replace in content
+		// Replace in content.
 		if ( isset( $post_data['post_content'] ) ) {
 			$post_data['post_content'] = self::replace_in_content( $post_data['post_content'], $source_domain, $target_domain, $image_map, $image_sources );
 		}
 
-		// Replace in excerpt
+		// Replace in excerpt.
 		if ( isset( $post_data['post_excerpt'] ) ) {
 			$post_data['post_excerpt'] = self::replace_in_text( $post_data['post_excerpt'], $source_domain, $target_domain );
 		}
 
-		// Replace in meta
+		// Replace in meta.
 		if ( isset( $post_data['meta'] ) && is_array( $post_data['meta'] ) ) {
 			$post_data['meta'] = self::replace_in_meta( $post_data['meta'], $source_domain, $target_domain, $image_map, $image_sources );
 		}
@@ -238,10 +238,10 @@ class Content_Sync_Replacer {
 	 * @return string Modified content
 	 */
 	private static function replace_in_content( $content, $source_domain, $target_domain, $image_map = array(), $image_sources = array() ) {
-		// Replace URLs in content
+		// Replace URLs in content.
 		$content = self::replace_in_text( $content, $source_domain, $target_domain );
 
-		// If content has blocks, update block attributes
+		// If content has blocks, update block attributes.
 		if ( has_blocks( $content ) ) {
 			$content = self::replace_in_blocks( $content, $source_domain, $target_domain, $image_map );
 		}
@@ -318,9 +318,9 @@ class Content_Sync_Replacer {
 	 */
 	private static function replace_in_blocks_recursive( $blocks, $source_domain, $target_domain, $image_map = array() ) {
 		foreach ( $blocks as &$block ) {
-			// Replace in block attributes
+			// Replace in block attributes.
 			if ( ! empty( $block['attrs'] ) ) {
-				// Replace image IDs
+				// Replace image IDs.
 				if ( ! empty( $image_map ) ) {
 					if ( isset( $block['attrs']['id'] ) && isset( $image_map[ $block['attrs']['id'] ] ) ) {
 						$block['attrs']['id'] = $image_map[ $block['attrs']['id'] ];
@@ -330,7 +330,7 @@ class Content_Sync_Replacer {
 						$block['attrs']['mediaId'] = $image_map[ $block['attrs']['mediaId'] ];
 					}
 
-					// Gallery IDs
+					// Gallery IDs.
 					if ( isset( $block['attrs']['ids'] ) && is_array( $block['attrs']['ids'] ) ) {
 						foreach ( $block['attrs']['ids'] as &$id ) {
 							if ( ( is_int( $id ) || is_string( $id ) ) && isset( $image_map[ $id ] ) ) {
@@ -342,7 +342,7 @@ class Content_Sync_Replacer {
 					}
 				}
 
-				// Replace URLs in attributes
+				// Replace URLs in attributes.
 				foreach ( $block['attrs'] as $key => &$value ) {
 					if ( is_string( $value ) ) {
 						$value = self::replace_in_text( $value, $source_domain, $target_domain );
@@ -352,12 +352,12 @@ class Content_Sync_Replacer {
 				}
 			}
 
-			// Replace in block innerHTML
+			// Replace in block innerHTML.
 			if ( isset( $block['innerHTML'] ) ) {
 				$block['innerHTML'] = self::replace_in_text( $block['innerHTML'], $source_domain, $target_domain );
 			}
 
-			// Replace in inner content
+			// Replace in inner content.
 			if ( ! empty( $block['innerContent'] ) ) {
 				foreach ( $block['innerContent'] as &$inner ) {
 					if ( is_string( $inner ) ) {
@@ -366,7 +366,7 @@ class Content_Sync_Replacer {
 				}
 			}
 
-			// Recursively process inner blocks
+			// Recursively process inner blocks.
 			if ( ! empty( $block['innerBlocks'] ) ) {
 				$block['innerBlocks'] = self::replace_in_blocks_recursive( $block['innerBlocks'], $source_domain, $target_domain, $image_map );
 			}
@@ -722,7 +722,7 @@ class Content_Sync_Replacer {
 		// Values as sent: a social image ID may already be translated when its URL key is reached.
 		$source_meta = $meta;
 		foreach ( $meta as $key => &$value ) {
-			// Skip internal WordPress meta that shouldn't be replaced
+			// Skip internal WordPress meta that shouldn't be replaced.
 			if ( in_array( $key, array( '_edit_lock', '_edit_last', '_wp_old_slug' ), true ) ) {
 				continue;
 			}
@@ -816,9 +816,9 @@ class Content_Sync_Replacer {
 				}
 			}
 
-			// Handle different value types
+			// Handle different value types.
 			if ( is_string( $value ) ) {
-				// Check if it's serialized data
+				// Check if it's serialized data.
 				if ( self::is_serialized( $value ) ) {
 						$unserialized = \RockStarLab\ImportExport\Helper\Serialized::parse( $value );
 					if ( false !== $unserialized ) {
@@ -927,7 +927,7 @@ class Content_Sync_Replacer {
 				}
 			}
 
-			// Handle Elementor data
+			// Handle Elementor data.
 			if ( '_elementor_data' === $key && is_string( $value ) ) {
 				$elementor_data = json_decode( $value, true );
 				if ( is_array( $elementor_data ) ) {
@@ -1253,7 +1253,7 @@ class Content_Sync_Replacer {
 				}
 			}
 
-			// Replace IDs in flat sequential lists of integers (ACF gallery fields etc.)
+			// Replace IDs in flat sequential lists of integers (ACF gallery fields etc.).
 			if ( $is_flat_id_list && is_numeric( $value ) && isset( $image_map[ (int) $value ] ) ) {
 				$attachment = get_post( $image_map[ (int) $value ] );
 				if ( $attachment && 'attachment' === $attachment->post_type ) {
@@ -1266,7 +1266,7 @@ class Content_Sync_Replacer {
 				$value = self::replace_in_text( $value, $source_domain, $target_domain );
 				$value = self::fix_local_image_urls_in_content( $value, $image_map, $image_sources );
 			} elseif ( is_array( $value ) ) {
-				// Recursively process nested arrays
+				// Recursively process nested arrays.
 				$value = self::replace_in_array( $value, $source_domain, $target_domain, $image_map, $image_sources, $depth + 1 );
 			}
 		}
@@ -1285,10 +1285,10 @@ class Content_Sync_Replacer {
 	 */
 	private static function replace_in_elementor( $elements, $source_domain, $target_domain, $image_map = array() ) {
 		foreach ( $elements as &$element ) {
-			// Replace in settings
+			// Replace in settings.
 			if ( isset( $element['settings'] ) && is_array( $element['settings'] ) ) {
 				foreach ( $element['settings'] as $key => &$value ) {
-					// Replace image IDs
+					// Replace image IDs.
 					if ( ! empty( $image_map ) ) {
 						if ( is_numeric( $value ) && strpos( $key, 'image' ) !== false && isset( $image_map[ $value ] ) ) {
 							$value = $image_map[ $value ];
@@ -1296,7 +1296,7 @@ class Content_Sync_Replacer {
 						}
 					}
 
-					// Replace URLs
+					// Replace URLs.
 					if ( is_string( $value ) ) {
 						$value = self::replace_in_text( $value, $source_domain, $target_domain );
 					} elseif ( is_array( $value ) ) {
@@ -1305,7 +1305,7 @@ class Content_Sync_Replacer {
 				}
 			}
 
-			// Recursively process child elements
+			// Recursively process child elements.
 			if ( isset( $element['elements'] ) && is_array( $element['elements'] ) ) {
 				$element['elements'] = self::replace_in_elementor( $element['elements'], $source_domain, $target_domain, $image_map );
 			}
@@ -1349,14 +1349,14 @@ class Content_Sync_Replacer {
 			return $text;
 		}
 
-		// Normalize domains
+		// Normalize domains.
 		$source_domain = self::normalize_domain( $source_domain );
 		$target_domain = self::normalize_domain( $target_domain );
 		if ( '' === $source_domain || '' === $target_domain ) {
 			return $text;
 		}
 
-		// Replace with different protocols
+		// Replace with different protocols.
 		$replacements = array(
 			'https://' . $source_domain => 'https://' . $target_domain,
 			'http://' . $source_domain  => 'http://' . $target_domain,
@@ -1375,10 +1375,10 @@ class Content_Sync_Replacer {
 	 * @return string Normalized domain
 	 */
 	private static function normalize_domain( $domain ) {
-		// Remove protocol
+		// Remove protocol.
 		$domain = preg_replace( '#^https?://#i', '', $domain );
 
-		// Remove trailing slash
+		// Remove trailing slash.
 		$domain = rtrim( $domain, '/' );
 
 		return $domain;

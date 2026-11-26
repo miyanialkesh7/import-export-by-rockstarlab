@@ -42,8 +42,8 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Parse entire CSV file
 	 *
-	 * @param string $file_path Absolute path to CSV file
-	 * @param array  $options   Optional. Parser options (delimiter, enclosure, has_header)
+	 * @param string $file_path Absolute path to CSV file.
+	 * @param array  $options   Optional. Parser options (delimiter, enclosure, has_header).
 	 * @return array|\WP_Error Array of parsed data or WP_Error on failure
 	 */
 	public function parse( $file_path, $options = array() ) {
@@ -105,9 +105,9 @@ class CSV_Format implements File_Format_Interface {
 			}
 
 			if ( $has_header && ! empty( $headers ) ) {
-				// Skip rows where column count doesn't match headers (e.g. wrong delimiter)
+				// Skip rows where column count doesn't match headers (e.g. wrong delimiter).
 				if ( count( $row ) !== count( $headers ) ) {
-					// Pad or truncate row to match header count
+					// Pad or truncate row to match header count.
 					$row = array_slice( array_pad( $row, count( $headers ), '' ), 0, count( $headers ) );
 				}
 				$combined = array_combine( $headers, $row );
@@ -217,9 +217,9 @@ class CSV_Format implements File_Format_Interface {
 					'row_num'  => $row_num + 1,
 				);
 				if ( $has_header && ! empty( $headers ) ) {
-					// Skip rows where column count doesn't match headers (e.g. wrong delimiter)
+					// Skip rows where column count doesn't match headers (e.g. wrong delimiter).
 					if ( count( $row ) !== count( $headers ) ) {
-						// Pad or truncate row to match header count
+						// Pad or truncate row to match header count.
 						$row = array_slice( array_pad( $row, count( $headers ), '' ), 0, count( $headers ) );
 					}
 					$combined = array_combine( $headers, $row );
@@ -270,10 +270,10 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Parse CSV file in chunks
 	 *
-	 * @param string $file_path Absolute path to CSV file
-	 * @param int    $offset    Starting row (0-based, excluding header)
-	 * @param int    $limit     Number of rows to read
-	 * @param array  $options   Optional. Parser options
+	 * @param string $file_path Absolute path to CSV file.
+	 * @param int    $offset    Starting row (0-based, excluding header).
+	 * @param int    $limit     Number of rows to read.
+	 * @param array  $options   Optional. Parser options.
 	 * @return array|\WP_Error Array of parsed data or WP_Error on failure
 	 */
 	public function parse_chunk( $file_path, $offset, $limit, $options = array() ) {
@@ -346,7 +346,7 @@ class CSV_Format implements File_Format_Interface {
 			}
 
 			if ( $has_header && ! empty( $headers ) ) {
-				// Pad or truncate row to match header count (wrong delimiter safety)
+				// Pad or truncate row to match header count (wrong delimiter safety).
 				if ( count( $row ) !== count( $headers ) ) {
 					$row = array_slice( array_pad( $row, count( $headers ), '' ), 0, count( $headers ) );
 				}
@@ -370,9 +370,9 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Generate CSV file from data
 	 *
-	 * @param array  $data      Data array to write
-	 * @param string $file_path Target file path
-	 * @param array  $options   Optional. Generation options (delimiter, headers)
+	 * @param array  $data      Data array to write.
+	 * @param string $file_path Target file path.
+	 * @param array  $options   Optional. Generation options (delimiter, headers).
 	 * @return bool|\WP_Error True on success or WP_Error on failure
 	 */
 	public function generate( $data, $file_path, $options = array() ) {
@@ -772,7 +772,7 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Normalize delimiter string.
 	 *
-	 * @param string $delimiter Input delimiter from options
+	 * @param string $delimiter Input delimiter from options.
 	 * @return string Normalized delimiter
 	 */
 	protected function normalize_delimiter( $delimiter ) {
@@ -790,11 +790,11 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Write a CSV row with custom delimiter support (multi char allowed)
 	 *
-	 * @param resource $handle    File handle
-	 * @param array    $row       Row values array
-	 * @param string   $delimiter Delimiter
-	 * @param string   $enclosure Enclosure
-	 * @param string   $escape    Escape char
+	 * @param resource $handle    File handle.
+	 * @param array    $row       Row values array.
+	 * @param string   $delimiter Delimiter.
+	 * @param string   $enclosure Enclosure.
+	 * @param string   $escape    Escape char.
 	 * @return bool
 	 */
 	protected function write_csv_row( $handle, $row, $delimiter, $enclosure, $escape ) {
@@ -827,9 +827,9 @@ class CSV_Format implements File_Format_Interface {
 
 	/** * Read a possibly multiline CSV record (for quoted fields containing newlines).
 	 *
-	 * @param resource $handle   File handle
-	 * @param string   $enclosure Enclosure char
-	 * @param string   $escape    Escape char
+	 * @param resource $handle   File handle.
+	 * @param string   $enclosure Enclosure char.
+	 * @param string   $escape    Escape char.
 	 * @return string|false Record line or false on EOF
 	 */
 	protected function read_csv_record( $handle, $enclosure, $escape ) {
@@ -865,10 +865,10 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Parse a single CSV line into columns using custom delimiter
 	 *
-	 * @param string $line      CSV row line
-	 * @param string $delimiter Column delimiter
-	 * @param string $enclosure Enclosure char
-	 * @param string $escape    Escape char
+	 * @param string $line      CSV row line.
+	 * @param string $delimiter Column delimiter.
+	 * @param string $enclosure Enclosure char.
+	 * @param string $escape    Escape char.
 	 * @return array Parsed row
 	 */
 	protected function parse_csv_line( $line, $delimiter, $enclosure, $escape ) {
@@ -918,7 +918,7 @@ class CSV_Format implements File_Format_Interface {
 
 	/** * Validate CSV file
 	 *
-	 * @param string $file_path Absolute path to file
+	 * @param string $file_path Absolute path to file.
 	 * @return bool|\WP_Error True if valid or WP_Error on failure
 	 */
 	public function validate( $file_path ) {
@@ -953,8 +953,8 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Get CSV headers
 	 *
-	 * @param string $file_path Absolute path to file
-	 * @param array  $options   Optional. Parser options
+	 * @param string $file_path Absolute path to file.
+	 * @param array  $options   Optional. Parser options.
 	 * @return array|\WP_Error Array of headers or WP_Error on failure
 	 */
 	public function get_headers( $file_path, $options = array() ) {
@@ -1017,7 +1017,7 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Count rows in CSV file
 	 *
-	 * @param string $file_path Absolute path to file
+	 * @param string $file_path Absolute path to file.
 	 * @param array  $options Optional parser settings.
 	 * @return int|\WP_Error Row count or WP_Error on failure
 	 */

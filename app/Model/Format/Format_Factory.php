@@ -23,7 +23,7 @@ class Format_Factory {
 	/**
 	 * Get format handler by file extension
 	 *
-	 * @param string $extension File extension (csv, json, xlsx, ods, xml)
+	 * @param string $extension File extension (csv, json, xlsx, ods, xml).
 	 * @return File_Format_Interface|WP_Error Handler instance or WP_Error
 	 */
 	public static function get_handler_by_extension( $extension ) {
@@ -50,7 +50,7 @@ class Format_Factory {
 	/**
 	 * Get format handler by MIME type
 	 *
-	 * @param string $mime_type MIME type
+	 * @param string $mime_type MIME type.
 	 * @return File_Format_Interface|WP_Error Handler instance or WP_Error
 	 */
 	public static function get_handler_by_mime( $mime_type ) {
@@ -79,7 +79,7 @@ class Format_Factory {
 	 *
 	 * Automatically detects format from file extension.
 	 *
-	 * @param string $file_path Absolute path to file
+	 * @param string $file_path Absolute path to file.
 	 * @return File_Format_Interface|WP_Error Handler instance or WP_Error
 	 */
 	public static function get_handler_by_file( $file_path ) {
@@ -95,7 +95,7 @@ class Format_Factory {
 	/**
 	 * Get format handler by format name
 	 *
-	 * @param string $format Format name (csv, json, xlsx, ods, xml)
+	 * @param string $format Format name (csv, json, xlsx, ods, xml).
 	 * @return File_Format_Interface|WP_Error Handler instance or WP_Error
 	 */
 	public static function get_handler( $format ) {
@@ -134,7 +134,7 @@ class Format_Factory {
 	/**
 	 * Create format handler by format name (alias for get_handler)
 	 *
-	 * @param string $format Format name (csv, json, xlsx, ods, xml)
+	 * @param string $format Format name (csv, json, xlsx, ods, xml).
 	 * @return File_Format_Interface|WP_Error Handler instance or WP_Error
 	 */
 	public static function create( $format ) {
@@ -199,7 +199,7 @@ class Format_Factory {
 	/**
 	 * Check if format is supported
 	 *
-	 * @param string $format Format name or extension
+	 * @param string $format Format name or extension.
 	 * @return bool True if supported
 	 */
 	public static function is_supported( $format ) {
@@ -212,7 +212,7 @@ class Format_Factory {
 	/**
 	 * Validate file format
 	 *
-	 * @param string $file_path Absolute path to file
+	 * @param string $file_path Absolute path to file.
 	 * @return bool|WP_Error True if valid or WP_Error with validation errors
 	 */
 	public static function validate_file( $file_path ) {

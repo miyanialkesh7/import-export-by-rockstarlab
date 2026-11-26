@@ -79,7 +79,7 @@ class Content_Sync_Media {
 			}
 		}
 
-		// Remove duplicates based on attachment ID
+		// Remove duplicates based on attachment ID.
 		$images = self::remove_duplicate_images( $images );
 
 		return $images;
@@ -163,13 +163,13 @@ class Content_Sync_Media {
 	private static function get_content_images( $post ) {
 		$images = array();
 
-		// Check if content has blocks (Gutenberg)
+		// Check if content has blocks (Gutenberg).
 		if ( has_blocks( $post->post_content ) ) {
 			$blocks = parse_blocks( $post->post_content );
 			$images = self::extract_images_from_blocks( $blocks );
 		}
 
-		// Also extract from HTML img tags
+		// Also extract from HTML img tags.
 		$html_images = self::extract_images_from_html( $post->post_content );
 		$images      = array_merge( $images, $html_images );
 
@@ -195,7 +195,7 @@ class Content_Sync_Media {
 		$images = array();
 
 		// Match shortcodes that have an `ids` attribute, e.g.
-		// [gallery ids="90,89"] or [gallery ids='90,89' columns="2"]
+		// [gallery ids="90,89"] or [gallery ids='90,89' columns="2"].
 		if ( ! preg_match_all( '/\[\w[^\]]*\bids=["\']([\d,\s]+)["\'][^\]]*\]/i', $content, $matches ) ) {
 			return $images;
 		}
@@ -223,7 +223,7 @@ class Content_Sync_Media {
 		$images = array();
 
 		foreach ( $blocks as $block ) {
-			// Handle image block
+			// Handle image block.
 			if ( 'core/image' === $block['blockName'] ) {
 				if ( isset( $block['attrs']['id'] ) ) {
 					$image_data = self::prepare_image_data( $block['attrs']['id'], 'gutenberg_block' );
@@ -233,7 +233,7 @@ class Content_Sync_Media {
 				}
 			}
 
-			// Handle gallery block
+			// Handle gallery block.
 			if ( 'core/gallery' === $block['blockName'] ) {
 				if ( isset( $block['attrs']['ids'] ) && is_array( $block['attrs']['ids'] ) ) {
 					foreach ( $block['attrs']['ids'] as $image_id ) {
@@ -245,7 +245,7 @@ class Content_Sync_Media {
 				}
 			}
 
-			// Handle cover block
+			// Handle cover block.
 			if ( 'core/cover' === $block['blockName'] ) {
 				if ( isset( $block['attrs']['id'] ) ) {
 					$image_data = self::prepare_image_data( $block['attrs']['id'], 'gutenberg_cover' );
@@ -263,7 +263,7 @@ class Content_Sync_Media {
 				}
 			}
 
-			// Handle media-text block
+			// Handle media-text block.
 			if ( 'core/media-text' === $block['blockName'] ) {
 				if ( isset( $block['attrs']['mediaId'] ) ) {
 					$image_data = self::prepare_image_data( $block['attrs']['mediaId'], 'gutenberg_media_text' );
@@ -273,7 +273,7 @@ class Content_Sync_Media {
 				}
 			}
 
-			// Recursively check inner blocks
+			// Recursively check inner blocks.
 			if ( ! empty( $block['innerBlocks'] ) ) {
 				$inner_images = self::extract_images_from_blocks( $block['innerBlocks'] );
 				$images       = array_merge( $images, $inner_images );
@@ -292,7 +292,7 @@ class Content_Sync_Media {
 	private static function extract_images_from_html( $content ) {
 		$images = array();
 
-		// Match all img tags with wp-image-ID class
+		// Match all img tags with wp-image-ID class.
 		preg_match_all( '/wp-image-(\d+)/i', $content, $matches );
 
 		if ( ! empty( $matches[1] ) ) {
@@ -304,7 +304,7 @@ class Content_Sync_Media {
 			}
 		}
 
-		// Also try to match image URLs
+		// Also try to match image URLs.
 		$images = array_merge( $images, self::extract_images_from_html_urls( $content, 'content_html' ) );
 
 		return $images;
@@ -910,7 +910,7 @@ class Content_Sync_Media {
 	private static function get_acf_images( $post_id ) {
 		$images = array();
 
-		// Check if ACF is active
+		// Check if ACF is active.
 		if ( ! function_exists( 'get_field_objects' ) && ! function_exists( 'acf_get_field' ) ) {
 			return $images;
 		}
@@ -1124,7 +1124,7 @@ class Content_Sync_Media {
 			return $images;
 		}
 
-		// Handle image field
+		// Handle image field.
 		if ( 'image' === $field['type'] && ! empty( $field['value'] ) ) {
 			if ( is_numeric( $field['value'] ) ) {
 				$image_data = self::prepare_image_data( $field['value'], 'acf_' . $field['name'] );
@@ -1139,7 +1139,7 @@ class Content_Sync_Media {
 			}
 		}
 
-		// Handle file field (for images and other media)
+		// Handle file field (for images and other media).
 		if ( 'file' === $field['type'] && ! empty( $field['value'] ) ) {
 			$file_id = null;
 			if ( is_numeric( $field['value'] ) ) {
@@ -1149,7 +1149,7 @@ class Content_Sync_Media {
 			}
 
 			if ( $file_id ) {
-				// Check if it's an image or other media type
+				// Check if it's an image or other media type.
 				$mime_type = get_post_mime_type( $file_id );
 				if ( $mime_type && strpos( $mime_type, 'image' ) === 0 ) {
 					$image_data = self::prepare_image_data( $file_id, 'acf_file_' . $field['name'] );
@@ -1157,7 +1157,7 @@ class Content_Sync_Media {
 						$images[] = $image_data;
 					}
 				} else {
-					// For non-image files, still include them as media
+					// For non-image files, still include them as media.
 					$image_data = self::prepare_image_data( $file_id, 'acf_file_' . $field['name'] );
 					if ( $image_data ) {
 						$images[] = $image_data;
@@ -1203,7 +1203,7 @@ class Content_Sync_Media {
 			}
 		}
 
-		// Handle gallery field
+		// Handle gallery field.
 		if ( 'gallery' === $field['type'] && ! empty( $field['value'] ) && is_array( $field['value'] ) ) {
 			foreach ( $field['value'] as $image ) {
 				$image_id = is_numeric( $image ) ? $image : ( isset( $image['ID'] ) ? $image['ID'] : 0 );
@@ -1240,31 +1240,31 @@ class Content_Sync_Media {
 			}
 		}
 
-		// Handle repeater and flexible content
+		// Handle repeater and flexible content.
 		if ( in_array( $field['type'], array( 'repeater', 'flexible_content' ), true ) && ! empty( $field['value'] ) && is_array( $field['value'] ) ) {
 			foreach ( $field['value'] as $row ) {
 				if ( is_array( $row ) ) {
 					foreach ( $row as $sub_field_name => $sub_field_value ) {
-						// Skip ACF internal field (acf_fc_layout)
+						// Skip ACF internal field (acf_fc_layout).
 						if ( $sub_field_name === 'acf_fc_layout' ) {
 							continue;
 						}
 
-						// Get sub field object
+						// Get sub field object.
 						$sub_field = null;
 
-						// For flexible content, check layouts first
+						// For flexible content, check layouts first.
 						if ( $field['type'] === 'flexible_content' && isset( $field['layouts'] ) && isset( $row['acf_fc_layout'] ) ) {
-							$layout_name = $row['acf_fc_layout'];                           // Find the layout
+							$layout_name = $row['acf_fc_layout'];                           // Find the layout.
 							foreach ( $field['layouts'] as $layout ) {
 								if ( isset( $layout['name'] ) && $layout['name'] === $layout_name ) {
-									// Find sub field in this layout
+									// Find sub field in this layout.
 									if ( isset( $layout['sub_fields'] ) ) {
 										foreach ( $layout['sub_fields'] as $sf ) {
 											if ( isset( $sf['name'] ) && $sf['name'] === $sub_field_name ) {
 												$sub_field          = $sf;
 												$sub_field['value'] = $sub_field_value;
-												break 2; // Break out of both loops
+												break 2; // Break out of both loops.
 											}
 										}
 									}
@@ -1273,7 +1273,7 @@ class Content_Sync_Media {
 							}
 						}
 
-						// For repeater, check sub_fields
+						// For repeater, check sub_fields.
 						if ( ! $sub_field && isset( $field['sub_fields'] ) ) {
 							foreach ( $field['sub_fields'] as $sf ) {
 								if ( isset( $sf['name'] ) && $sf['name'] === $sub_field_name ) {
@@ -1293,7 +1293,7 @@ class Content_Sync_Media {
 			}
 		}
 
-		// Handle group field
+		// Handle group field.
 		if ( 'group' === $field['type'] && ! empty( $field['value'] ) && is_array( $field['value'] ) ) {
 			foreach ( $field['sub_fields'] as $sub_field ) {
 				if ( isset( $field['value'][ $sub_field['name'] ] ) ) {
@@ -1316,7 +1316,7 @@ class Content_Sync_Media {
 	private static function get_elementor_images( $post_id ) {
 		$images = array();
 
-		// Check if Elementor is active
+		// Check if Elementor is active.
 		if ( ! did_action( 'elementor/loaded' ) ) {
 			return $images;
 		}
@@ -1454,7 +1454,7 @@ class Content_Sync_Media {
 		$images = array();
 
 		foreach ( $elements as $element ) {
-			// Check settings for image fields
+			// Check settings for image fields.
 			if ( isset( $element['settings'] ) && is_array( $element['settings'] ) ) {
 				foreach ( $element['settings'] as $key => $value ) {
 					// Elementor SVG controls wrap the media pair in selected_icon.value.
@@ -1470,7 +1470,7 @@ class Content_Sync_Media {
 						}
 					}
 
-					// Look for image ID fields
+					// Look for image ID fields.
 					if ( is_numeric( $value ) && strpos( $key, 'image' ) !== false ) {
 						$image_data = self::prepare_image_data( $value, 'elementor_' . $key );
 						if ( $image_data ) {
@@ -1478,7 +1478,7 @@ class Content_Sync_Media {
 						}
 					}
 
-					// Look for image array fields
+					// Look for image array fields.
 					if ( is_array( $value ) && isset( $value['id'] ) && is_numeric( $value['id'] ) ) {
 						$image_data = self::prepare_image_data( $value['id'], 'elementor_' . $key );
 						if ( ! $image_data && ! empty( $value['url'] ) ) {
@@ -1495,7 +1495,7 @@ class Content_Sync_Media {
 						$images = array_merge( $images, self::extract_elementor_nested_media( $value, (string) $key ) );
 					}
 
-					// Look for gallery fields
+					// Look for gallery fields.
 					if ( is_array( $value ) && strpos( $key, 'gallery' ) !== false ) {
 						foreach ( $value as $gallery_item ) {
 							if ( is_array( $gallery_item ) && isset( $gallery_item['id'] ) ) {
@@ -1512,7 +1512,7 @@ class Content_Sync_Media {
 				}
 			}
 
-			// Recursively check child elements
+			// Recursively check child elements.
 			if ( isset( $element['elements'] ) && is_array( $element['elements'] ) ) {
 				$child_images = self::extract_elementor_images_recursive( $element['elements'] );
 				$images       = array_merge( $images, $child_images );
@@ -1793,7 +1793,7 @@ class Content_Sync_Media {
 			return;
 		}
 
-		// Only process rasterised images (skip SVG etc.)
+		// Only process rasterised images (skip SVG etc.).
 		$mime_type = get_post_mime_type( $attachment_id );
 		if ( ! $mime_type || 0 !== strpos( $mime_type, 'image/' ) ) {
 			return;
