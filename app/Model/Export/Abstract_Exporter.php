@@ -54,7 +54,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Constructor
 	 *
-	 * @param int $job_id Optional. Job ID for logging
+	 * @param int $job_id Optional. Job ID for logging.
 	 */
 	public function __construct( $job_id = 0 ) {
 		$this->job_id = $job_id;
@@ -63,7 +63,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Export data
 	 *
-	 * @param array $options Optional. Export options
+	 * @param array $options Optional. Export options.
 	 * @return array|WP_Error Export results or WP_Error
 	 */
 	public function export( $options = array() ) {
@@ -73,7 +73,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 		// After reset_stats(), which zeroes the clock (the log said "completed in 1794459523 seconds").
 		$this->stats['start_time'] = microtime( true );
 
-		// Validate options first
+		// Validate options first.
 		$validation = $this->validate_options( $this->options );
 		if ( is_wp_error( $validation ) ) {
 			return $validation;
@@ -81,7 +81,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 
 		$this->log_info( __( 'Starting export', 'import-export-by-rockstarlab' ) );
 
-		// Get total count
+		// Get total count.
 		$this->stats['total'] = $this->get_count( $this->options );
 
 		if ( is_wp_error( $this->stats['total'] ) ) {
@@ -97,7 +97,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 
 		$this->log_info( sprintf( /* translators: %d: stats. */ __( 'Found %d items to export', 'import-export-by-rockstarlab' ), $this->stats['total'] ) );
 
-		// Get data
+		// Get data.
 		$data = $this->get_data( $this->options );
 
 		if ( is_wp_error( $data ) ) {
@@ -110,7 +110,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 		$this->stats['processed'] = null !== $this->source_row_count ? $this->source_row_count : count( $data );
 		$exported_data            = array();
 
-		// Process each item
+		// Process each item.
 		foreach ( $data as $index => $item ) {
 			$processed = $this->process_item( $item, $index );
 
@@ -126,7 +126,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 				++$this->stats['skipped'];
 			} else {
 				++$this->stats['exported'];
-				// Save the processed item back to data array
+				// Save the processed item back to data array.
 				$exported_data[] = $processed;
 			}
 		}
@@ -154,11 +154,11 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Validate export options
 	 *
-	 * @param array $options Options to validate
+	 * @param array $options Options to validate.
 	 * @return true|WP_Error
 	 */
 	public function validate_options( $options ) {
-		// Basic validation - can be extended by child classes
+		// Basic validation - can be extended by child classes.
 		if ( isset( $options['limit'] ) && ! is_numeric( $options['limit'] ) ) {
 			return new \WP_Error( 'invalid_limit', __( 'Limit must be a number', 'import-export-by-rockstarlab' ) );
 		}
@@ -175,7 +175,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	 *
 	 * Must be implemented by child classes.
 	 *
-	 * @param array $options Export options
+	 * @param array $options Export options.
 	 * @return array|WP_Error Data array or WP_Error
 	 */
 	abstract public function get_data( $options = array() );
@@ -185,8 +185,8 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	 *
 	 * Can be overridden by child classes for custom processing.
 	 *
-	 * @param mixed $item  Item data
-	 * @param int   $index Item index
+	 * @param mixed $item  Item data.
+	 * @param int   $index Item index.
 	 * @return mixed|string|WP_Error Processed item, 'skipped', or WP_Error
 	 */
 	protected function process_item( $item, $index ) {
@@ -205,7 +205,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 			}
 		}
 
-		// Apply field functions if they exist
+		// Apply field functions if they exist.
 		if ( ! empty( $this->options['field_functions'] ) && is_array( $item ) ) {
 			$item = $this->apply_field_functions( $item, $this->options['field_functions'] );
 		}
@@ -226,8 +226,8 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Apply field transformations.
 	 *
-	 * @param array $item            Item data
-	 * @param array $field_functions Field transformation mapping { fieldKey: [transformationId1, transformationId2, ...] }
+	 * @param array $item            Item data.
+	 * @param array $field_functions Field transformation mapping { fieldKey: [transformationId1, transformationId2, ...] }.
 	 * @return array Item with transformed fields
 	 */
 	protected function apply_field_functions( $item, $field_functions ) {
@@ -261,7 +261,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 				);
 			}
 
-			// Update field with transformed value
+			// Update field with transformed value.
 			$item[ $field_key ] = $value;
 		}
 
@@ -284,8 +284,8 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Apply filters to data
 	 *
-	 * @param array $data    Data to filter
-	 * @param array $filters Filters to apply
+	 * @param array $data    Data to filter.
+	 * @param array $filters Filters to apply.
 	 * @return array Filtered data
 	 */
 	protected function apply_filters( $data, $filters ) {
@@ -307,12 +307,12 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Check if item matches filters
 	 *
-	 * @param mixed $item    Item to check
-	 * @param array $filters Filters
+	 * @param mixed $item    Item to check.
+	 * @param array $filters Filters.
 	 * @return bool True if matches
 	 */
 	protected function item_matches_filters( $item, $filters ) {
-		// Default implementation - can be overridden
+		// Default implementation - can be overridden.
 		return true;
 	}
 
@@ -343,8 +343,8 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Log info message
 	 *
-	 * @param string $message Log message
-	 * @param array  $data    Optional. Additional data
+	 * @param string $message Log message.
+	 * @param array  $data    Optional. Additional data.
 	 */
 	protected function log_info( $message, $data = array() ) {
 		\RockStarLab\ImportExport\Service\Job_Log::write( $this->job_id, 'info', $message );
@@ -353,8 +353,8 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Log warning message
 	 *
-	 * @param string $message Log message
-	 * @param array  $data    Optional. Additional data
+	 * @param string $message Log message.
+	 * @param array  $data    Optional. Additional data.
 	 */
 	protected function log_warning( $message, $data = array() ) {
 		\RockStarLab\ImportExport\Service\Job_Log::write( $this->job_id, 'warning', $message );
@@ -363,8 +363,8 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Log error message
 	 *
-	 * @param string $message Log message
-	 * @param array  $data    Optional. Additional data
+	 * @param string $message Log message.
+	 * @param array  $data    Optional. Additional data.
 	 */
 	protected function log_error( $message, $data = array() ) {
 		\RockStarLab\ImportExport\Service\Job_Log::write( $this->job_id, 'error', $message );
@@ -373,7 +373,7 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Transform data
 	 *
-	 * @param array $data Data to transform
+	 * @param array $data Data to transform.
 	 * @return array Transformed data
 	 */
 	protected function transform_data( $data ) {
@@ -383,8 +383,8 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Get option value
 	 *
-	 * @param string $key     Option key
-	 * @param mixed  $default Default value
+	 * @param string $key     Option key.
+	 * @param mixed  $default Default value.
 	 * @return mixed Option value
 	 */
 	protected function get_option( $key, $default = null ) {
@@ -394,8 +394,8 @@ abstract class Abstract_Exporter implements Exporter_Interface {
 	/**
 	 * Select fields from item
 	 *
-	 * @param array $item   Item data
-	 * @param array $fields Fields to select
+	 * @param array $item   Item data.
+	 * @param array $fields Fields to select.
 	 * @return array Filtered item
 	 */
 	protected function select_fields( $item, $fields ) {

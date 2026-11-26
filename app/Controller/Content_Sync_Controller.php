@@ -270,17 +270,17 @@ class Content_Sync_Controller extends Base_Controller {
 	 * Register hooks for post list screens
 	 */
 	public function register_post_list_hooks() {
-		// Load assets for post list screens
+		// Load assets for post list screens.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_post_list_assets' ) );
 
-		// Add sync button and modal to post list screens
+		// Add sync button and modal to post list screens.
 		add_action( 'restrict_manage_posts', array( $this, 'render_sync_button' ) );
 		add_action( 'admin_footer-edit.php', array( $this, 'render_sync_modal' ) );
 		// WooCommerce orders in HPOS storage are listed on admin.php?page=wc-orders, which has no
 		// restrict_manage_posts: the Export button of the orders screen was missing there.
 		add_action( 'woocommerce_order_list_table_restrict_manage_orders', array( $this, 'render_order_list_button' ), 10, 2 );
 
-		// Add sync button to post edit screen
+		// Add sync button to post edit screen.
 		add_action( 'post_submitbox_misc_actions', array( $this, 'render_post_edit_sync_button' ) );
 		add_action( 'admin_footer-post.php', array( $this, 'render_gutenberg_sync_button' ) );
 		add_action( 'admin_footer-post-new.php', array( $this, 'render_gutenberg_sync_button' ) );
@@ -302,12 +302,12 @@ class Content_Sync_Controller extends Base_Controller {
 			$hook_suffix = 'edit.php';
 		}
 
-		// Load on edit.php (post list) and post.php/post-new.php (edit post)
+		// Load on edit.php (post list) and post.php/post-new.php (edit post).
 		if ( ! in_array( $hook_suffix, array( 'edit.php', 'post.php', 'post-new.php' ) ) ) {
 			return;
 		}
 
-		// Don't load on trash page
+		// Don't load on trash page.
 		if ( 'edit.php' === $hook_suffix ) {
 			$post_status = $this->get_current_admin_post_status();
 			if ( 'trash' === $post_status ) {
@@ -315,7 +315,7 @@ class Content_Sync_Controller extends Base_Controller {
 			}
 		}
 
-		// Get current post type
+		// Get current post type.
 		global $post;
 		$current_post_type = '';
 
@@ -359,7 +359,7 @@ class Content_Sync_Controller extends Base_Controller {
 		);
 
 		// Localize script
-		// Get connected sites for Select2 AJAX
+		// Get connected sites for Select2 AJAX.
 		$sites     = Connected_Site::get_all();
 		$sites_map = array();
 		foreach ( $sites as $site ) {
@@ -385,7 +385,7 @@ class Content_Sync_Controller extends Base_Controller {
 				'contentSyncUrl'              => Site_URL::admin_url( 'admin.php?page=rsl-ie-content-sync' ),
 				'connectedSites'              => $sites_map,
 				'i18n'                        => array(
-					// Alerts & Messages
+					// Alerts & Messages.
 					'pleaseSavePost'          => __( 'Please save the post first', 'import-export-by-rockstarlab' ),
 					'pleaseSelectSite'        => __( 'Please select a site', 'import-export-by-rockstarlab' ),
 					'noPostsSelected'         => __( 'No posts selected', 'import-export-by-rockstarlab' ),
@@ -401,7 +401,7 @@ class Content_Sync_Controller extends Base_Controller {
 					'pleaseSelectOnePost'     => __( 'Please select at least one post', 'import-export-by-rockstarlab' ),
 
 					// translators: %s = content placeholder.
-					// Count Text
+					// Count Text.
 					'onePost'                 => __( '1 post', 'import-export-by-rockstarlab' ),
 					// translators: %s is a dynamic value.
 					'postsCount'              => __( '%s posts', 'import-export-by-rockstarlab' ),
@@ -414,7 +414,7 @@ class Content_Sync_Controller extends Base_Controller {
 					'noTitle'                 => __( '(No title)', 'import-export-by-rockstarlab' ),
 
 					// translators: %s = content placeholder.
-					// Actions
+					// Actions.
 					'createNewPost'           => __( '➕ Create New Post', 'import-export-by-rockstarlab' ),
 					// translators: 1: post title or name, 2: post ID.
 					'updatePost'              => __( '🔄 Update: %1$s (ID: %2$s)', 'import-export-by-rockstarlab' ),
@@ -432,7 +432,7 @@ class Content_Sync_Controller extends Base_Controller {
 					'matchingByTitle'         => __( 'Matching...', 'import-export-by-rockstarlab' ),
 					'selectRemotePostForPull' => __( 'Please select at least one remote post to pull.', 'import-export-by-rockstarlab' ),
 
-					// Browse
+					// Browse.
 					'noPostsFound'            => __( 'No posts found', 'import-export-by-rockstarlab' ),
 					'child'                   => __( 'child', 'import-export-by-rockstarlab' ),
 					'children'                => __( 'children', 'import-export-by-rockstarlab' ),
@@ -444,7 +444,7 @@ class Content_Sync_Controller extends Base_Controller {
 			)
 		);
 
-		// Enqueue styles (reuse the main plugin styles)
+		// Enqueue styles (reuse the main plugin styles).
 		wp_enqueue_style(
 			'rsl-ie-post-sync-styles',
 			plugins_url( 'assets/css/app.css', RSL_IE_FILE ),
@@ -463,12 +463,12 @@ class Content_Sync_Controller extends Base_Controller {
 			);
 		}
 
-		// Enqueue Gutenberg sync script for post edit screens
+		// Enqueue Gutenberg sync script for post edit screens.
 		if ( in_array( $hook_suffix, array( 'post.php', 'post-new.php' ) ) ) {
 
-			// Only show for posts being edited
+			// Only show for posts being edited.
 			if ( $post ) {
-				// Enqueue the Gutenberg sync script
+				// Enqueue the Gutenberg sync script.
 				wp_enqueue_script(
 					'rsl-ie-gutenberg-sync',
 					plugins_url( 'assets/js/gutenberg-sync.js', RSL_IE_FILE ),
@@ -477,7 +477,7 @@ class Content_Sync_Controller extends Base_Controller {
 					false
 				);
 
-				// Localize script with necessary data
+				// Localize script with necessary data.
 				wp_localize_script(
 					'rsl-ie-gutenberg-sync',
 					'rslIeData',
@@ -505,12 +505,12 @@ class Content_Sync_Controller extends Base_Controller {
 	public function render_sync_button() {
 		global $typenow;
 
-		// Only show on post list screens
+		// Only show on post list screens.
 		if ( empty( $typenow ) ) {
 			return;
 		}
 
-		// Don't show on trash page
+		// Don't show on trash page.
 		$post_status = $this->get_current_admin_post_status();
 		if ( 'trash' === $post_status ) {
 			return;
@@ -570,7 +570,7 @@ class Content_Sync_Controller extends Base_Controller {
 			return;
 		}
 
-		// Don't show on trash page
+		// Don't show on trash page.
 		$post_status = $this->get_current_admin_post_status();
 		if ( 'trash' === $post_status ) {
 			return;
@@ -580,12 +580,12 @@ class Content_Sync_Controller extends Base_Controller {
 			return;
 		}
 
-		// Get connected sites
+		// Get connected sites.
 		$sites = Connected_Site::get_all();
 
 		$rendered = true;
 
-		// Load view templates
+		// Load view templates.
 		require RSL_IE_PATH . '/app/View/sync/sync-modal.php';
 		require RSL_IE_PATH . '/app/View/sync/mapping-modal.php';
 		require RSL_IE_PATH . '/app/View/sync/browse-modal.php';
@@ -597,7 +597,7 @@ class Content_Sync_Controller extends Base_Controller {
 	public function render_post_edit_sync_button() {
 		global $post;
 
-		// Only show for published posts or posts being edited
+		// Only show for published posts or posts being edited.
 		if ( ! $post || ( 'auto-draft' === $post->post_status ) ) {
 			return;
 		}
@@ -634,7 +634,7 @@ class Content_Sync_Controller extends Base_Controller {
 	 */
 	public function render_gutenberg_sync_button() {
 		// This method is kept for backwards compatibility but the functionality
-		// has been moved to enqueue_post_list_assets() for proper script enqueueing
+		// has been moved to enqueue_post_list_assets() for proper script enqueueing.
 	}
 
 	/** AJAX adapter for get_remote_posts. */

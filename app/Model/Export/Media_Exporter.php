@@ -87,7 +87,7 @@ class Media_Exporter extends Abstract_Exporter {
 			'image_meta',
 			'sizes',
 			'author_name',
-			// Additional frontend-mapped fields
+			// Additional frontend-mapped fields.
 			'file_url',
 			'file_path',
 			'file_name',
@@ -128,20 +128,20 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Get total count of items
 	 *
-	 * @param array $options Optional. Export filters
+	 * @param array $options Optional. Export filters.
 	 * @return int
 	 */
 	public function get_count( $options = array() ) {
 		$query_args = $this->build_query_args( $options );
 
-		// Remove offset and paged for count query - we want total count
+		// Remove offset and paged for count query - we want total count.
 		unset( $query_args['offset'] );
 		unset( $query_args['paged'] );
 
 		$query_args['fields']         = 'ids';
 		$query_args['posts_per_page'] = -1;
 
-		// Add custom ID filters via posts_where hook
+		// Add custom ID filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_id_filters'] ) ) {
 			$custom_id_filters = $query_args['_custom_id_filters'];
 			unset( $query_args['_custom_id_filters'] );
@@ -155,17 +155,17 @@ class Media_Exporter extends Abstract_Exporter {
 						$condition = $filter['condition'];
 						$value     = $filter['value'];
 
-						if ( $condition === 'greater' ) {
+						if ( 'greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID > %d", absint( $value ) );
-						} elseif ( $condition === 'less' ) {
+						} elseif ( 'less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID < %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_greater' ) {
+						} elseif ( 'equals_or_greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID >= %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_less' ) {
+						} elseif ( 'equals_or_less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID <= %d", absint( $value ) );
-						} elseif ( $condition === 'between' ) {
+						} elseif ( 'between' === $condition ) {
 							$values = array_map( 'absint', explode( ',', $value ) );
-							if ( count( $values ) === 2 ) {
+							if ( 2 === count( $values ) ) {
 								$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID BETWEEN %d AND %d", $values[0], $values[1] );
 							}
 						}
@@ -178,7 +178,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom field filters via posts_where hook
+		// Add custom field filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_field_filters'] ) ) {
 			$custom_field_filters = $query_args['_custom_field_filters'];
 			unset( $query_args['_custom_field_filters'] );
@@ -193,7 +193,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom media file filters via posts_where hook
+		// Add custom media file filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_media_file_filters'] ) ) {
 			$custom_media_file_filters = $query_args['_custom_media_file_filters'];
 			unset( $query_args['_custom_media_file_filters'] );
@@ -208,7 +208,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom author ID filters via posts_where hook
+		// Add custom author ID filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_author_id_filters'] ) ) {
 			$custom_author_id_filters = $query_args['_custom_author_id_filters'];
 			unset( $query_args['_custom_author_id_filters'] );
@@ -221,13 +221,13 @@ class Media_Exporter extends Abstract_Exporter {
 						$condition = $filter['condition'];
 						$value     = $filter['value'];
 
-						if ( $condition === 'greater' ) {
+						if ( 'greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_author > %d", absint( $value ) );
-						} elseif ( $condition === 'less' ) {
+						} elseif ( 'less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_author < %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_greater' ) {
+						} elseif ( 'equals_or_greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_author >= %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_less' ) {
+						} elseif ( 'equals_or_less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_author <= %d", absint( $value ) );
 						}
 					}
@@ -238,7 +238,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom author filters via posts_join and posts_where hooks
+		// Add custom author filters via posts_join and posts_where hooks.
 		if ( ! empty( $query_args['_custom_author_filters'] ) ) {
 			$custom_author_filters = $query_args['_custom_author_filters'];
 			unset( $query_args['_custom_author_filters'] );
@@ -264,7 +264,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom parent filters via posts_where hook
+		// Add custom parent filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_parent_filters'] ) ) {
 			$custom_parent_filters = $query_args['_custom_parent_filters'];
 			unset( $query_args['_custom_parent_filters'] );
@@ -276,15 +276,15 @@ class Media_Exporter extends Abstract_Exporter {
 					foreach ( $custom_parent_filters as $filter ) {
 						$condition = $filter['condition'];
 
-						if ( $condition === 'is_not_empty' ) {
+						if ( 'is_not_empty' === $condition ) {
 							$where .= " AND {$wpdb->posts}.post_parent > 0";
-						} elseif ( $condition === 'greater' ) {
+						} elseif ( 'greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_parent > %d", absint( $filter['value'] ) );
-						} elseif ( $condition === 'less' ) {
+						} elseif ( 'less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_parent < %d", absint( $filter['value'] ) );
-						} elseif ( $condition === 'equals_or_greater' ) {
+						} elseif ( 'equals_or_greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_parent >= %d", absint( $filter['value'] ) );
-						} elseif ( $condition === 'equals_or_less' ) {
+						} elseif ( 'equals_or_less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_parent <= %d", absint( $filter['value'] ) );
 						}
 					}
@@ -297,7 +297,7 @@ class Media_Exporter extends Abstract_Exporter {
 
 		$query = new \WP_Query( $query_args );
 
-		// Remove the filters after query
+		// Remove the filters after query.
 		\RockStarLab\ImportExport\Helper\Query_Filter_Cleanup::remove_own_closures( __FILE__ );
 		return $query->found_posts;
 	}
@@ -305,7 +305,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Get data based on export options
 	 *
-	 * @param array $options Export options
+	 * @param array $options Export options.
 	 * @return array|WP_Error
 	 */
 	public function get_data( $options = array() ) {
@@ -313,7 +313,7 @@ class Media_Exporter extends Abstract_Exporter {
 
 		$this->log_info( __( 'Querying media', 'import-export-by-rockstarlab' ), $query_args );
 
-		// Add custom ID filters via posts_where hook
+		// Add custom ID filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_id_filters'] ) ) {
 			$custom_id_filters = $query_args['_custom_id_filters'];
 			unset( $query_args['_custom_id_filters'] );
@@ -327,17 +327,17 @@ class Media_Exporter extends Abstract_Exporter {
 						$condition = $filter['condition'];
 						$value     = $filter['value'];
 
-						if ( $condition === 'greater' ) {
+						if ( 'greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID > %d", absint( $value ) );
-						} elseif ( $condition === 'less' ) {
+						} elseif ( 'less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID < %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_greater' ) {
+						} elseif ( 'equals_or_greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID >= %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_less' ) {
+						} elseif ( 'equals_or_less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID <= %d", absint( $value ) );
-						} elseif ( $condition === 'between' ) {
+						} elseif ( 'between' === $condition ) {
 							$values = array_map( 'absint', explode( ',', $value ) );
-							if ( count( $values ) === 2 ) {
+							if ( 2 === count( $values ) ) {
 								$where .= $wpdb->prepare( " AND {$wpdb->posts}.ID BETWEEN %d AND %d", $values[0], $values[1] );
 							}
 						}
@@ -350,7 +350,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom field filters via posts_where hook
+		// Add custom field filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_field_filters'] ) ) {
 			$custom_field_filters = $query_args['_custom_field_filters'];
 			unset( $query_args['_custom_field_filters'] );
@@ -365,7 +365,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom media file filters via posts_where hook
+		// Add custom media file filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_media_file_filters'] ) ) {
 			$custom_media_file_filters = $query_args['_custom_media_file_filters'];
 			unset( $query_args['_custom_media_file_filters'] );
@@ -380,7 +380,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom author ID filters via posts_where hook
+		// Add custom author ID filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_author_id_filters'] ) ) {
 			$custom_author_id_filters = $query_args['_custom_author_id_filters'];
 			unset( $query_args['_custom_author_id_filters'] );
@@ -393,13 +393,13 @@ class Media_Exporter extends Abstract_Exporter {
 						$condition = $filter['condition'];
 						$value     = $filter['value'];
 
-						if ( $condition === 'greater' ) {
+						if ( 'greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_author > %d", absint( $value ) );
-						} elseif ( $condition === 'less' ) {
+						} elseif ( 'less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_author < %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_greater' ) {
+						} elseif ( 'equals_or_greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_author >= %d", absint( $value ) );
-						} elseif ( $condition === 'equals_or_less' ) {
+						} elseif ( 'equals_or_less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_author <= %d", absint( $value ) );
 						}
 					}
@@ -410,7 +410,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom author filters via posts_join and posts_where hooks
+		// Add custom author filters via posts_join and posts_where hooks.
 		if ( ! empty( $query_args['_custom_author_filters'] ) ) {
 			$custom_author_filters = $query_args['_custom_author_filters'];
 			unset( $query_args['_custom_author_filters'] );
@@ -436,7 +436,7 @@ class Media_Exporter extends Abstract_Exporter {
 			);
 		}
 
-		// Add custom parent filters via posts_where hook
+		// Add custom parent filters via posts_where hook.
 		if ( ! empty( $query_args['_custom_parent_filters'] ) ) {
 			$custom_parent_filters = $query_args['_custom_parent_filters'];
 			unset( $query_args['_custom_parent_filters'] );
@@ -448,15 +448,15 @@ class Media_Exporter extends Abstract_Exporter {
 					foreach ( $custom_parent_filters as $filter ) {
 						$condition = $filter['condition'];
 
-						if ( $condition === 'is_not_empty' ) {
+						if ( 'is_not_empty' === $condition ) {
 							$where .= " AND {$wpdb->posts}.post_parent > 0";
-						} elseif ( $condition === 'greater' ) {
+						} elseif ( 'greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_parent > %d", absint( $filter['value'] ) );
-						} elseif ( $condition === 'less' ) {
+						} elseif ( 'less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_parent < %d", absint( $filter['value'] ) );
-						} elseif ( $condition === 'equals_or_greater' ) {
+						} elseif ( 'equals_or_greater' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_parent >= %d", absint( $filter['value'] ) );
-						} elseif ( $condition === 'equals_or_less' ) {
+						} elseif ( 'equals_or_less' === $condition ) {
 							$where .= $wpdb->prepare( " AND {$wpdb->posts}.post_parent <= %d", absint( $filter['value'] ) );
 						}
 					}
@@ -469,7 +469,7 @@ class Media_Exporter extends Abstract_Exporter {
 
 		$query = new \WP_Query( $query_args );
 
-		// Remove the filters after query
+		// Remove the filters after query.
 		if ( ! empty( $custom_id_filters ) || ! empty( $custom_field_filters ) || ! empty( $custom_media_file_filters ) || ! empty( $custom_author_id_filters ) || ! empty( $custom_author_filters ) || ! empty( $custom_parent_filters ) ) {
 			\RockStarLab\ImportExport\Helper\Query_Filter_Cleanup::remove_own_closures( __FILE__ );
 		}       if ( ! $query->have_posts() ) {
@@ -495,7 +495,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Build WP_Query arguments from options
 	 *
-	 * @param array $options Export options
+	 * @param array $options Export options.
 	 * @return array Query arguments
 	 */
 	protected function build_query_args( $options ) {
@@ -508,27 +508,27 @@ class Media_Exporter extends Abstract_Exporter {
 			'order'          => $options['order'] ?? 'DESC',
 		);
 
-		// Author filter
+		// Author filter.
 		if ( ! empty( $options['author'] ) ) {
 			$args['author'] = is_array( $options['author'] ) ? implode( ',', $options['author'] ) : $options['author'];
 		}
 
-		// Search query
+		// Search query.
 		if ( ! empty( $options['s'] ) ) {
 			$args['s'] = $options['s'];
 		}
 
-		// Date query
+		// Date query.
 		if ( ! empty( $options['date_query'] ) ) {
 			$args['date_query'] = $options['date_query'];
 		}
 
-		// Parent post filter
+		// Parent post filter.
 		if ( isset( $options['post_parent'] ) ) {
 			$args['post_parent'] = $options['post_parent'];
 		}
 
-		// MIME type filter
+		// MIME type filter.
 		if ( ! empty( $options['mime_type'] ) ) {
 			$args['post_mime_type'] = $this->parse_mime_type( $options['mime_type'] );
 		}
@@ -544,12 +544,12 @@ class Media_Exporter extends Abstract_Exporter {
 			return $args;
 		}
 
-		// Custom field filters
+		// Custom field filters.
 		if ( ! empty( $options['custom_fields'] ) && is_array( $options['custom_fields'] ) ) {
 			$this->apply_custom_field_filters( $args, $options['custom_fields'] );
 		}
 
-		// Process dynamic filters
+		// Process dynamic filters.
 		if ( ! empty( $options['filters'] ) && is_array( $options['filters'] ) ) {
 			$this->apply_dynamic_filters( $args, $options['filters'] );
 		}
@@ -700,7 +700,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Apply custom field (meta) filters to query args
 	 *
-	 * @param array $args    Query arguments (by reference)
+	 * @param array $args    Query arguments (by reference).
 	 * @param array $filters Custom field filters
 	 *                       Format: [
 	 *                           [
@@ -708,7 +708,7 @@ class Media_Exporter extends Abstract_Exporter {
 	 *                               'value' => 'field_value',
 	 *                               'condition' => 'equals|not_equals|contains|not_contains|...'
 	 *                           ]
-	 *                       ]
+	 *                       ].
 	 */
 	protected function apply_custom_field_filters( &$args, $filters ) {
 		if ( empty( $filters ) || ! is_array( $filters ) ) {
@@ -729,7 +729,7 @@ class Media_Exporter extends Abstract_Exporter {
 			$condition = $filter['condition'];
 			$value     = $filter['value'] ?? '';
 
-			// Convert condition to meta compare
+			// Convert condition to meta compare.
 			$meta_condition = $this->convert_condition_to_meta_compare( $condition );
 
 			if ( ! $meta_condition ) {
@@ -741,19 +741,19 @@ class Media_Exporter extends Abstract_Exporter {
 				'compare' => $meta_condition,
 			);
 
-			// Add value only if condition requires it
+			// Add value only if condition requires it.
 			if ( ! in_array( $condition, array( 'is_empty', 'is_not_empty' ), true ) ) {
-				// For IN and NOT IN, value should be an array
+				// For IN and NOT IN, value should be an array.
 				if ( in_array( $condition, array( 'in', 'not_in' ), true ) ) {
 					$values                   = array_map(
 						function ( $v ) {
 							$v = trim( $v );
-							// Remove surrounding quotes if present
+							// Remove surrounding quotes if present.
 							return trim( $v, '\'"' );
 						},
 						is_array( $value ) ? $value : explode( ',', $value )
 					);
-					$meta_query_item['value'] = array_filter( $values ); // Remove empty values
+					$meta_query_item['value'] = array_filter( $values ); // Remove empty values.
 				} else {
 					$meta_query_item['value'] = $value;
 				}
@@ -766,8 +766,8 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Apply dynamic filters to query args
 	 *
-	 * @param array $args    Query arguments (by reference)
-	 * @param array $filters Dynamic filters
+	 * @param array $args    Query arguments (by reference).
+	 * @param array $filters Dynamic filters.
 	 */
 	protected function apply_dynamic_filters( &$args, $filters ) {
 		$meta_query = $args['meta_query'] ?? array();
@@ -781,26 +781,26 @@ class Media_Exporter extends Abstract_Exporter {
 			$condition = $filter['condition'];
 			$value     = $filter['value'] ?? '';
 
-			// Handle specific post fields
-			if ( $field === 'ID' ) {
-				// ID filtering
-				if ( $condition === 'equals' ) {
+			// Handle specific post fields.
+			if ( 'ID' === $field ) {
+				// ID filtering.
+				if ( 'equals' === $condition ) {
 					$args['post__in'] = array( absint( $value ) ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct filtering.
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['post__not_in'] = array( absint( $value ) ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct export filtering.
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$args['post__in'] = array_map( 'absint', explode( ',', $value ) ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct filtering.
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$args['post__not_in'] = array_map( 'absint', explode( ',', $value ) ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct export filtering.
-				} elseif ( $condition === 'is_empty' ) {
-					// ID cannot be empty - return no results
+				} elseif ( 'is_empty' === $condition ) {
+					// ID cannot be empty - return no results.
 					$args['post__in'] = array( 0 );
-				} elseif ( $condition === 'is_not_empty' ) {
+				} elseif ( 'is_not_empty' === $condition ) {
 					// ID is always not empty - this condition is always true, no filter needed
-					// Do nothing, return all posts
+					// Do nothing, return all posts.
 				} elseif ( in_array( $condition, array( 'greater', 'less', 'equals_or_greater', 'equals_or_less', 'between' ), true ) ) {
 					// For numeric comparisons on ID, we need to use a custom WHERE clause
-					// Store the condition in a temporary property to be used in posts_where filter
+					// Store the condition in a temporary property to be used in posts_where filter.
 					if ( ! isset( $args['_custom_id_filters'] ) ) {
 						$args['_custom_id_filters'] = array();
 					}
@@ -812,18 +812,18 @@ class Media_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			if ( $field === 'post_author' ) {
-				// Author filtering with all conditions
-				if ( $condition === 'equals' ) {
+			if ( 'post_author' === $field ) {
+				// Author filtering with all conditions.
+				if ( 'equals' === $condition ) {
 					$args['author'] = absint( $value );
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['author__not_in'] = array( absint( $value ) );
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$args['author__in'] = array_map( 'absint', explode( ',', $value ) );
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$args['author__not_in'] = array_map( 'absint', explode( ',', $value ) );
 				} elseif ( in_array( $condition, array( 'greater', 'less', 'equals_or_greater', 'equals_or_less' ), true ) ) {
-					// For numeric comparisons on author ID, use custom WHERE clause
+					// For numeric comparisons on author ID, use custom WHERE clause.
 					if ( ! isset( $args['_custom_author_id_filters'] ) ) {
 						$args['_custom_author_id_filters'] = array();
 					}
@@ -835,9 +835,9 @@ class Media_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle author_name field (needs JOIN with users table)
-			if ( $field === 'author_name' ) {
-				// Store condition for custom WHERE clause with JOIN
+			// Handle author_name field (needs JOIN with users table).
+			if ( 'author_name' === $field ) {
+				// Store condition for custom WHERE clause with JOIN.
 				if ( ! isset( $args['_custom_author_filters'] ) ) {
 					$args['_custom_author_filters'] = array();
 				}
@@ -849,29 +849,29 @@ class Media_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Map alt_text to actual meta key
-			if ( $field === 'alt_text' ) {
+			// Map alt_text to actual meta key.
+			if ( 'alt_text' === $field ) {
 				$field = '_wp_attachment_image_alt';
 			}
 
-			if ( $field === 'post_parent' ) {
-				// Handle post_parent with all conditions
-				if ( $condition === 'equals' ) {
+			if ( 'post_parent' === $field ) {
+				// Handle post_parent with all conditions.
+				if ( 'equals' === $condition ) {
 					$args['post_parent'] = absint( $value );
-				} elseif ( $condition === 'not_equals' ) {
-					// Use post_parent__not_in
+				} elseif ( 'not_equals' === $condition ) {
+					// Use post_parent__not_in.
 					$args['post_parent__not_in'] = array( absint( $value ) );
-				} elseif ( $condition === 'in' ) {
-					// Use post_parent__in for multiple values
+				} elseif ( 'in' === $condition ) {
+					// Use post_parent__in for multiple values.
 					$args['post_parent__in'] = array_map( 'absint', explode( ',', $value ) );
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$args['post_parent__not_in'] = array_map( 'absint', explode( ',', $value ) );
-				} elseif ( $condition === 'is_empty' ) {
-					// post_parent = 0 means not attached
+				} elseif ( 'is_empty' === $condition ) {
+					// post_parent = 0 means not attached.
 					$args['post_parent'] = 0;
-				} elseif ( $condition === 'is_not_empty' ) {
+				} elseif ( 'is_not_empty' === $condition ) {
 					// post_parent > 0 means attached to something
-					// Need custom WHERE for this
+					// Need custom WHERE for this.
 					if ( ! isset( $args['_custom_parent_filters'] ) ) {
 						$args['_custom_parent_filters'] = array();
 					}
@@ -879,7 +879,7 @@ class Media_Exporter extends Abstract_Exporter {
 						'condition' => 'is_not_empty',
 					);
 				} elseif ( in_array( $condition, array( 'greater', 'less', 'equals_or_greater', 'equals_or_less' ), true ) ) {
-					// For numeric comparisons on post_parent, use custom WHERE clause
+					// For numeric comparisons on post_parent, use custom WHERE clause.
 					if ( ! isset( $args['_custom_parent_filters'] ) ) {
 						$args['_custom_parent_filters'] = array();
 					}
@@ -892,7 +892,7 @@ class Media_Exporter extends Abstract_Exporter {
 			}       // For other post fields that need custom SQL (like is_empty, contains, etc.)
 			$post_fields = array( 'post_title', 'post_content', 'post_excerpt', 'post_date', 'post_modified', 'post_status', 'post_mime_type' );
 			if ( in_array( $field, $post_fields, true ) ) {
-				// Store condition for custom WHERE clause
+				// Store condition for custom WHERE clause.
 				if ( ! isset( $args['_custom_field_filters'] ) ) {
 					$args['_custom_field_filters'] = array();
 				}
@@ -904,10 +904,10 @@ class Media_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle special media file fields
+			// Handle special media file fields.
 			$media_file_fields = array( 'file_size', 'file_name', 'file_extension', 'file_path' );
 			if ( in_array( $field, $media_file_fields, true ) ) {
-				// Store condition for custom WHERE clause with special handling
+				// Store condition for custom WHERE clause with special handling.
 				if ( ! isset( $args['_custom_media_file_filters'] ) ) {
 					$args['_custom_media_file_filters'] = array();
 				}
@@ -919,26 +919,26 @@ class Media_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle as meta field
+			// Handle as meta field.
 			$meta_condition = $this->convert_condition_to_meta_compare( $condition );           if ( $meta_condition ) {
 				$meta_query_item = array(
 					'key'     => $field,
 					'compare' => $meta_condition,
 				);
 
-				// Add value only if condition requires it
+				// Add value only if condition requires it.
 				if ( ! in_array( $condition, array( 'is_empty', 'is_not_empty' ), true ) ) {
-					// For IN and NOT IN, value should be an array
+					// For IN and NOT IN, value should be an array.
 					if ( in_array( $condition, array( 'in', 'not_in' ), true ) ) {
 						$values                   = array_map(
 							function ( $v ) {
 								$v = trim( $v );
-								// Remove surrounding quotes if present
+								// Remove surrounding quotes if present.
 								return trim( $v, '\'"' );
 							},
 							explode( ',', $value )
 						);
-						$meta_query_item['value'] = array_filter( $values ); // Remove empty values
+						$meta_query_item['value'] = array_filter( $values ); // Remove empty values.
 					} else {
 						$meta_query_item['value'] = $value;
 					}
@@ -956,7 +956,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Convert filter condition to WP meta compare operator
 	 *
-	 * @param string $condition Filter condition
+	 * @param string $condition Filter condition.
 	 * @return string|null Meta compare operator
 	 */
 	protected function convert_condition_to_meta_compare( $condition ) {
@@ -983,7 +983,7 @@ class Media_Exporter extends Abstract_Exporter {
 	 *
 	 * Converts type groups (image, video, audio, document) to actual MIME types.
 	 *
-	 * @param string|array $mime_type MIME type or type group
+	 * @param string|array $mime_type MIME type or type group.
 	 * @return string|array
 	 */
 	protected function parse_mime_type( $mime_type ) {
@@ -1008,15 +1008,15 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Prepare media data for export
 	 *
-	 * @param \WP_Post $attachment Attachment post object
-	 * @param array    $fields     Fields to include
-	 * @param array    $options    Export options
+	 * @param \WP_Post $attachment Attachment post object.
+	 * @param array    $fields     Fields to include.
+	 * @param array    $options    Export options.
 	 * @return array
 	 */
 	protected function prepare_media_data( $attachment, $fields, $options ) {
 		$data = array();
 
-		// Basic fields
+		// Basic fields.
 		$basic_fields = array(
 			'ID',
 			'post_title',
@@ -1081,7 +1081,7 @@ class Media_Exporter extends Abstract_Exporter {
 			}
 		}
 
-		// Attachment metadata
+		// Attachment metadata.
 		if ( in_array( 'alt_text', $fields, true ) ) {
 			$data['alt_text'] = get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true );
 		}
@@ -1094,57 +1094,57 @@ class Media_Exporter extends Abstract_Exporter {
 			$data['description'] = $attachment->post_content;
 		}
 
-		// WordPress attachment metadata
+		// WordPress attachment metadata.
 		if ( in_array( 'metadata', $fields, true ) ) {
 			$data['metadata'] = wp_get_attachment_metadata( $attachment->ID );
 		}
 
-		// Image-specific metadata
+		// Image-specific metadata.
 		if ( in_array( 'image_meta', $fields, true ) && wp_attachment_is_image( $attachment->ID ) ) {
 			$metadata           = wp_get_attachment_metadata( $attachment->ID );
 			$data['image_meta'] = $metadata['image_meta'] ?? array();
 		}
 
-		// Image sizes
+		// Image sizes.
 		if ( in_array( 'sizes', $fields, true ) && wp_attachment_is_image( $attachment->ID ) ) {
 			$data['sizes'] = $this->get_image_sizes( $attachment->ID );
 		}
 
-		// Author name
+		// Author name.
 		if ( in_array( 'author_name', $fields, true ) ) {
 			$author              = get_userdata( $attachment->post_author );
 			$data['author_name'] = $author ? $author->display_name : '';
 		}
 
-		// Frontend-mapped fields (aliases for better naming in frontend)
+		// Frontend-mapped fields (aliases for better naming in frontend).
 
-		// file_url (alias for 'url')
+		// file_url (alias for 'url').
 		if ( in_array( 'file_url', $fields, true ) ) {
 			$data['file_url'] = wp_get_attachment_url( $attachment->ID );
 		}
 
-		// file_path (alias for 'path')
+		// file_path (alias for 'path').
 		if ( in_array( 'file_path', $fields, true ) ) {
 			$data['file_path'] = get_attached_file( $attachment->ID );
 		}
 
-		// file_name (alias for 'filename')
+		// file_name (alias for 'filename').
 		if ( in_array( 'file_name', $fields, true ) ) {
 			$data['file_name'] = basename( get_attached_file( $attachment->ID ) );
 		}
 
-		// file_extension
+		// file_extension.
 		if ( in_array( 'file_extension', $fields, true ) ) {
 			$file_path              = get_attached_file( $attachment->ID );
 			$data['file_extension'] = $file_path ? pathinfo( $file_path, PATHINFO_EXTENSION ) : '';
 		}
 
-		// post_mime_type (alias for 'mime_type')
+		// post_mime_type (alias for 'mime_type').
 		if ( in_array( 'post_mime_type', $fields, true ) ) {
 			$data['post_mime_type'] = get_post_mime_type( $attachment->ID );
 		}
 
-		// width and height (for images)
+		// width and height (for images).
 		if ( in_array( 'width', $fields, true ) || in_array( 'height', $fields, true ) ) {
 			$metadata = wp_get_attachment_metadata( $attachment->ID );
 			if ( in_array( 'width', $fields, true ) ) {
@@ -1155,13 +1155,13 @@ class Media_Exporter extends Abstract_Exporter {
 			}
 		}
 
-		// author_email
+		// author_email.
 		if ( in_array( 'author_email', $fields, true ) ) {
 			$author               = get_userdata( $attachment->post_author );
 			$data['author_email'] = $author ? $author->user_email : '';
 		}
 
-		// attached_post_title
+		// attached_post_title.
 		if ( in_array( 'attached_post_title', $fields, true ) ) {
 			if ( $attachment->post_parent ) {
 				$parent_post                 = get_post( $attachment->post_parent );
@@ -1171,7 +1171,7 @@ class Media_Exporter extends Abstract_Exporter {
 			}
 		}
 
-		// Include file content if requested
+		// Include file content if requested.
 		if ( ! empty( $options['include_file'] ) ) {
 			$file_path = get_attached_file( $attachment->ID );
 			if ( $file_path && file_exists( $file_path ) ) {
@@ -1180,27 +1180,27 @@ class Media_Exporter extends Abstract_Exporter {
 			}
 		}
 
-		// Handle ACF fields (with acf_ prefix)
+		// Handle ACF fields (with acf_ prefix).
 		foreach ( $fields as $field ) {
-			if ( strpos( $field, 'acf_' ) === 0 ) {
-				$acf_field_name = substr( $field, 4 ); // Remove 'acf_' prefix (4 characters)
+			if ( 0 === strpos( $field, 'acf_' ) ) {
+				$acf_field_name = substr( $field, 4 ); // Remove 'acf_' prefix (4 characters).
 				if ( class_exists( ACF_Fields::class ) ) {
 					$data[ $field ] = ACF_Fields::export_value( 'media', $attachment->ID, $acf_field_name );
 					continue;
 				}
 
-				// Try get_field() first (handles complex fields like images, relationships)
+				// Try get_field() first (handles complex fields like images, relationships).
 				$acf_value = false;
 				if ( function_exists( 'get_field' ) ) {
 					$acf_value = get_field( $acf_field_name, $attachment->ID );
 				}
 
 				// If get_field() returns false (field definition not found),
-				// fall back to direct get_post_meta() and collect all related meta
-				if ( $acf_value === false ) {
+				// fall back to direct get_post_meta() and collect all related meta.
+				if ( false === $acf_value ) {
 					$acf_value = get_post_meta( $attachment->ID, $acf_field_name, true );
 
-					// Check if this is a repeater/component field (numeric value AND has sub-fields)
+					// Check if this is a repeater/component field (numeric value AND has sub-fields).
 					if ( is_numeric( $acf_value ) && $acf_value > 0 ) {
 						global $wpdb;
 						$count = intval( $acf_value );
@@ -1216,7 +1216,7 @@ class Media_Exporter extends Abstract_Exporter {
 							)
 						);
 
-						// Only treat as repeater/component if sub-fields exist
+						// Only treat as repeater/component if sub-fields exist.
 						if ( $has_sub_fields > 0 ) {
 							$repeater_data = array();
 
@@ -1236,7 +1236,7 @@ class Media_Exporter extends Abstract_Exporter {
 								if ( ! empty( $sub_fields ) ) {
 									$row_data = array();
 									foreach ( $sub_fields as $sub_field ) {
-										// Extract sub-field name (remove prefix)
+										// Extract sub-field name (remove prefix).
 										$sub_field_name              = str_replace( $acf_field_name . '_' . $i . '_', '', $sub_field['meta_key'] );
 										$row_data[ $sub_field_name ] = $sub_field['meta_value'];
 									}
@@ -1244,25 +1244,25 @@ class Media_Exporter extends Abstract_Exporter {
 								}
 							}
 
-							// Use the repeater data
+							// Use the repeater data.
 							if ( ! empty( $repeater_data ) ) {
 								$acf_value = $repeater_data;
 							}
 						}
 					}
-					// Otherwise it's just a number field, keep the numeric value
+					// Otherwise it's just a number field, keep the numeric value.
 				}
-				// If it's a serialized array, unserialize it
-				elseif ( is_string( $acf_value ) && $acf_value !== '' ) {
+				// If it's a serialized array, unserialize it.
+				elseif ( is_string( $acf_value ) && '' !== $acf_value ) {
 					$unserialized = @unserialize( $acf_value );
-					if ( $unserialized !== false || $acf_value === 'b:0;' ) {
+					if ( false !== $unserialized || 'b:0;' === $acf_value ) {
 						$acf_value = $unserialized;
 					}
 				}
 
-				// Convert ACF value to exportable format
+				// Convert ACF value to exportable format.
 				if ( is_array( $acf_value ) ) {
-					// For arrays (images, files, etc.), try to get just the URL or serialize
+					// For arrays (images, files, etc.), try to get just the URL or serialize.
 					if ( isset( $acf_value['url'] ) ) {
 						$data[ $field ] = $acf_value['url'];
 					} elseif ( isset( $acf_value['ID'] ) ) {
@@ -1270,11 +1270,11 @@ class Media_Exporter extends Abstract_Exporter {
 					} else {
 						$data[ $field ] = maybe_serialize( $acf_value );
 					}
-				} elseif ( $acf_value === false || $acf_value === null || $acf_value === '' ) {
-					// Empty field
+				} elseif ( false === $acf_value || null === $acf_value || '' === $acf_value ) {
+					// Empty field.
 					$data[ $field ] = '';
 				} else {
-					// String, number, or true boolean
+					// String, number, or true boolean.
 					$data[ $field ] = $acf_value;
 				}
 			}
@@ -1286,7 +1286,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Get image sizes information
 	 *
-	 * @param int $attachment_id Attachment ID
+	 * @param int $attachment_id Attachment ID.
 	 * @return array
 	 */
 	protected function get_image_sizes( $attachment_id ) {
@@ -1304,7 +1304,7 @@ class Media_Exporter extends Abstract_Exporter {
 			}
 		}
 
-		// Full size
+		// Full size.
 		$full = wp_get_attachment_image_src( $attachment_id, 'full' );
 		if ( $full ) {
 			$sizes['full'] = array(
@@ -1320,7 +1320,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Build WHERE clause for custom field filters
 	 *
-	 * @param array $filters Custom field filters
+	 * @param array $filters Custom field filters.
 	 * @return string WHERE clause
 	 */
 	protected function build_custom_field_where( $filters ) {
@@ -1332,14 +1332,14 @@ class Media_Exporter extends Abstract_Exporter {
 			$condition = $filter['condition'];
 			$value     = $filter['value'] ?? '';
 
-			// Date fields that need special handling
+			// Date fields that need special handling.
 			$date_fields   = array( 'post_date', 'post_modified', 'post_date_gmt', 'post_modified_gmt' );
 			$is_date_field = in_array( $field, $date_fields, true );
 
 			switch ( $condition ) {
 				case 'equals':
 					if ( $is_date_field ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
-						// For date fields, compare only the date part (ignore time)
+						// For date fields, compare only the date part (ignore time).
 						$where .= $wpdb->prepare( " AND DATE({$wpdb->posts}.{$field}) = %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
 					} else {
 						$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$field} = %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table/column name is controlled, not user input.
@@ -1347,39 +1347,39 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 				case 'not_equals':
 					if ( $is_date_field ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
-						// For date fields, compare only the date part (ignore time)
+						// For date fields, compare only the date part (ignore time).
 						$where .= $wpdb->prepare( " AND DATE({$wpdb->posts}.{$field}) != %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
 					} else {
 						$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$field} != %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table/column name is controlled, not user input.
 					}
 					break;
 				case 'in':
-					// Split by comma and prepare IN clause
+					// Split by comma and prepare IN clause.
 					$values = array_map(
 						function ( $v ) {
 							$v = trim( $v );
-							// Remove surrounding quotes if present
+							// Remove surrounding quotes if present.
 							return trim( $v, '\'"' );
 						},
 						explode( ',', $value )
 					);
-					$values = array_filter( $values ); // Remove empty values
+					$values = array_filter( $values ); // Remove empty values.
 					if ( ! empty( $values ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Direct DB query required here.
 						$placeholders = implode( ', ', array_fill( 0, count( $values ), '%s' ) );
 						$where       .= $wpdb->prepare( " AND {$wpdb->posts}.{$field} IN ($placeholders)", $values ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table/column name is controlled, not user input. Placeholder handled correctly.
 					}
 					break;
 				case 'not_in':
-					// Split by comma and prepare NOT IN clause
+					// Split by comma and prepare NOT IN clause.
 					$values = array_map(
 						function ( $v ) {
 							$v = trim( $v );
-							// Remove surrounding quotes if present
+							// Remove surrounding quotes if present.
 							return trim( $v, '\'"' );
 						},
 						explode( ',', $value )
 					);
-					$values = array_filter( $values ); // Remove empty values
+					$values = array_filter( $values ); // Remove empty values.
 					if ( ! empty( $values ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Direct DB query required here.
 						$placeholders = implode( ', ', array_fill( 0, count( $values ), '%s' ) );
 						$where       .= $wpdb->prepare( " AND {$wpdb->posts}.{$field} NOT IN ($placeholders)", $values ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table/column name is controlled, not user input. Placeholder handled correctly.
@@ -1399,7 +1399,7 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 				case 'greater':
 					if ( $is_date_field ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
-						// For date fields, compare only the date part
+						// For date fields, compare only the date part.
 						$where .= $wpdb->prepare( " AND DATE({$wpdb->posts}.{$field}) > %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
 					} else {
 						$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$field} > %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table/column name is controlled, not user input.
@@ -1407,7 +1407,7 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 				case 'less':
 					if ( $is_date_field ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
-						// For date fields, compare only the date part
+						// For date fields, compare only the date part.
 						$where .= $wpdb->prepare( " AND DATE({$wpdb->posts}.{$field}) < %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
 					} else {
 						$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$field} < %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table/column name is controlled, not user input.
@@ -1415,7 +1415,7 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 				case 'equals_or_greater':
 					if ( $is_date_field ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
-						// For date fields, compare only the date part
+						// For date fields, compare only the date part.
 						$where .= $wpdb->prepare( " AND DATE({$wpdb->posts}.{$field}) >= %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
 					} else {
 						$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$field} >= %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table/column name is controlled, not user input.
@@ -1423,7 +1423,7 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 				case 'equals_or_less':
 					if ( $is_date_field ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
-						// For date fields, compare only the date part
+						// For date fields, compare only the date part.
 						$where .= $wpdb->prepare( " AND DATE({$wpdb->posts}.{$field}) <= %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
 					} else {
 						$where .= $wpdb->prepare( " AND {$wpdb->posts}.{$field} <= %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table/column name is controlled, not user input.
@@ -1438,7 +1438,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Build WHERE clause for custom media file filters
 	 *
-	 * @param array $filters Custom media file filters
+	 * @param array $filters Custom media file filters.
 	 * @return string WHERE clause
 	 */
 	protected function build_custom_media_file_where( $filters ) {
@@ -1451,14 +1451,14 @@ class Media_Exporter extends Abstract_Exporter {
 			$value     = $filter['value'] ?? '';
 
 			// These filters require JOIN with postmeta for _wp_attached_file
-			// Get the file path from postmeta
+			// Get the file path from postmeta.
 			$file_meta_key = '_wp_attached_file';
 
 			switch ( $field ) {
 				case 'file_size':
 					// File size needs to be calculated from the actual file
-					// We'll use a subquery to check file size
-					if ( $condition === 'equals' ) {
+					// We'll use a subquery to check file size.
+					if ( 'equals' === $condition ) {
 						$where .= $wpdb->prepare(
 							" AND {$wpdb->posts}.ID IN (
 								SELECT post_id FROM {$wpdb->postmeta} pm
@@ -1467,15 +1467,15 @@ class Media_Exporter extends Abstract_Exporter {
 							)",
 							$file_meta_key
 						);
-					} elseif ( $condition === 'greater' ) {
+					} elseif ( 'greater' === $condition ) {
 						// For file size, we need custom implementation
-						// For now, skip complex file size comparisons
+						// For now, skip complex file size comparisons.
 					}
 					break;
 
 				case 'file_name':
-					// File name is the basename of _wp_attached_file
-					if ( $condition === 'equals' ) {
+					// File name is the basename of _wp_attached_file.
+					if ( 'equals' === $condition ) {
 						$where .= $wpdb->prepare(
 							" AND {$wpdb->posts}.ID IN (
 								SELECT post_id FROM {$wpdb->postmeta} pm
@@ -1485,7 +1485,7 @@ class Media_Exporter extends Abstract_Exporter {
 							$file_meta_key,
 							$value
 						);
-					} elseif ( $condition === 'contains' ) {
+					} elseif ( 'contains' === $condition ) {
 						$where .= $wpdb->prepare(
 							" AND {$wpdb->posts}.ID IN (
 								SELECT post_id FROM {$wpdb->postmeta} pm
@@ -1495,7 +1495,7 @@ class Media_Exporter extends Abstract_Exporter {
 							$file_meta_key,
 							'%' . $wpdb->esc_like( $value ) . '%'
 						);
-					} elseif ( $condition === 'not_contains' ) {
+					} elseif ( 'not_contains' === $condition ) {
 						$where .= $wpdb->prepare(
 							" AND {$wpdb->posts}.ID IN (
 								SELECT post_id FROM {$wpdb->postmeta} pm
@@ -1509,8 +1509,8 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 
 				case 'file_extension':
-					// File extension is extracted from file name
-					if ( $condition === 'equals' ) {
+					// File extension is extracted from file name.
+					if ( 'equals' === $condition ) {
 						$where .= $wpdb->prepare(
 							" AND {$wpdb->posts}.ID IN (
 								SELECT post_id FROM {$wpdb->postmeta} pm
@@ -1520,8 +1520,8 @@ class Media_Exporter extends Abstract_Exporter {
 							$file_meta_key,
 							$value
 						);
-					} elseif ( $condition === 'in' ) {
-						// Split by comma and check each extension
+					} elseif ( 'in' === $condition ) {
+						// Split by comma and check each extension.
 						$extensions = array_map(
 							function ( $v ) {
 								return strtolower( trim( trim( $v ), '\'"' ) );
@@ -1548,8 +1548,8 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 
 				case 'file_path':
-					// File path is _wp_attached_file meta value
-					if ( $condition === 'equals' ) {
+					// File path is _wp_attached_file meta value.
+					if ( 'equals' === $condition ) {
 						$where .= $wpdb->prepare(
 							" AND {$wpdb->posts}.ID IN (
 								SELECT post_id FROM {$wpdb->postmeta} pm
@@ -1559,7 +1559,7 @@ class Media_Exporter extends Abstract_Exporter {
 							$file_meta_key,
 							$value
 						);
-					} elseif ( $condition === 'contains' ) {
+					} elseif ( 'contains' === $condition ) {
 						$where .= $wpdb->prepare(
 							" AND {$wpdb->posts}.ID IN (
 								SELECT post_id FROM {$wpdb->postmeta} pm
@@ -1569,7 +1569,7 @@ class Media_Exporter extends Abstract_Exporter {
 							$file_meta_key,
 							'%' . $wpdb->esc_like( $value ) . '%'
 						);
-					} elseif ( $condition === 'not_contains' ) {
+					} elseif ( 'not_contains' === $condition ) {
 						$where .= $wpdb->prepare(
 							" AND {$wpdb->posts}.ID IN (
 								SELECT post_id FROM {$wpdb->postmeta} pm
@@ -1590,7 +1590,7 @@ class Media_Exporter extends Abstract_Exporter {
 	/**
 	 * Build custom WHERE clause for author filters (author_name, author_email)
 	 *
-	 * @param array $filters Array of filters with field, condition, value
+	 * @param array $filters Array of filters with field, condition, value.
 	 * @return string WHERE clause to append
 	 */
 	private function build_custom_author_where( $filters ) {
@@ -1602,17 +1602,17 @@ class Media_Exporter extends Abstract_Exporter {
 			$condition = $filter['condition'];
 			$value     = $filter['value'];
 
-			// Map field to users table column
+			// Map field to users table column.
 			$user_column = '';
-			if ( $field === 'author_name' ) {
+			if ( 'author_name' === $field ) {
 				$user_column = 'display_name';
-			} elseif ( $field === 'author_email' ) {
+			} elseif ( 'author_email' === $field ) {
 				$user_column = 'user_email';
 			} else {
-				continue; // Unknown field
+				continue; // Unknown field.
 			}
 
-			// Build WHERE based on condition
+			// Build WHERE based on condition.
 			switch ( $condition ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Direct DB query required here.
 				case 'equals':
 					$where .= $wpdb->prepare( " AND {$wpdb->users}.{$user_column} = %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table/column name is controlled, not user input.
@@ -1623,14 +1623,14 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 
 				case 'in':
-					// Parse comma-separated values and remove quotes
+					// Parse comma-separated values and remove quotes.
 					$values = array_map(
 						function ( $v ) {
 							return trim( trim( $v ), '\'"' );
 						},
 						explode( ',', $value )
 					);
-					$values = array_filter( $values ); // Remove empty values
+					$values = array_filter( $values ); // Remove empty values.
 
 					if ( ! empty( $values ) ) {
 						$placeholders = implode( ', ', array_fill( 0, count( $values ), '%s' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Direct DB query required here.
@@ -1642,7 +1642,7 @@ class Media_Exporter extends Abstract_Exporter {
 					break;
 
 				case 'not_in':
-					// Parse comma-separated values and remove quotes
+					// Parse comma-separated values and remove quotes.
 					$values = array_map(
 						function ( $v ) {
 							return trim( trim( $v ), '\'"' );

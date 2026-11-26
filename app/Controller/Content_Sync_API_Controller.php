@@ -132,7 +132,7 @@ class Content_Sync_API_Controller {
 				);
 			}
 		} catch ( \Exception $e ) {
-			// Log error but don't break the site
+			// Log error but don't break the site.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			}
 		}
@@ -309,7 +309,7 @@ class Content_Sync_API_Controller {
 			}
 		}
 
-		// Parse post_mapping
+		// Parse post_mapping.
 		if ( ! is_array( $post_mapping ) ) {
 			$post_mapping = array();
 		}
@@ -348,11 +348,11 @@ class Content_Sync_API_Controller {
 				$post_data['post_content'] = \RockStarLab\ImportExport\Service\Sync_Synced_Patterns::apply_terms( $post_data['post_content'], $block_terms );
 			}
 
-			// Check post mapping
+			// Check post mapping.
 			if ( array_key_exists( $source_post_id, $post_mapping ) ) {
 				$mapped_value = $post_mapping[ $source_post_id ];
 
-				// If mapped to specific ID, use it
+				// If mapped to specific ID, use it.
 				if ( is_numeric( $mapped_value ) && $mapped_value > 0 ) {
 					$target_post_id = (int) $mapped_value;
 				}
@@ -368,14 +368,14 @@ class Content_Sync_API_Controller {
 					$target_post_id = $target_post_id ? (int) $target_post_id : null;
 				}
 			} else {
-				// No mapping provided, use default logic (find by original ID)
+				// No mapping provided, use default logic (find by original ID).
 				$target_post_id = $this->find_existing_post( $post_data );
 			}
 
 			$access = \RockStarLab\ImportExport\Abilities\Sync_Peer_Policy::destination( (int) $target_post_id, $post_data['post_type'] );
 			if ( is_wp_error( $access ) ) {
 				return $access; }
-			// Check if images referenced in content exist
+			// Check if images referenced in content exist.
 			if ( preg_match_all( '/wp-image-(\d+)/', $post_data['post_content'], $matches ) ) {
 				foreach ( $matches[1] as $img_id ) {
 					$attachment = get_post( $img_id );
@@ -388,7 +388,7 @@ class Content_Sync_API_Controller {
 				}
 			}
 
-			// Prepare post data
+			// Prepare post data.
 			$post_args = array(
 				'post_title'        => $post_data['post_title'],
 				'post_content'      => $post_data['post_content'],
@@ -416,29 +416,29 @@ class Content_Sync_API_Controller {
 
 			$is_update = false;
 
-			// Use target_post_id from mapping if available
+			// Use target_post_id from mapping if available.
 			if ( $target_post_id ) {
-				// Update specific post
+				// Update specific post.
 				$existing_post = get_post( $target_post_id );
 				if ( $existing_post ) {
 					$post_args['ID'] = $target_post_id;
 					$post_id         = wp_update_post( wp_slash( $post_args ) );
 					$is_update       = true;
 				} else {
-					// Mapped ID doesn't exist, create new post
+					// Mapped ID doesn't exist, create new post.
 					$post_id = wp_insert_post( wp_slash( $post_args ) );
 
-					// Store original ID for future sync operations
+					// Store original ID for future sync operations.
 					if ( ! is_wp_error( $post_id ) && $post_id ) {
 						update_post_meta( $post_id, '_rsl_ie_original_post_id', $source_post_id );
 						update_post_meta( $post_id, '_rsl_ie_source_id', $source_post_id );
 					}
 				}
 			} else {
-				// Create new post (no mapping or mapped to "new")
+				// Create new post (no mapping or mapped to "new").
 				$post_id = wp_insert_post( wp_slash( $post_args ) );
 
-				// Store original ID for future sync operations
+				// Store original ID for future sync operations.
 				if ( ! is_wp_error( $post_id ) && $post_id ) {
 					update_post_meta( $post_id, '_rsl_ie_original_post_id', $source_post_id );
 					update_post_meta( $post_id, '_rsl_ie_source_id', $source_post_id );
@@ -484,19 +484,19 @@ class Content_Sync_API_Controller {
 			update_post_meta( $post_id, '_rsl_ie_original_post_id', $source_post_id );
 			update_post_meta( $post_id, '_rsl_ie_source_id', $source_post_id );
 
-			// Count created vs updated
+			// Count created vs updated.
 			if ( $is_update ) {
 				++$updated_count;
 			} else {
 				++$imported_count;
 			}
 
-			// Fix image URLs in content after import (replace with correct attachment URLs)
+			// Fix image URLs in content after import (replace with correct attachment URLs).
 			if ( ! empty( $image_map ) ) {
 				$post_content = get_post_field( 'post_content', $post_id );
 				$new_content  = \RockStarLab\ImportExport\Helper\Content_Sync_Replacer::fix_local_image_urls_in_content( $post_content, (array) $image_map, (array) $image_sources );
 
-				// Update post content if URLs were fixed
+				// Update post content if URLs were fixed.
 				if ( $new_content !== $post_content ) {
 					wp_update_post(
 						wp_slash(
@@ -511,7 +511,7 @@ class Content_Sync_API_Controller {
 
 			$this->restore_synced_post_modified_dates( (int) $post_id, (array) $post_data );
 
-			// Import meta
+			// Import meta.
 			if ( isset( $post_data['meta'] ) && is_array( $post_data['meta'] ) ) {
 
 				// Replace image IDs and domain in meta using the proper meta-aware replacer.
@@ -520,7 +520,7 @@ class Content_Sync_API_Controller {
 				if ( ! empty( $image_map ) ) {
 					$post_data['meta'] = \RockStarLab\ImportExport\Helper\Content_Sync_Replacer::replace_in_meta_public(
 						$post_data['meta'],
-						'', // No domain replacement needed for push (already replaced on sender)
+						'', // No domain replacement needed for push (already replaced on sender).
 						'',
 						$image_map,
 						$image_sources
@@ -530,7 +530,7 @@ class Content_Sync_API_Controller {
 				$this->delete_stale_synced_post_meta( (int) $post_id, $post_data['meta'] );
 
 				foreach ( $post_data['meta'] as $key => $value ) {
-					// Skip some internal WordPress meta
+					// Skip some internal WordPress meta.
 					if ( in_array( $key, array( '_edit_lock', '_edit_last', '_rsl_ie_original_post_id' ), true ) ) {
 						continue;
 					}
@@ -543,7 +543,7 @@ class Content_Sync_API_Controller {
 				}
 			}
 
-			// Import terms with ACF fields
+			// Import terms with ACF fields.
 			if ( ! empty( $post_data['terms'] ) ) {
 				// Build a map of source_term_id → local_term_id so we can fix
 				// ACF taxonomy fields in meta that still hold source-site IDs.
@@ -560,14 +560,14 @@ class Content_Sync_API_Controller {
 
 				foreach ( $post_data['terms'] as $taxonomy => $terms_info ) {
 					$this->ensure_woocommerce_attribute_taxonomy( $taxonomy );
-					// Check if taxonomy exists
+					// Check if taxonomy exists.
 					if ( ! taxonomy_exists( $taxonomy ) ) {
 						continue;
 					}
 
 					$term_ids = array();
 					foreach ( $terms_info as $term_info ) {
-						// Validate term info
+						// Validate term info.
 						if ( empty( $term_info['name'] ) || empty( $term_info['slug'] ) ) {
 							continue;
 						}
@@ -604,12 +604,12 @@ class Content_Sync_API_Controller {
 							$term_id_map[ (int) $term_info['term_id'] ] = (int) $term_id;
 						}
 
-						// Import ACF fields for this term
+						// Import ACF fields for this term.
 						if ( ! empty( $term_info['acf'] ) && function_exists( 'update_field' ) ) {
-							// Replace image IDs in term ACF fields
+							// Replace image IDs in term ACF fields.
 							$term_acf = \RockStarLab\ImportExport\Helper\Content_Sync_Replacer::replace_in_array(
 								$term_info['acf'],
-								'', // No domain replacement needed for term meta
+								'', // No domain replacement needed for term meta.
 								'',
 								$image_map,
 								$image_sources
@@ -621,7 +621,7 @@ class Content_Sync_API_Controller {
 						}
 					}
 
-					// Assign terms to post
+					// Assign terms to post.
 					\RockStarLab\ImportExport\Helper\Term_Payload::set_object_terms( (int) $post_id, (array) $term_ids, $taxonomy );
 				}
 
@@ -907,72 +907,72 @@ class Content_Sync_API_Controller {
 	/**
 	 * Convert flat ACF meta structure to hierarchical for repeater/flexible content fields
 	 *
-	 * @param array $meta Post meta array
-	 * @param array $acf_field_keys ACF field keys mapping
+	 * @param array $meta Post meta array.
+	 * @param array $acf_field_keys ACF field keys mapping.
 	 * @return array Modified meta array
 	 */
 	private function convert_acf_flat_to_hierarchical( $meta, $acf_field_keys ) {
 		$processed_parents = array();
 
-		// Find all repeater/flexible content parent fields
+		// Find all repeater/flexible content parent fields.
 		foreach ( $acf_field_keys as $field_name => $field_key ) {
-			// Skip nested fields
+			// Skip nested fields.
 			if ( preg_match( '/_\d+_/', $field_name ) ) {
 				continue;
 			}
 
-			// Check if this field has a numeric value (count of rows) - typical for repeater
+			// Check if this field has a numeric value (count of rows) - typical for repeater.
 			if ( isset( $meta[ $field_name ] ) && is_numeric( $meta[ $field_name ] ) ) {
 				$row_count = intval( $meta[ $field_name ] );
 
 				// Verify this is actually a repeater by checking if sub-fields exist
-				// Look for pattern: field_name_0_*
+				// Look for pattern: field_name_0_*.
 				$has_sub_fields = false;
 				$row_prefix     = $field_name . '_0_';
 				foreach ( $meta as $meta_key => $meta_value ) {
-					if ( strpos( $meta_key, $row_prefix ) === 0 ) {
+					if ( 0 === strpos( $meta_key, $row_prefix ) ) {
 						$has_sub_fields = true;
 						break;
 					}
 				}
 
-				// If no sub-fields found, this is not a repeater (probably just a numeric field like image ID)
+				// If no sub-fields found, this is not a repeater (probably just a numeric field like image ID).
 				if ( ! $has_sub_fields ) {
 					continue;
 				}
 
-				// Build hierarchical structure
+				// Build hierarchical structure.
 				$rows = array();
 				for ( $i = 0; $i < $row_count; $i++ ) {
 					$row_data     = array();
 					$row_prefix   = $field_name . '_' . $i . '_';
 					$found_fields = 0;
 
-					// Find all fields for this row
+					// Find all fields for this row.
 					foreach ( $meta as $meta_key => $meta_value ) {
-						if ( strpos( $meta_key, $row_prefix ) === 0 ) {
+						if ( 0 === strpos( $meta_key, $row_prefix ) ) {
 							++$found_fields;
-							// Extract field name without row prefix
+							// Extract field name without row prefix.
 							$sub_field_name = substr( $meta_key, strlen( $row_prefix ) );
 
-							// Check if this is a nested repeater/flexible content
+							// Check if this is a nested repeater/flexible content.
 							if ( isset( $acf_field_keys[ $field_name . '_' . $i . '_' . $sub_field_name ] ) && is_numeric( $meta_value ) ) {
-								// Verify nested repeater has sub-fields
+								// Verify nested repeater has sub-fields.
 								$nested_prefix         = $field_name . '_' . $i . '_' . $sub_field_name . '_0_';
 								$nested_has_sub_fields = false;
 								foreach ( $meta as $nested_key => $nested_val ) {
-									if ( strpos( $nested_key, $nested_prefix ) === 0 ) {
+									if ( 0 === strpos( $nested_key, $nested_prefix ) ) {
 										$nested_has_sub_fields = true;
 										break;
 									}
 								}
 
 								if ( $nested_has_sub_fields ) {
-									// Recursively process nested repeater
+									// Recursively process nested repeater.
 									$nested_rows                 = $this->extract_nested_repeater_data( $meta, $field_name . '_' . $i . '_' . $sub_field_name, $meta_value, $acf_field_keys );
 									$row_data[ $sub_field_name ] = $nested_rows;
 								} else {
-									// Just a numeric value (like image ID)
+									// Just a numeric value (like image ID).
 									$row_data[ $sub_field_name ] = $meta_value;
 								}
 							} else {
@@ -984,7 +984,7 @@ class Content_Sync_API_Controller {
 					$rows[] = $row_data;
 				}
 
-				// Replace numeric count with actual data array
+				// Replace numeric count with actual data array.
 				$meta[ $field_name ] = $rows;
 				$processed_parents[] = $field_name;
 
@@ -997,10 +997,10 @@ class Content_Sync_API_Controller {
 	/**
 	 * Extract nested repeater data recursively
 	 *
-	 * @param array  $meta Post meta array
-	 * @param string $parent_prefix Parent field prefix (e.g., "repeater_0_nested_repeater")
-	 * @param int    $row_count Number of rows
-	 * @param array  $acf_field_keys ACF field keys mapping
+	 * @param array  $meta Post meta array.
+	 * @param string $parent_prefix Parent field prefix (e.g., "repeater_0_nested_repeater").
+	 * @param int    $row_count Number of rows.
+	 * @param array  $acf_field_keys ACF field keys mapping.
 	 * @return array Nested rows data
 	 */
 	private function extract_nested_repeater_data( $meta, $parent_prefix, $row_count, $acf_field_keys ) {
@@ -1011,23 +1011,23 @@ class Content_Sync_API_Controller {
 			$row_prefix = $parent_prefix . '_' . $i . '_';
 
 			foreach ( $meta as $meta_key => $meta_value ) {
-				if ( strpos( $meta_key, $row_prefix ) === 0 ) {
+				if ( 0 === strpos( $meta_key, $row_prefix ) ) {
 					$sub_field_name = substr( $meta_key, strlen( $row_prefix ) );
 
-					// Check for even deeper nesting
+					// Check for even deeper nesting.
 					if ( isset( $acf_field_keys[ $parent_prefix . '_' . $i . '_' . $sub_field_name ] ) && is_numeric( $meta_value ) ) {
-						// Verify this nested field actually has sub-fields (is a real repeater)
+						// Verify this nested field actually has sub-fields (is a real repeater).
 						$nested_prefix         = $parent_prefix . '_' . $i . '_' . $sub_field_name . '_0_';
 						$has_nested_sub_fields = false;
 						foreach ( $meta as $check_key => $check_value ) {
-							if ( strpos( $check_key, $nested_prefix ) === 0 ) {
+							if ( 0 === strpos( $check_key, $nested_prefix ) ) {
 								$has_nested_sub_fields = true;
 								break;
 							}
 						}
 
 						if ( $has_nested_sub_fields ) {
-							// This is a nested repeater
+							// This is a nested repeater.
 							$row_data[ $sub_field_name ] = $this->extract_nested_repeater_data(
 								$meta,
 								$parent_prefix . '_' . $i . '_' . $sub_field_name,
@@ -1035,7 +1035,7 @@ class Content_Sync_API_Controller {
 								$acf_field_keys
 							);
 						} else {
-							// Just a numeric value (like image ID)
+							// Just a numeric value (like image ID).
 							$row_data[ $sub_field_name ] = $meta_value;
 						}
 					} else {
@@ -1101,7 +1101,7 @@ class Content_Sync_API_Controller {
 	 * @return int|null Local post ID if found, null otherwise.
 	 */
 	private function find_existing_post( $post_data ) {
-		// Only search by original post ID stored in meta
+		// Only search by original post ID stored in meta.
 		if ( ! isset( $post_data['ID'] ) || ! isset( $post_data['post_type'] ) ) {
 			return null;
 		}
@@ -2046,14 +2046,14 @@ class Content_Sync_API_Controller {
 				}
 			}
 
-			// Single image field (numeric ID)
+			// Single image field (numeric ID).
 			if ( is_numeric( $value ) && $value > 0 ) {
 				$attachment = get_post( $value );
 				if ( $attachment && 'attachment' === $attachment->post_type ) {
 					$image_ids[] = (int) $value;
 				}
 			}
-			// Gallery field (array of IDs)
+			// Gallery field (array of IDs).
 			elseif ( is_array( $value ) ) {
 				foreach ( $value as $item ) {
 					if ( is_numeric( $item ) && $item > 0 ) {
@@ -2062,7 +2062,7 @@ class Content_Sync_API_Controller {
 							$image_ids[] = (int) $item;
 						}
 					}
-					// Nested arrays (repeater, flexible content)
+					// Nested arrays (repeater, flexible content).
 					elseif ( is_array( $item ) ) {
 						$nested_images = $this->extract_term_acf_images( $item );
 						$image_ids     = array_merge( $image_ids, $nested_images );
@@ -2151,10 +2151,10 @@ class Content_Sync_API_Controller {
 		$include_children = filter_var( $request->get_param( 'include_children' ), FILTER_VALIDATE_BOOLEAN );
 
 		// When searching, include all posts (parent and children)
-		// When not searching, show only parent posts (to maintain hierarchy)
-		$post_parent_filter = 0; // Default: only top-level posts
+		// When not searching, show only parent posts (to maintain hierarchy).
+		$post_parent_filter = 0; // Default: only top-level posts.
 		if ( ! empty( $search ) || $include_children ) {
-			$post_parent_filter = ''; // Empty string means no parent filter - include all posts
+			$post_parent_filter = ''; // Empty string means no parent filter - include all posts.
 		}
 
 		$args = array(
@@ -3404,7 +3404,7 @@ class Content_Sync_API_Controller {
 				'post_parent'   => $child->post_parent,
 			);
 
-			// Check if this child has children (same post type only)
+			// Check if this child has children (same post type only).
 			$child_data['children_count'] = $this->count_children( $child->ID, $child->post_type );
 
 			$children_list[] = $child_data;
@@ -3469,30 +3469,30 @@ class Content_Sync_API_Controller {
 				continue;
 			}
 
-			// Extract all images from post
+			// Extract all images from post.
 			$post_images = \RockStarLab\ImportExport\Helper\Content_Sync_Media::extract_post_images( $post_id );
 
-			// Store images
+			// Store images.
 			foreach ( $post_images as $image ) {
 				$image_key                = $image['attachment_id'];
 				$all_images[ $image_key ] = $image;
 			}
 
-			// Get post meta
+			// Get post meta.
 			$meta          = get_post_meta( $post_id );
 			$prepared_meta = array();
 
-			// Keys to skip (WordPress internal and potentially problematic)
+			// Keys to skip (WordPress internal and potentially problematic).
 			$skip_keys = array(
 				'_edit_lock',
 				'_edit_last',
 				'_wp_old_slug',
 				'_wp_old_date',
-				'_rsl_ie_original_post_id', // Our own sync meta
+				'_rsl_ie_original_post_id', // Our own sync meta.
 			);
 
 			foreach ( $meta as $key => $values ) {
-				// Skip protected keys and certain internal WordPress keys
+				// Skip protected keys and certain internal WordPress keys.
 				if ( in_array( $key, $skip_keys, true ) || $this->should_skip_synced_meta_key( (string) $key ) ) {
 					continue;
 				}
@@ -3500,7 +3500,7 @@ class Content_Sync_API_Controller {
 				$prepared_meta[ $key ] = $this->portable_synced_meta_value( maybe_unserialize( $values[0] ) );
 			}
 
-			// Get post terms with ACF fields
+			// Get post terms with ACF fields.
 			$taxonomies = get_object_taxonomies( $post->post_type );
 			$terms_data = array();
 			foreach ( $taxonomies as $taxonomy ) {
@@ -3517,7 +3517,7 @@ class Content_Sync_API_Controller {
 							'parent_path'    => $this->get_term_parent_path( (int) $term->parent, $taxonomy ),
 						);
 
-						// Get ACF fields for this term
+						// Get ACF fields for this term.
 						if ( function_exists( 'get_field_objects' ) ) {
 							$acf_fields = $this->get_term_acf_field_objects( (int) $term->term_id, $taxonomy );
 							if ( $acf_fields ) {
@@ -3543,7 +3543,7 @@ class Content_Sync_API_Controller {
 							}
 						}
 
-						// Extract images from term ACF fields
+						// Extract images from term ACF fields.
 						if ( ! empty( $term_info['acf'] ) ) {
 							$term_images = $this->extract_term_acf_images( $term_info['acf'] );
 							foreach ( $term_images as $image_id ) {
@@ -3573,7 +3573,7 @@ class Content_Sync_API_Controller {
 			// only in post_meta and never appear in wp_term_relationships / wp_get_post_terms.
 			if ( function_exists( 'acf_get_field' ) ) {
 				foreach ( $prepared_meta as $meta_key => $meta_value ) {
-					if ( strpos( $meta_key, '_' ) === 0 ) {
+					if ( 0 === strpos( $meta_key, '_' ) ) {
 						continue;
 					}
 					$field_ref_key = '_' . $meta_key;
@@ -3581,11 +3581,11 @@ class Content_Sync_API_Controller {
 						continue;
 					}
 					$field_ref = $prepared_meta[ $field_ref_key ];
-					if ( ! is_string( $field_ref ) || strpos( $field_ref, 'field_' ) !== 0 ) {
+					if ( ! is_string( $field_ref ) || 0 !== strpos( $field_ref, 'field_' ) ) {
 						continue;
 					}
 					$field_obj = acf_get_field( $field_ref );
-					if ( ! $field_obj || ! isset( $field_obj['type'] ) || $field_obj['type'] !== 'taxonomy' ) {
+					if ( ! $field_obj || ! isset( $field_obj['type'] ) || 'taxonomy' !== $field_obj['type'] ) {
 						continue;
 					}
 					$acf_taxonomy = isset( $field_obj['taxonomy'] ) ? $field_obj['taxonomy'] : '';

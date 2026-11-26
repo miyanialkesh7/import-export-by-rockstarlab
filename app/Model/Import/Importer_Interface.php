@@ -16,8 +16,8 @@ interface Importer_Interface {
 	/**
 	 * Import data into WordPress
 	 *
-	 * @param array $data    Array of items to import
-	 * @param array $options Optional. Import options (update mode, post status, etc.)
+	 * @param array $data    Array of items to import.
+	 * @param array $options Optional. Import options (update mode, post status, etc.).
 	 * @return array|WP_Error Import results with success/error counts or WP_Error
 	 */
 	public function import( $data, $options = array() );
@@ -27,7 +27,7 @@ interface Importer_Interface {
 	 *
 	 * Check if data structure is correct and all required fields are present.
 	 *
-	 * @param array $data Data to validate
+	 * @param array $data Data to validate.
 	 * @return true|WP_Error True if valid or WP_Error with validation errors
 	 */
 	public function validate( $data );
@@ -37,8 +37,8 @@ interface Importer_Interface {
 	 *
 	 * Transform and sanitize raw data into format ready for import.
 	 *
-	 * @param array $raw_data Raw data from file
-	 * @param array $mapping  Optional. Field mapping configuration
+	 * @param array $raw_data Raw data from file.
+	 * @param array $mapping  Optional. Field mapping configuration.
 	 * @return array Prepared data
 	 */
 	public function prepare( $raw_data, $mapping = array() );

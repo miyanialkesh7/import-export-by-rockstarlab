@@ -264,7 +264,7 @@ class Media_Chunk_Store {
 					$bytes  = fread( $source, $length );
 					if ( false === $bytes || strlen( $bytes ) !== $length ) {
 						return File_Store::error( 'source_changed', 409 ); }
-					if ( fwrite( $output, $bytes ) !== $length || fwrite( $index, self::chunk_signature( $id, $offset, $bytes ) ) !== 32 ) {
+					if ( fwrite( $output, $bytes ) !== $length || 32 !== fwrite( $index, self::chunk_signature( $id, $offset, $bytes ) ) ) {
 						return File_Store::error( 'file_write', 500 ); }
 					hash_update( $hash, $bytes );
 					$offset += $length;
@@ -569,7 +569,7 @@ class Media_Chunk_Store {
 				return $r['finalization_result']; }
 			if ( null === $result ) {
 				return null; }
-			if ( ! isset( $r['finalization_hash'] ) || ! is_array( $result ) || 0 !== ( $result['failed'] ?? -1 ) || count( $result['items'] ?? array() ) !== 1 || empty( $result['items'][0]['attachment_id'] ) ) {
+			if ( ! isset( $r['finalization_hash'] ) || ! is_array( $result ) || 0 !== ( $result['failed'] ?? -1 ) || 1 !== count( $result['items'] ?? array() ) || empty( $result['items'][0]['attachment_id'] ) ) {
 				return File_Store::error( 'invalid_finalization_result' );
 			}
 			$r['finalization_result'] = $result;
@@ -696,7 +696,7 @@ class Media_Chunk_Store {
 				Job_Lock::release( $lock );
 				Job_Lock::release( $finalize_lock ); }
 		}
-		update_option( 'rsl_ie_media_cleanup_cursor', $retry || count( $keys ) === 100 ? $after : '', false );
+		update_option( 'rsl_ie_media_cleanup_cursor', $retry || 100 === count( $keys ) ? $after : '', false );
 		return $removed;
 	}
 

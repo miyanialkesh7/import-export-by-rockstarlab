@@ -58,13 +58,13 @@ class Batch_Processor {
 	/**
 	 * Constructor
 	 *
-	 * @param int $batch_size Optional. Items per batch (default: 50)
+	 * @param int $batch_size Optional. Items per batch (default: 50).
 	 */
 	public function __construct( $batch_size = 50 ) {
 		$this->batch_size = $batch_size;
 		$this->start_time = microtime( true );
 
-		// Get memory limit (80% of PHP memory_limit)
+		// Get memory limit (80% of PHP memory_limit).
 		$memory_limit       = ini_get( 'memory_limit' );
 		$memory_bytes       = $this->convert_to_bytes( $memory_limit );
 		$this->memory_limit = $memory_bytes * 0.8;
@@ -73,9 +73,9 @@ class Batch_Processor {
 	/**
 	 * Process data in batches
 	 *
-	 * @param array    $data     Data to process
-	 * @param callable $callback Callback function for processing each item
-	 * @param array    $options  Optional. Processing options
+	 * @param array    $data     Data to process.
+	 * @param callable $callback Callback function for processing each item.
+	 * @param array    $options  Optional. Processing options.
 	 * @return array Processing results
 	 */
 	public function process( $data, $callback, $options = array() ) {
@@ -92,16 +92,16 @@ class Batch_Processor {
 		foreach ( $batches as $batch_index => $batch ) {
 			$this->current_batch = $batch_index + 1;
 
-			// Process batch
+			// Process batch.
 			$batch_result = $this->process_batch( $batch, $callback );
 
-			// Update results
+			// Update results.
 			$results['processed'] += $batch_result['processed'];
 			$results['success']   += $batch_result['success'];
 			$results['failed']    += $batch_result['failed'];
 			$results['errors']     = array_merge( $results['errors'], $batch_result['errors'] );
 
-			// Check if should pause
+			// Check if should pause.
 			if ( $this->should_pause() ) {
 				$results['completed']    = false;
 				$results['next_batch']   = $this->current_batch + 1;
@@ -111,11 +111,11 @@ class Batch_Processor {
 				break;
 			}
 
-			// Clear memory between batches
+			// Clear memory between batches.
 			$this->clear_memory();
 		}
 
-		// If all batches processed
+		// If all batches processed.
 		if ( $batch_index === count( $batches ) - 1 ) {
 			$results['completed'] = true;
 		}
@@ -126,8 +126,8 @@ class Batch_Processor {
 	/**
 	 * Process single batch
 	 *
-	 * @param array    $batch    Batch items
-	 * @param callable $callback Processing callback
+	 * @param array    $batch    Batch items.
+	 * @param callable $callback Processing callback.
 	 * @return array Batch results
 	 */
 	protected function process_batch( $batch, $callback ) {
@@ -173,12 +173,12 @@ class Batch_Processor {
 	 * @return bool True if should pause
 	 */
 	protected function should_pause() {
-		// Check memory usage
+		// Check memory usage.
 		if ( $this->is_memory_limit_reached() ) {
 			return true;
 		}
 
-		// Check time limit
+		// Check time limit.
 		if ( $this->is_time_limit_reached() ) {
 			return true;
 		}
@@ -235,7 +235,7 @@ class Batch_Processor {
 	/**
 	 * Convert memory string to bytes
 	 *
-	 * @param string $value Memory value (e.g., '256M', '1G')
+	 * @param string $value Memory value (e.g., '256M', '1G').
 	 * @return int Bytes
 	 */
 	protected function convert_to_bytes( $value ) {
@@ -269,7 +269,7 @@ class Batch_Processor {
 	/**
 	 * Set batch size
 	 *
-	 * @param int $size Batch size
+	 * @param int $size Batch size.
 	 */
 	public function set_batch_size( $size ) {
 		$this->batch_size = max( 1, (int) $size );
@@ -287,7 +287,7 @@ class Batch_Processor {
 	/**
 	 * Set time limit
 	 *
-	 * @param int $seconds Time limit in seconds
+	 * @param int $seconds Time limit in seconds.
 	 */
 	public function set_time_limit( $seconds ) {
 		$this->time_limit = max( 5, (int) $seconds );
@@ -314,7 +314,7 @@ class Batch_Processor {
 	/**
 	 * Get memory usage
 	 *
-	 * @param bool $format Optional. Format as human-readable (default: false)
+	 * @param bool $format Optional. Format as human-readable (default: false).
 	 * @return mixed Memory usage in bytes or formatted string
 	 */
 	public function get_memory_usage( $format = false ) {
@@ -339,7 +339,7 @@ class Batch_Processor {
 	/**
 	 * Format bytes to human-readable
 	 *
-	 * @param int $bytes Bytes
+	 * @param int $bytes Bytes.
 	 * @return string Formatted string
 	 */
 	protected function format_bytes( $bytes ) {

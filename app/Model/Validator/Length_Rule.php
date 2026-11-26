@@ -16,17 +16,17 @@ class Length_Rule extends Validation_Rule {
 	/**
 	 * Check if value length is within bounds
 	 *
-	 * @param mixed $value   Value to validate
-	 * @param array $context Optional. Additional context
+	 * @param mixed $value   Value to validate.
+	 * @param array $context Optional. Additional context.
 	 * @return true|WP_Error True if valid, WP_Error if validation fails
 	 */
 	protected function check( $value, $context ) {
-		// Skip validation for empty values (use Required_Rule for that)
+		// Skip validation for empty values (use Required_Rule for that).
 		if ( $this->is_empty( $value ) ) {
 			return true;
 		}
 
-		// Convert to string for length checking
+		// Convert to string for length checking.
 		$string_value = (string) $value;
 		$length       = mb_strlen( $string_value, 'UTF-8' );
 		$field_name   = $this->get_field_name( $context );
@@ -34,7 +34,7 @@ class Length_Rule extends Validation_Rule {
 		$min = $this->get_option( 'min' );
 		$max = $this->get_option( 'max' );
 
-		// Check minimum length
+		// Check minimum length.
 		if ( null !== $min && $length < $min ) {
 			return $this->create_error(
 				'min_length',
@@ -52,7 +52,7 @@ class Length_Rule extends Validation_Rule {
 			);
 		}
 
-		// Check maximum length
+		// Check maximum length.
 		if ( null !== $max && $length > $max ) {
 			return $this->create_error(
 				'max_length',
@@ -70,7 +70,7 @@ class Length_Rule extends Validation_Rule {
 			);
 		}
 
-		// Check exact length if specified
+		// Check exact length if specified.
 		$exact = $this->get_option( 'exact' );
 		if ( null !== $exact && $length !== $exact ) {
 			return $this->create_error(

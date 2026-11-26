@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 use RockStarLab\ImportExport\Helper\OpenAI_API_Key;
 
-// Get current settings
+// Get current settings.
 $rsl_ie_openai_api_key = get_option( 'rsl_ie_openai_api_key', '' );
 
 // WP 7+ AI Client: text generation provider configured.
@@ -17,7 +17,7 @@ $rsl_ie_is_wp7_plus        = OpenAI_API_Key::is_wp7_plus();
 $rsl_ie_has_wp_ai_client   = OpenAI_API_Key::has_wp_ai_client();
 $rsl_ie_has_any_openai_key = OpenAI_API_Key::has_api_key();
 
-// Mask the API key for display
+// Mask the API key for display.
 $rsl_ie_masked_api_key = '';
 if ( ! empty( $rsl_ie_openai_api_key ) ) {
 	$rsl_ie_masked_api_key = substr( $rsl_ie_openai_api_key, 0, 7 ) . '...' . substr( $rsl_ie_openai_api_key, -4 );

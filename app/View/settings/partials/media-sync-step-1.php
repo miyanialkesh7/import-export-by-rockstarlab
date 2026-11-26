@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Get upload directory for suggestions
+// Get upload directory for suggestions.
 $rsl_ie_upload_dir = wp_upload_dir();
 $rsl_ie_base_dir   = $rsl_ie_upload_dir['basedir'];
 

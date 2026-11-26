@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Get upload directory for browser
+// Get upload directory for browser.
 $rsl_ie_upload_dir = wp_upload_dir();
 $rsl_ie_base_dir   = $rsl_ie_upload_dir['basedir'];
 ?>

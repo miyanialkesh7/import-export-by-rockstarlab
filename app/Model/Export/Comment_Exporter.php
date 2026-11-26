@@ -116,7 +116,7 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Get total count of items
 	 *
-	 * @param array $options Optional. Export filters
+	 * @param array $options Optional. Export filters.
 	 * @return int
 	 */
 	public function get_count( $options = array() ) {
@@ -138,7 +138,7 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Get data based on export options
 	 *
-	 * @param array $options Export options
+	 * @param array $options Export options.
 	 * @return array|WP_Error
 	 */
 	public function get_data( $options = array() ) {
@@ -176,8 +176,8 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Format comment data
 	 *
-	 * @param \WP_Comment $comment Comment object
-	 * @param array       $options Export options
+	 * @param \WP_Comment $comment Comment object.
+	 * @param array       $options Export options.
 	 * @return array
 	 */
 	protected function format_comment( $comment, $options ) {
@@ -210,7 +210,7 @@ class Comment_Exporter extends Abstract_Exporter {
 			$this->options['fields'] = $fields;
 		}
 
-		// Add comment_ID if requested or forced
+		// Add comment_ID if requested or forced.
 		if ( in_array( 'comment_ID', $fields, true ) || $force_include_id ) {
 			$data['comment_ID'] = $comment->comment_ID;
 		}
@@ -218,7 +218,7 @@ class Comment_Exporter extends Abstract_Exporter {
 		foreach ( $fields as $field ) {
 			switch ( $field ) {
 				case 'comment_ID':
-					// Already handled above, skip
+					// Already handled above, skip.
 					break;
 
 				case 'source_comment_id':
@@ -319,12 +319,12 @@ class Comment_Exporter extends Abstract_Exporter {
 					break;
 
 				default:
-					if ( strpos( $field, 'acf_' ) === 0 ) {
+					if ( 0 === strpos( $field, 'acf_' ) ) {
 						$data[ $field ] = ACF_Fields::export_value( 'comment', $comment->comment_ID, substr( $field, 4 ) );
 						break;
 					}
 
-					// Allow custom fields via filter
+					// Allow custom fields via filter.
 					$data[ $field ] = apply_filters( 'rsl_ie_comment_export_field_value', '', $field, $comment, $options );
 					break;
 			}
@@ -336,8 +336,8 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Get comment meta data
 	 *
-	 * @param int   $comment_id Comment ID
-	 * @param array $options    Export options
+	 * @param int   $comment_id Comment ID.
+	 * @param array $options    Export options.
 	 * @return array
 	 */
 	protected function get_comment_meta( $comment_id, $options ) {
@@ -349,8 +349,8 @@ class Comment_Exporter extends Abstract_Exporter {
 
 		$formatted_meta = array();
 		foreach ( $meta as $key => $values ) {
-			// Skip keys starting with _
-			if ( strpos( $key, '_' ) === 0 ) {
+			// Skip keys starting with _.
+			if ( 0 === strpos( $key, '_' ) ) {
 				continue;
 			}
 
@@ -388,7 +388,7 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Build query arguments from options
 	 *
-	 * @param array $options Export options
+	 * @param array $options Export options.
 	 * @return array
 	 */
 	protected function build_query_args( $options ) {
@@ -479,7 +479,7 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Apply custom field (meta) filters to query args
 	 *
-	 * @param array $args    Query arguments (by reference)
+	 * @param array $args    Query arguments (by reference).
 	 * @param array $filters Custom field filters
 	 *                       Format: [
 	 *                           [
@@ -487,7 +487,7 @@ class Comment_Exporter extends Abstract_Exporter {
 	 *                               'value' => 'field_value',
 	 *                               'condition' => 'equals|not_equals|contains|not_contains|...'
 	 *                           ]
-	 *                       ]
+	 *                       ].
 	 */
 	protected function apply_custom_field_filters( &$args, $filters ) {
 		if ( empty( $filters ) || ! is_array( $filters ) ) {
@@ -508,7 +508,7 @@ class Comment_Exporter extends Abstract_Exporter {
 			$condition = $filter['condition'];
 			$value     = $filter['value'] ?? '';
 
-			// Convert condition to meta compare
+			// Convert condition to meta compare.
 			$meta_condition = $this->convert_condition_to_meta_compare( $condition );
 
 			if ( ! $meta_condition ) {
@@ -520,19 +520,19 @@ class Comment_Exporter extends Abstract_Exporter {
 				'compare' => $meta_condition,
 			);
 
-			// Add value only if condition requires it
+			// Add value only if condition requires it.
 			if ( ! in_array( $condition, array( 'is_empty', 'is_not_empty' ), true ) ) {
-				// For IN and NOT IN, value should be an array
+				// For IN and NOT IN, value should be an array.
 				if ( in_array( $condition, array( 'in', 'not_in' ), true ) ) {
 					$values                   = array_map(
 						function ( $v ) {
 							$v = trim( $v );
-							// Remove surrounding quotes if present
+							// Remove surrounding quotes if present.
 							return trim( $v, '\'"' );
 						},
 						is_array( $value ) ? $value : explode( ',', $value )
 					);
-					$meta_query_item['value'] = array_filter( $values ); // Remove empty values
+					$meta_query_item['value'] = array_filter( $values ); // Remove empty values.
 				} else {
 					$meta_query_item['value'] = $value;
 				}
@@ -545,7 +545,7 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Convert filter condition to WP meta compare operator
 	 *
-	 * @param string $condition Filter condition
+	 * @param string $condition Filter condition.
 	 * @return string|null Meta compare operator
 	 */
 	protected function convert_condition_to_meta_compare( $condition ) {
@@ -570,20 +570,20 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Apply dynamic filters to query args
 	 *
-	 * @param array $args    Query arguments (by reference)
-	 * @param array $filters Dynamic filters
+	 * @param array $args    Query arguments (by reference).
+	 * @param array $filters Dynamic filters.
 	 */
 	protected function apply_dynamic_filters( &$args, $filters ) {
 		global $wpdb;
 
 		$this->log_info( __( 'Applying dynamic filters', 'import-export-by-rockstarlab' ), array( 'filters' => $filters ) );
 
-		// Store all filters for manual checking
+		// Store all filters for manual checking.
 		if ( ! isset( $args['_other_filters'] ) ) {
 			$args['_other_filters'] = array();
 		}
 
-		// Collect search filters separately to avoid conflicts
+		// Collect search filters separately to avoid conflicts.
 		$search_filters    = array();
 		$custom_id_filters = array();
 
@@ -596,41 +596,41 @@ class Comment_Exporter extends Abstract_Exporter {
 			$condition = $filter['condition'];
 			$value     = isset( $filter['value'] ) ? $filter['value'] : '';
 
-			// Skip empty values unless condition is is_empty or is_not_empty
+			// Skip empty values unless condition is is_empty or is_not_empty.
 			if ( ! in_array( $condition, array( 'is_empty', 'is_not_empty' ), true ) && '' === $value ) {
 				continue;
 			}
 
-			// Handle comment ID with numeric comparisons
-			if ( $field === 'comment_ID' ) {
+			// Handle comment ID with numeric comparisons.
+			if ( 'comment_ID' === $field ) {
 				// Only basic conditions (equals, in, not_equals, not_in) use SQL
-				// Complex conditions (greater, less, between, etc.) use manual filtering
+				// Complex conditions (greater, less, between, etc.) use manual filtering.
 				if ( in_array( $condition, array( 'greater', 'less', 'equals_or_greater', 'equals_or_less', 'between' ), true ) ) {
 					$args['_other_filters'][] = $filter;
-					continue; // Handle manually
+					continue; // Handle manually.
 				}
 
 				// Apply simple ID filters via SQL
-				// Accumulate so multiple equals filters OR together
-				if ( $condition === 'equals' ) {
+				// Accumulate so multiple equals filters OR together.
+				if ( 'equals' === $condition ) {
 					$args['comment__in'] = array_merge( $args['comment__in'] ?? array(), array( absint( $value ) ) );
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['comment__not_in'] = array_merge( $args['comment__not_in'] ?? array(), array( absint( $value ) ) );
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$new_ids             = array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) );
 					$args['comment__in'] = array_merge( $args['comment__in'] ?? array(), $new_ids );
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$new_ids                 = array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) );
 					$args['comment__not_in'] = array_merge( $args['comment__not_in'] ?? array(), $new_ids );
 				}
 				continue;
 			}
 
-			// Handle comment status
-			if ( $field === 'comment_approved' || $field === 'status' ) {
-				if ( $condition === 'equals' ) {
+			// Handle comment status.
+			if ( 'comment_approved' === $field || 'status' === $field ) {
+				if ( 'equals' === $condition ) {
 					$args['status'] = $this->normalize_comment_status_value( $value );
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$values         = array_map( 'trim', explode( ',', $value ) );
 					$args['status'] = array_map( array( $this, 'normalize_comment_status_value' ), $values );
 				} elseif ( in_array( $condition, array( 'not_equals', 'not_in' ), true ) ) {
@@ -639,32 +639,32 @@ class Comment_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle comment type
-			if ( $field === 'comment_type' || $field === 'type' ) {
-				if ( $condition === 'equals' ) {
+			// Handle comment type.
+			if ( 'comment_type' === $field || 'type' === $field ) {
+				if ( 'equals' === $condition ) {
 					$args['type'] = sanitize_text_field( $value );
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['type__not_in'] = array( sanitize_text_field( $value ) );
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$values           = array_map( 'trim', explode( ',', $value ) );
 					$args['type__in'] = array_map( 'sanitize_text_field', $values );
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$values               = array_map( 'trim', explode( ',', $value ) );
 					$args['type__not_in'] = array_map( 'sanitize_text_field', $values );
 				}
 				continue;
 			}
 
-			// Handle post ID with numeric comparisons
-			if ( $field === 'comment_post_ID' || $field === 'post_id' ) {
-				if ( $condition === 'equals' ) {
+			// Handle post ID with numeric comparisons.
+			if ( 'comment_post_ID' === $field || 'post_id' === $field ) {
+				if ( 'equals' === $condition ) {
 					$args['post_id'] = absint( $value ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct filtering.
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['post__not_in'] = array( absint( $value ) ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct export filtering.
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$values           = array_map( 'trim', explode( ',', $value ) );
 					$args['post__in'] = array_map( 'absint', $values );
-				} elseif ( $condition === 'not_in' ) { // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct filtering.
+				} elseif ( 'not_in' === $condition ) { // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct filtering.
 					$values               = array_map( 'trim', explode( ',', $value ) );
 					$args['post__not_in'] = array_map( 'absint', $values ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- post__not_in required for correct export filtering.
 				} elseif ( in_array( $condition, array( 'greater', 'less', 'equals_or_greater', 'equals_or_less', 'between' ), true ) ) {
@@ -677,20 +677,20 @@ class Comment_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle user ID with numeric comparisons
-			if ( $field === 'user_id' ) {
-				if ( $condition === 'equals' ) {
+			// Handle user ID with numeric comparisons.
+			if ( 'user_id' === $field ) {
+				if ( 'equals' === $condition ) {
 					$args['user_id'] = absint( $value );
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$custom_id_filters[] = array(
 						'field'     => $field,
 						'condition' => $condition,
 						'value'     => $value,
 					);
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$values = array_map( 'trim', explode( ',', $value ) );
 					$values = array_map( 'absint', $values );
-					// WP_Comment_Query doesn't support user_id__in, use custom filter
+					// WP_Comment_Query doesn't support user_id__in, use custom filter.
 					$custom_id_filters[] = array(
 						'field'     => $field,
 						'condition' => 'in',
@@ -706,16 +706,16 @@ class Comment_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle parent comment ID
-			if ( $field === 'comment_parent' ) {
-				if ( $condition === 'equals' ) {
+			// Handle parent comment ID.
+			if ( 'comment_parent' === $field ) {
+				if ( 'equals' === $condition ) {
 					$args['parent'] = absint( $value );
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['parent__not_in'] = array( absint( $value ) );
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$values             = array_map( 'trim', explode( ',', $value ) );
 					$args['parent__in'] = array_map( 'absint', $values );
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$values                 = array_map( 'trim', explode( ',', $value ) );
 					$args['parent__not_in'] = array_map( 'absint', $values );
 				} elseif ( in_array( $condition, array( 'greater', 'less', 'equals_or_greater', 'equals_or_less', 'between' ), true ) ) {
@@ -728,9 +728,9 @@ class Comment_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle karma (numeric field)
-			if ( $field === 'comment_karma' ) {
-				// WP_Comment_Query doesn't natively support karma filtering, use custom filter
+			// Handle karma (numeric field).
+			if ( 'comment_karma' === $field ) {
+				// WP_Comment_Query doesn't natively support karma filtering, use custom filter.
 				$custom_id_filters[] = array(
 					'field'     => $field,
 					'condition' => $condition,
@@ -739,20 +739,20 @@ class Comment_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle date field
-			if ( $field === 'comment_date' ) {
+			// Handle date field.
+			if ( 'comment_date' === $field ) {
 				if ( ! isset( $args['date_query'] ) ) {
 					$args['date_query'] = array();
 				}
 
-				if ( $condition === 'equals' ) {
+				if ( 'equals' === $condition ) {
 					$args['date_query'][] = array(
 						'column' => 'comment_date',
 						'year'   => gmdate( 'Y', strtotime( $value ) ),
 						'month'  => gmdate( 'm', strtotime( $value ) ),
 						'day'    => gmdate( 'd', strtotime( $value ) ),
 					);
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$args['date_query'][] = array(
 						'column'  => 'comment_date',
 						'compare' => '!=',
@@ -760,31 +760,31 @@ class Comment_Exporter extends Abstract_Exporter {
 						'month'   => gmdate( 'm', strtotime( $value ) ),
 						'day'     => gmdate( 'd', strtotime( $value ) ),
 					);
-				} elseif ( $condition === 'greater' ) {
+				} elseif ( 'greater' === $condition ) {
 					$args['date_query'][] = array(
 						'column' => 'comment_date',
 						'after'  => $value,
 					);
-				} elseif ( $condition === 'equals_or_greater' ) {
+				} elseif ( 'equals_or_greater' === $condition ) {
 					$args['date_query'][] = array(
 						'column'    => 'comment_date',
 						'after'     => $value,
 						'inclusive' => true,
 					);
-				} elseif ( $condition === 'less' ) {
+				} elseif ( 'less' === $condition ) {
 					$args['date_query'][] = array(
 						'column' => 'comment_date',
 						'before' => $value,
 					);
-				} elseif ( $condition === 'equals_or_less' ) {
+				} elseif ( 'equals_or_less' === $condition ) {
 					$args['date_query'][] = array(
 						'column'    => 'comment_date',
 						'before'    => $value,
 						'inclusive' => true,
 					);
-				} elseif ( $condition === 'between' ) {
+				} elseif ( 'between' === $condition ) {
 					$dates = array_map( 'trim', explode( ',', $value ) );
-					if ( count( $dates ) === 2 ) {
+					if ( 2 === count( $dates ) ) {
 						$args['date_query'][] = array(
 							'column'    => 'comment_date',
 							'after'     => $dates[0],
@@ -796,7 +796,7 @@ class Comment_Exporter extends Abstract_Exporter {
 				continue;
 			}
 
-			// Handle text search fields (content, author, email, url, IP)
+			// Handle text search fields (content, author, email, url, IP).
 			if ( in_array( $field, array( 'comment_content', 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_author_IP' ), true ) ) {
 				if ( in_array( $condition, array( 'contains', 'equals', 'not_contains', 'starts_with', 'ends_with' ), true ) ) {
 					$search_filters[] = array(
@@ -804,13 +804,13 @@ class Comment_Exporter extends Abstract_Exporter {
 						'condition' => $condition,
 						'value'     => $value,
 					);
-				} elseif ( $condition === 'is_empty' ) {
+				} elseif ( 'is_empty' === $condition ) {
 					$custom_id_filters[] = array(
 						'field'     => $field,
 						'condition' => 'is_empty',
 						'value'     => '',
 					);
-				} elseif ( $condition === 'is_not_empty' ) {
+				} elseif ( 'is_not_empty' === $condition ) {
 					$custom_id_filters[] = array(
 						'field'     => $field,
 						'condition' => 'is_not_empty',
@@ -822,12 +822,12 @@ class Comment_Exporter extends Abstract_Exporter {
 		}
 
 		// Apply search filters (WP_Comment_Query search is limited)
-		// We'll use custom WHERE clause for search
+		// We'll use custom WHERE clause for search.
 		if ( ! empty( $search_filters ) ) {
 			$custom_id_filters = array_merge( $custom_id_filters, $search_filters );
 		}
 
-		// Apply custom filters via comments_clauses hook
+		// Apply custom filters via comments_clauses hook.
 		if ( ! empty( $custom_id_filters ) ) {
 			$this->custom_filters = $custom_id_filters;
 			add_filter( 'comments_clauses', array( $this, 'apply_custom_comment_filters' ), 99, 2 );
@@ -845,11 +845,11 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Validate export options
 	 *
-	 * @param array $options Export options
+	 * @param array $options Export options.
 	 * @return true|\WP_Error
 	 */
 	public function validate_options( $options ) {
-		// Validate status if provided
+		// Validate status if provided.
 		if ( ! empty( $options['status'] ) ) {
 			$valid_statuses = array( 'approve', 'hold', 'spam', 'trash', 'all' );
 			if ( ! in_array( $options['status'], $valid_statuses, true ) ) {
@@ -911,8 +911,8 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Apply custom filters to comment query via WHERE clause
 	 *
-	 * @param array             $clauses Comment query clauses
-	 * @param \WP_Comment_Query $query   Comment query object
+	 * @param array             $clauses Comment query clauses.
+	 * @param \WP_Comment_Query $query   Comment query object.
 	 * @return array Modified clauses
 	 */
 	public function apply_custom_comment_filters( $clauses, $query ) {
@@ -957,21 +957,21 @@ class Comment_Exporter extends Abstract_Exporter {
 
 			$column = $field;
 
-			// Numeric fields
+			// Numeric fields.
 			if ( in_array( $field, array( 'comment_ID', 'comment_post_ID', 'user_id', 'comment_parent', 'comment_karma' ), true ) ) {
-				if ( $condition === 'equals' ) {
+				if ( 'equals' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i = %d', $column, absint( $value ) );
-				} elseif ( $condition === 'not_equals' ) {
+				} elseif ( 'not_equals' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i != %d', $column, absint( $value ) );
-				} elseif ( $condition === 'greater' ) {
+				} elseif ( 'greater' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i > %d', $column, absint( $value ) );
-				} elseif ( $condition === 'equals_or_greater' ) {
+				} elseif ( 'equals_or_greater' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i >= %d', $column, absint( $value ) );
-				} elseif ( $condition === 'less' ) {
+				} elseif ( 'less' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i < %d', $column, absint( $value ) );
-				} elseif ( $condition === 'equals_or_less' ) {
+				} elseif ( 'equals_or_less' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i <= %d', $column, absint( $value ) );
-				} elseif ( $condition === 'in' ) {
+				} elseif ( 'in' === $condition ) {
 					$values = array_map( 'trim', explode( ',', $value ) );
 					$values = array_map( 'absint', $values );
 					if ( ! empty( $values ) ) {
@@ -981,7 +981,7 @@ class Comment_Exporter extends Abstract_Exporter {
 						}
 							$prepared_filter_parts[] = $this->combine_prepared_filter_parts( $parts, 'OR' );
 					}
-				} elseif ( $condition === 'not_in' ) {
+				} elseif ( 'not_in' === $condition ) {
 					$values = array_map( 'trim', explode( ',', $value ) );
 					$values = array_map( 'absint', $values );
 					if ( ! empty( $values ) ) {
@@ -991,33 +991,33 @@ class Comment_Exporter extends Abstract_Exporter {
 						}
 							$prepared_filter_parts[] = $this->combine_prepared_filter_parts( $parts, 'AND' );
 					}
-				} elseif ( $condition === 'between' ) {
+				} elseif ( 'between' === $condition ) {
 					$values = array_map( 'trim', explode( ',', $value ) );
-					if ( count( $values ) === 2 ) {
+					if ( 2 === count( $values ) ) {
 						$prepared_filter_parts[] = $wpdb->prepare( '%i BETWEEN %d AND %d', $column, absint( $values[0] ), absint( $values[1] ) );
 					}
-				} elseif ( $condition === 'is_empty' ) {
+				} elseif ( 'is_empty' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '(%i = 0 OR %i IS NULL)', $column, $column );
-				} elseif ( $condition === 'is_not_empty' ) {
+				} elseif ( 'is_not_empty' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '(%i != 0 AND %i IS NOT NULL)', $column, $column );
 				}
 			}
 
-			// Text fields
+			// Text fields.
 			if ( in_array( $field, array( 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_author_IP', 'comment_content' ), true ) ) {
-				if ( $condition === 'equals' ) {
+				if ( 'equals' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i = %s', $column, $value );
-				} elseif ( $condition === 'contains' ) {
+				} elseif ( 'contains' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i LIKE %s', $column, '%' . $wpdb->esc_like( $value ) . '%' );
-				} elseif ( $condition === 'not_contains' ) {
+				} elseif ( 'not_contains' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i NOT LIKE %s', $column, '%' . $wpdb->esc_like( $value ) . '%' );
-				} elseif ( $condition === 'starts_with' ) {
+				} elseif ( 'starts_with' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i LIKE %s', $column, $wpdb->esc_like( $value ) . '%' );
-				} elseif ( $condition === 'ends_with' ) {
+				} elseif ( 'ends_with' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '%i LIKE %s', $column, '%' . $wpdb->esc_like( $value ) );
-				} elseif ( $condition === 'is_empty' ) {
+				} elseif ( 'is_empty' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '(%i = %s OR %i IS NULL)', $column, '', $column );
-				} elseif ( $condition === 'is_not_empty' ) {
+				} elseif ( 'is_not_empty' === $condition ) {
 					$prepared_filter_parts[] = $wpdb->prepare( '(%i != %s AND %i IS NOT NULL)', $column, '', $column );
 				}
 			}
@@ -1068,12 +1068,12 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Get comment field value
 	 *
-	 * @param \WP_Comment $comment    Comment object
-	 * @param string      $field_name Field name
+	 * @param \WP_Comment $comment    Comment object.
+	 * @param string      $field_name Field name.
 	 * @return mixed Field value
 	 */
 	protected function get_comment_field_value( $comment, $field_name ) {
-		// Map field names to comment properties
+		// Map field names to comment properties.
 		$field_map = array(
 			'comment_ID'           => 'comment_ID',
 			'comment_post_ID'      => 'comment_post_ID',
@@ -1115,54 +1115,54 @@ class Comment_Exporter extends Abstract_Exporter {
 	/**
 	 * Check if a condition matches
 	 *
-	 * @param mixed  $field_value The value to test
-	 * @param string $condition   The condition type
-	 * @param mixed  $test_value  The value to test against
+	 * @param mixed  $field_value The value to test.
+	 * @param string $condition   The condition type.
+	 * @param mixed  $test_value  The value to test against.
 	 * @return bool True if condition matches
 	 */
 	protected function check_condition( $field_value, $condition, $test_value ) {
-		// For date comparisons, extract only the date part (YYYY-MM-DD)
+		// For date comparisons, extract only the date part (YYYY-MM-DD).
 		$is_date_value   = false;
 		$field_date_only = null;
 		$test_date_only  = null;
 
 		if ( is_string( $field_value ) && preg_match( '/^\d{4}-\d{2}-\d{2}/', $field_value ) ) {
 			$is_date_value   = true;
-			$field_date_only = substr( $field_value, 0, 10 ); // Get YYYY-MM-DD part
+			$field_date_only = substr( $field_value, 0, 10 ); // Get YYYY-MM-DD part.
 		}
 		if ( is_string( $test_value ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $test_value ) ) {
 			$test_date_only = $test_value;
 		}
 
-		// For date comparisons (greater/less/between), exclude empty values
+		// For date comparisons (greater/less/between), exclude empty values.
 		$is_date_comparison = in_array( $condition, array( 'greater', 'less', 'equals_or_greater', 'equals_or_less', 'between' ), true );
 		if ( $is_date_comparison && $test_date_only && empty( $field_value ) ) {
-			return false; // Empty dates shouldn't match numeric/date comparisons
+			return false; // Empty dates shouldn't match numeric/date comparisons.
 		}
 
 		switch ( $condition ) {
 			case 'equals':
-				// For dates, compare only date parts
+				// For dates, compare only date parts.
 				if ( $is_date_value && isset( $field_date_only ) && isset( $test_date_only ) ) {
 					return $field_date_only === $test_date_only;
 				}
 				return $field_value == $test_value;
 
 			case 'not_equals':
-				// For dates, compare only date parts
+				// For dates, compare only date parts.
 				if ( $is_date_value && isset( $field_date_only ) && isset( $test_date_only ) ) {
 					return $field_date_only !== $test_date_only;
 				}
 				return $field_value != $test_value;
 
 			case 'contains':
-				return \RockStarLab\ImportExport\Helper\Text_Match::ipos( (string) $field_value, (string) $test_value ) !== false;
+				return false !== \RockStarLab\ImportExport\Helper\Text_Match::ipos( (string) $field_value, (string) $test_value );
 
 			case 'not_contains':
-				return \RockStarLab\ImportExport\Helper\Text_Match::ipos( (string) $field_value, (string) $test_value ) === false;
+				return false === \RockStarLab\ImportExport\Helper\Text_Match::ipos( (string) $field_value, (string) $test_value );
 
 			case 'starts_with':
-				return \RockStarLab\ImportExport\Helper\Text_Match::ipos( (string) $field_value, (string) $test_value ) === 0;
+				return 0 === \RockStarLab\ImportExport\Helper\Text_Match::ipos( (string) $field_value, (string) $test_value );
 
 			case 'ends_with':
 				$field_lower = \RockStarLab\ImportExport\Helper\Text_Match::lower( (string) $field_value );
@@ -1170,28 +1170,28 @@ class Comment_Exporter extends Abstract_Exporter {
 				return substr( $field_lower, -strlen( $test_lower ) ) === $test_lower;
 
 			case 'greater':
-				// For dates, compare only date parts
+				// For dates, compare only date parts.
 				if ( $is_date_value && isset( $field_date_only ) && isset( $test_date_only ) ) {
 					return $field_date_only > $test_date_only;
 				}
 				return $field_value > $test_value;
 
 			case 'less':
-				// For dates, compare only date parts
+				// For dates, compare only date parts.
 				if ( $is_date_value && isset( $field_date_only ) && isset( $test_date_only ) ) {
 					return $field_date_only < $test_date_only;
 				}
 				return $field_value < $test_value;
 
 			case 'equals_or_greater':
-				// For dates, compare only date parts
+				// For dates, compare only date parts.
 				if ( $is_date_value && isset( $field_date_only ) && isset( $test_date_only ) ) {
 					return $field_date_only >= $test_date_only;
 				}
 				return $field_value >= $test_value;
 
 			case 'equals_or_less':
-				// For dates, compare only date parts
+				// For dates, compare only date parts.
 				if ( $is_date_value && isset( $field_date_only ) && isset( $test_date_only ) ) {
 					return $field_date_only <= $test_date_only;
 				}
@@ -1199,14 +1199,14 @@ class Comment_Exporter extends Abstract_Exporter {
 
 			case 'between':
 				$values = array_map( 'trim', explode( ',', (string) $test_value ) );
-				if ( count( $values ) === 2 ) {
+				if ( 2 === count( $values ) ) {
 					return $field_value >= $values[0] && $field_value <= $values[1];
 				}
 				return true;
 
 			case 'in':
 				$values = array_map( 'trim', explode( ',', (string) $test_value ) );
-				return in_array( $field_value, $values, false ); // Non-strict for flexibility
+				return in_array( $field_value, $values, false ); // Non-strict for flexibility.
 
 			case 'not_in':
 				$values = array_map( 'trim', explode( ',', (string) $test_value ) );

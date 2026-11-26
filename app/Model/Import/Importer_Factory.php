@@ -23,8 +23,8 @@ class Importer_Factory {
 	/**
 	 * Get importer by type
 	 *
-	 * @param string $type    Importer type (posts, users, comments, media)
-	 * @param int    $job_id  Optional. Job ID for logging
+	 * @param string $type    Importer type (posts, users, comments, media).
+	 * @param int    $job_id  Optional. Job ID for logging.
 	 * @return Importer_Interface|WP_Error Importer instance or WP_Error
 	 */
 	public static function get_importer( $type, $job_id = 0 ) {
@@ -45,7 +45,7 @@ class Importer_Factory {
 
 		$class = $importer_map[ $type ];
 
-		// Create new instance with job_id
+		// Create new instance with job_id.
 		return new $class( $job_id );
 	}
 
@@ -88,7 +88,7 @@ class Importer_Factory {
 	/**
 	 * Check if importer type is supported
 	 *
-	 * @param string $type Importer type
+	 * @param string $type Importer type.
 	 * @return bool True if supported
 	 */
 	public static function is_supported( $type ) {
@@ -99,7 +99,7 @@ class Importer_Factory {
 	/**
 	 * Get importer info
 	 *
-	 * @param string $type Importer type
+	 * @param string $type Importer type.
 	 * @return array|WP_Error Importer info or WP_Error
 	 */
 	public static function get_importer_info( $type ) {
@@ -140,8 +140,8 @@ class Importer_Factory {
 	/**
 	 * Validate data for specific importer type
 	 *
-	 * @param string $type Importer type
-	 * @param array  $data Data to validate
+	 * @param string $type Importer type.
+	 * @param array  $data Data to validate.
 	 * @return true|WP_Error True if valid or WP_Error
 	 */
 	public static function validate_data( $type, $data ) {
@@ -159,10 +159,10 @@ class Importer_Factory {
 	 *
 	 * Convenience method for simple imports.
 	 *
-	 * @param string $type    Importer type
-	 * @param array  $data    Data to import
-	 * @param array  $options Optional. Import options
-	 * @param int    $job_id  Optional. Job ID for logging
+	 * @param string $type    Importer type.
+	 * @param array  $data    Data to import.
+	 * @param array  $options Optional. Import options.
+	 * @param int    $job_id  Optional. Job ID for logging.
 	 * @return array|WP_Error Import results or WP_Error
 	 */
 	public static function import( $type, $data, $options = array(), $job_id = 0 ) {

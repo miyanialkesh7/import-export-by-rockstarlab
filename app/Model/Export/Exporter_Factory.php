@@ -16,8 +16,8 @@ class Exporter_Factory {
 	/**
 	 * Get exporter by type
 	 *
-	 * @param string $type   Exporter type (posts, users, comments, media)
-	 * @param int    $job_id Optional. Job ID for logging
+	 * @param string $type   Exporter type (posts, users, comments, media).
+	 * @param int    $job_id Optional. Job ID for logging.
 	 * @return Exporter_Interface|\WP_Error Exporter instance or WP_Error
 	 */
 	public static function get_exporter( $type, $job_id = 0 ) {
@@ -38,7 +38,7 @@ class Exporter_Factory {
 			$class = $exporter_map[ $type ];
 		}
 
-		// Create new instance with job_id
+		// Create new instance with job_id.
 		return new $class( $job_id );
 	}
 
@@ -80,7 +80,7 @@ class Exporter_Factory {
 	/**
 	 * Check if exporter type is supported
 	 *
-	 * @param string $type Exporter type
+	 * @param string $type Exporter type.
 	 * @return bool True if supported
 	 */
 	public static function is_supported( $type ) {
@@ -91,7 +91,7 @@ class Exporter_Factory {
 	/**
 	 * Get exporter info
 	 *
-	 * @param string $type Exporter type
+	 * @param string $type Exporter type.
 	 * @return array|\WP_Error Exporter info or WP_Error
 	 */
 	public static function get_exporter_info( $type ) {
@@ -132,8 +132,8 @@ class Exporter_Factory {
 	/**
 	 * Validate export options for specific exporter type
 	 *
-	 * @param string $type    Exporter type
-	 * @param array  $options Options to validate
+	 * @param string $type    Exporter type.
+	 * @param array  $options Options to validate.
 	 * @return true|\WP_Error True if valid or WP_Error
 	 */
 	public static function validate_options( $type, $options ) {
@@ -149,9 +149,9 @@ class Exporter_Factory {
 	/**
 	 * Get count of items available for export
 	 *
-	 * @param string $type    Exporter type
-	 * @param array  $options Optional. Export filters
-	 * @param int    $job_id  Optional. Job ID for logging
+	 * @param string $type    Exporter type.
+	 * @param array  $options Optional. Export filters.
+	 * @param int    $job_id  Optional. Job ID for logging.
 	 * @return int|\WP_Error Count or WP_Error
 	 */
 	public static function get_count( $type, $options = array(), $job_id = 0 ) {
@@ -169,9 +169,9 @@ class Exporter_Factory {
 	 *
 	 * Convenience method for simple exports.
 	 *
-	 * @param string $type    Exporter type
-	 * @param array  $options Optional. Export options
-	 * @param int    $job_id  Optional. Job ID for logging
+	 * @param string $type    Exporter type.
+	 * @param array  $options Optional. Export options.
+	 * @param int    $job_id  Optional. Job ID for logging.
 	 * @return array|\WP_Error Export results or WP_Error
 	 */
 	public static function export( $type, $options = array(), $job_id = 0 ) {

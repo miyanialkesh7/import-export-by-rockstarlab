@@ -36,7 +36,7 @@ class XML_Row_Spool {
 				$token  = bin2hex( random_bytes( 16 ) );
 				$header = '0' . $digest . ' ' . $token . ' ' . str_repeat( '0', 20 ) . "\n";
 				$total  = 0;
-				if ( ! ftruncate( $handle, 0 ) || fseek( $handle, 0 ) !== 0 ) {
+				if ( ! ftruncate( $handle, 0 ) || 0 !== fseek( $handle, 0 ) ) {
 					throw new \RuntimeException( __( 'Cannot reset XML snapshot.', 'import-export-by-rockstarlab' ) ); }
 				self::write( $handle, $header );
 				foreach ( $records() as $row ) {
@@ -46,7 +46,7 @@ class XML_Row_Spool {
 				}
 				if ( ! hash_equals( $digest, (string) hash_file( 'sha256', $source ) ) ) {
 					throw new \RuntimeException( __( 'Changed XML prefix.', 'import-export-by-rockstarlab' ) ); }
-				if ( ! fflush( $handle ) || fseek( $handle, 0 ) !== 0 ) {
+				if ( ! fflush( $handle ) || 0 !== fseek( $handle, 0 ) ) {
 					throw new \RuntimeException( __( 'Cannot finish XML snapshot.', 'import-export-by-rockstarlab' ) ); }
 				$header = '1' . $digest . ' ' . $token . ' ' . sprintf( '%020d', $total ) . "\n";
 				self::write( $handle, $header );
@@ -59,7 +59,7 @@ class XML_Row_Spool {
 			$count  = $state['count'] ?? 0;
 			if ( null !== $state && ( ! is_array( $state ) || ( $state['key'] ?? null ) !== $key || ( $state['token'] ?? null ) !== $match[2] || ! is_int( $offset ) || $offset < strlen( $header ) || $offset > fstat( $handle )['size'] || $count !== $cursor['count'] ) ) {
 				throw new \RuntimeException( __( 'Invalid XML snapshot cursor.', 'import-export-by-rockstarlab' ) ); }
-			if ( fseek( $handle, $offset - 1 ) !== 0 || fread( $handle, 1 ) !== "\n" ) {
+			if ( 0 !== fseek( $handle, $offset - 1 ) || "\n" !== fread( $handle, 1 ) ) {
 				throw new \RuntimeException( __( 'Invalid XML snapshot boundary.', 'import-export-by-rockstarlab' ) ); }
 			touch( $path );
 			$skip     = null === $state ? ( $cursor['count'] ?? 0 ) : 0;
@@ -68,7 +68,7 @@ class XML_Row_Spool {
 			while ( false !== ( $line = fgets( $handle ) ) ) {
 				$raw = base64_decode( rtrim( substr( $line, 65 ), "\n" ), true );
 				$row = false === $raw ? false : unserialize( $raw, array( 'allowed_classes' => false ) );
-				if ( ! is_array( $row ) || substr( $line, -1 ) !== "\n" || ! hash_equals( substr( $line, 0, 64 ), hash( 'sha256', $raw ) ) ) {
+				if ( ! is_array( $row ) || "\n" !== substr( $line, -1 ) || ! hash_equals( substr( $line, 0, 64 ), hash( 'sha256', $raw ) ) ) {
 					throw new \RuntimeException( __( 'Invalid XML snapshot row.', 'import-export-by-rockstarlab' ) ); }
 				++$count;
 				if ( $skip > 0 ) {

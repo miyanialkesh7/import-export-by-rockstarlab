@@ -16,8 +16,8 @@ class Validator_Factory {
 	/**
 	 * Create validation rule by name
 	 *
-	 * @param string $rule_name Rule name (required, type, length, range, regex)
-	 * @param array  $options   Optional. Rule configuration options
+	 * @param string $rule_name Rule name (required, type, length, range, regex).
+	 * @param array  $options   Optional. Rule configuration options.
 	 * @return Validation_Rule|WP_Error Rule instance or WP_Error if unknown rule
 	 */
 	public static function create_rule( $rule_name, $options = array() ) {
@@ -50,7 +50,7 @@ class Validator_Factory {
 	 * Create validation chain from rules array
 	 *
 	 * @param array $rules Array of rule configurations
-	 *                     Format: [['rule' => 'required'], ['rule' => 'type', 'type' => 'email']]
+	 *                     Format: [['rule' => 'required'], ['rule' => 'type', 'type' => 'email']].
 	 * @return Validation_Rule|WP_Error First rule in chain or WP_Error
 	 */
 	public static function create_chain( $rules ) {
@@ -93,8 +93,8 @@ class Validator_Factory {
 	/**
 	 * Create field validator with multiple rules
 	 *
-	 * @param string $field_name Field name for error messages
-	 * @param array  $rules      Array of rule configurations
+	 * @param string $field_name Field name for error messages.
+	 * @param array  $rules      Array of rule configurations.
 	 * @return callable Validator function
 	 */
 	public static function create_field_validator( $field_name, $rules ) {
@@ -113,9 +113,9 @@ class Validator_Factory {
 	/**
 	 * Validate multiple fields with their rules
 	 *
-	 * @param array $data       Data to validate (associative array)
+	 * @param array $data       Data to validate (associative array).
 	 * @param array $field_rules Field rules configuration
-	 *                           Format: ['email' => [['rule' => 'required'], ['rule' => 'type', 'type' => 'email']]]
+	 *                           Format: ['email' => [['rule' => 'required'], ['rule' => 'type', 'type' => 'email']]].
 	 * @return true|array True if all valid, array of errors if validation fails
 	 */
 	public static function validate_fields( $data, $field_rules ) {
@@ -150,7 +150,7 @@ class Validator_Factory {
 	/**
 	 * Create type validator
 	 *
-	 * @param string $type Data type (string, int, email, url, date, etc.)
+	 * @param string $type Data type (string, int, email, url, date, etc.).
 	 * @return Validation_Rule
 	 */
 	public static function type( $type ) {
@@ -160,8 +160,8 @@ class Validator_Factory {
 	/**
 	 * Create length validator
 	 *
-	 * @param int|null $min Minimum length
-	 * @param int|null $max Maximum length
+	 * @param int|null $min Minimum length.
+	 * @param int|null $max Maximum length.
 	 * @return Validation_Rule
 	 */
 	public static function length( $min = null, $max = null ) {
@@ -176,8 +176,8 @@ class Validator_Factory {
 	/**
 	 * Create range validator
 	 *
-	 * @param float|null $min Minimum value
-	 * @param float|null $max Maximum value
+	 * @param float|null $min Minimum value.
+	 * @param float|null $max Maximum value.
 	 * @return Validation_Rule
 	 */
 	public static function range( $min = null, $max = null ) {
@@ -192,8 +192,8 @@ class Validator_Factory {
 	/**
 	 * Create regex validator
 	 *
-	 * @param string $pattern Regex pattern or named pattern
-	 * @param string $message Optional. Custom error message
+	 * @param string $pattern Regex pattern or named pattern.
+	 * @param string $message Optional. Custom error message.
 	 * @return Validation_Rule
 	 */
 	public static function regex( $pattern, $message = '' ) {

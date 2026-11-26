@@ -131,7 +131,7 @@ class Spreadsheet_Spool {
 			} elseif ( 'assemble' === $build['phase'] ) {
 				$store  = new \RockStarLab\ImportExport\Model\Format\Spreadsheet_Row_Store( $dir . '/rows', $build['width'] );
 				$stream = fopen( $dir . '/cells', 'rb' );
-				if ( ! $stream || fseek( $stream, $build['cell_offset'] ) !== 0 ) {
+				if ( ! $stream || 0 !== fseek( $stream, $build['cell_offset'] ) ) {
 					throw new \RuntimeException( __( 'Invalid spreadsheet cell offset.', 'import-export-by-rockstarlab' ) ); }
 				$count = 0;
 				$bytes = 0;
@@ -221,7 +221,7 @@ class Spreadsheet_Spool {
 		$stream = fopen( $path, 'c+b' );
 		if ( ! $stream ) {
 			throw new \RuntimeException( esc_html__( 'Cannot open spreadsheet staging file.', 'import-export-by-rockstarlab' ) ); }
-		if ( fstat( $stream )['size'] < $offset || ! ftruncate( $stream, $offset ) || fseek( $stream, $offset ) !== 0 ) {
+		if ( fstat( $stream )['size'] < $offset || ! ftruncate( $stream, $offset ) || 0 !== fseek( $stream, $offset ) ) {
 			fclose( $stream );
 			throw new \RuntimeException( esc_html__( 'Invalid spreadsheet staging offset.', 'import-export-by-rockstarlab' ) ); }
 		return $stream;

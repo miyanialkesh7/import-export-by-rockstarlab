@@ -324,7 +324,7 @@ class Database_Migration {
             PRIMARY KEY  (file_id,chunk_index)
         ) ENGINE=InnoDB $charset_collate;";
 
-		// Execute table creation
+		// Execute table creation.
 		$results                        = array();
 		$results['jobs']                = dbDelta( $sql_jobs );
 		$results['import_rows']         = dbDelta( $sql_import_rows );
@@ -346,12 +346,12 @@ class Database_Migration {
 			}
 		}
 
-		// Update DB version
+		// Update DB version.
 		update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
 
 		do_action( 'rsl_ie_tables_created' );
 
-		// Run migrations for existing tables
+		// Run migrations for existing tables.
 		self::maybe_add_job_name_column();
 		self::maybe_add_progress_column();
 		self::maybe_add_result_column();
@@ -397,7 +397,7 @@ class Database_Migration {
 
 		$table_name = esc_sql( $wpdb->prefix . 'rsl_ie_jobs' );
 
-		// Check if column already exists
+		// Check if column already exists.
 		$column_exists = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS
@@ -409,7 +409,7 @@ class Database_Migration {
 			)
 		);
 
-		// Add column if it doesn't exist
+		// Add column if it doesn't exist.
 		if ( empty( $column_exists ) ) {
 			self::run_alter_table(
 				$table_name,
@@ -426,7 +426,7 @@ class Database_Migration {
 
 		$table_name = esc_sql( $wpdb->prefix . 'rsl_ie_jobs' );
 
-		// Check if column already exists
+		// Check if column already exists.
 		$column_exists = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS
@@ -438,7 +438,7 @@ class Database_Migration {
 			)
 		);
 
-		// Add column if it doesn't exist
+		// Add column if it doesn't exist.
 		if ( empty( $column_exists ) ) {
 			self::run_alter_table(
 				$table_name,
@@ -455,7 +455,7 @@ class Database_Migration {
 
 		$table_name = esc_sql( $wpdb->prefix . 'rsl_ie_jobs' );
 
-		// Check if column already exists
+		// Check if column already exists.
 		$column_exists = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS
@@ -467,7 +467,7 @@ class Database_Migration {
 			)
 		);
 
-		// Add column if it doesn't exist
+		// Add column if it doesn't exist.
 		if ( empty( $column_exists ) ) {
 			self::run_alter_table(
 				$table_name,
@@ -484,7 +484,7 @@ class Database_Migration {
 
 		$table_name = esc_sql( $wpdb->prefix . 'rsl_ie_jobs' );
 
-		// Check if column already exists
+		// Check if column already exists.
 		$column_exists = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS
@@ -496,7 +496,7 @@ class Database_Migration {
 			)
 		);
 
-		// Add column if it doesn't exist
+		// Add column if it doesn't exist.
 		if ( empty( $column_exists ) ) {
 			self::run_alter_table(
 				$table_name,
@@ -513,7 +513,7 @@ class Database_Migration {
 
 		$table_name = esc_sql( $wpdb->prefix . 'rsl_ie_jobs' );
 
-		// Check if column already exists
+		// Check if column already exists.
 		$column_exists = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS
@@ -525,7 +525,7 @@ class Database_Migration {
 			)
 		);
 
-		// Add column if it doesn't exist
+		// Add column if it doesn't exist.
 		if ( empty( $column_exists ) ) {
 			self::run_alter_table(
 				$table_name,
@@ -542,7 +542,7 @@ class Database_Migration {
 
 		$table_name = esc_sql( $wpdb->prefix . 'rsl_ie_jobs' );
 
-		// Get current column definition
+		// Get current column definition.
 		$column_info = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
@@ -575,7 +575,7 @@ class Database_Migration {
 
 		$table_name = esc_sql( $wpdb->prefix . 'rsl_ie_jobs' );
 
-		// Add imported_items column
+		// Add imported_items column.
 		$column_exists = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS
@@ -594,7 +594,7 @@ class Database_Migration {
 			);
 		}
 
-		// Add skipped_items column
+		// Add skipped_items column.
 		$column_exists = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS
@@ -613,7 +613,7 @@ class Database_Migration {
 			);
 		}
 
-		// Add error_items column
+		// Add error_items column.
 		$column_exists = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
 			$wpdb->prepare(
 				"SELECT * FROM INFORMATION_SCHEMA.COLUMNS
@@ -644,7 +644,7 @@ class Database_Migration {
 			$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Dropping plugin-owned custom tables during cleanup.
 		}
 
-		// Delete DB version option
+		// Delete DB version option.
 		delete_option( self::DB_VERSION_OPTION );
 
 		do_action( 'rsl_ie_tables_dropped' );

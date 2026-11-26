@@ -61,14 +61,14 @@ class Background_Processor {
 	 * @return bool True if job was processed
 	 */
 	public function process_next_job() {
-		// Get next pending job
+		// Get next pending job.
 		$job = $this->get_next_job();
 
 		if ( ! $job ) {
 			return false;
 		}
 
-		// Process the job
+		// Process the job.
 		$this->process_job( $job );
 
 		return true;
@@ -108,7 +108,7 @@ class Background_Processor {
 	/**
 	 * Process a job
 	 *
-	 * @param array $job Job data
+	 * @param array $job Job data.
 	 */
 	protected function process_job( $job ) {
 		$job_id = $job['id'];
@@ -145,7 +145,7 @@ class Background_Processor {
 		}
 
 		try {
-			// Update status to processing
+			// Update status to processing.
 			$this->job_model->update(
 				$job_id,
 				array(
@@ -154,10 +154,10 @@ class Background_Processor {
 				)
 			);
 
-			// Parse parameters
+			// Parse parameters.
 			$parameters = ! empty( $job['parameters'] ) ? json_decode( $job['parameters'], true ) : array();
 
-			// Process based on job type
+			// Process based on job type.
 			if ( 'import' === $job['type'] && 'media_sync' === (string) ( $job['data_type'] ?? '' ) ) {
 				$result = $this->process_media_sync_job( $job_id, $parameters );
 			} elseif ( 'media_sync' === $job['type'] ) {
@@ -175,18 +175,18 @@ class Background_Processor {
 			if ( isset( $result['completed'] ) && $result['completed'] ) {
 				$this->complete_job( $job_id, $result );
 			} else {
-				// Job still processing - schedule next batch immediately
+				// Job still processing - schedule next batch immediately.
 
-				// Schedule immediate next run for continued processing
+				// Schedule immediate next run for continued processing.
 				$this->schedule_next_run( 0 );
 
 				// For local development: spawn immediate cron check
-				// This ensures processing continues even if WP-Cron is not triggered by page load
+				// This ensures processing continues even if WP-Cron is not triggered by page load.
 				if ( defined( 'DOING_CRON' ) && ! DOING_CRON ) {
 					spawn_cron();
 				}
 
-				// Fallback: trigger via AJAX for reliability (non-blocking)
+				// Fallback: trigger via AJAX for reliability (non-blocking).
 				$this->trigger_ajax_processing( $job_id );
 			}
 		} catch ( \Exception $e ) {
@@ -197,8 +197,8 @@ class Background_Processor {
 			/**
 			 * Process export job
 			 *
-			 * @param int   $job_id Job ID
-			 * @param array $parameters Job parameters
+			 * @param int   $job_id Job ID.
+			 * @param array $parameters Job parameters.
 			 * @return array Processing result
 			 */
 	protected function process_export_job( $job_id, $parameters ) {
@@ -210,48 +210,48 @@ class Background_Processor {
 	/**
 	 * Append data to export file
 	 *
-	 * @param int    $job_id Job ID
-	 * @param string $format File format
-	 * @param array  $data Export data
-	 * @param bool   $first_batch Is first batch
+	 * @param int    $job_id Job ID.
+	 * @param string $format File format.
+	 * @param array  $data Export data.
+	 * @param bool   $first_batch Is first batch.
 	 */
 	protected function append_export_data( $job_id, $format, $data, $first_batch = false ) {
 		$upload_dir = wp_upload_dir();
 		$file_path  = $upload_dir['basedir'] . '/rsl-ie-exports/job-' . $job_id . '.' . $format;
 
-		// Create directory if needed
+		// Create directory if needed.
 		wp_mkdir_p( dirname( $file_path ) );
 
-		// Get format handler
+		// Get format handler.
 		$format_handler = \RockStarLab\ImportExport\Model\Format\Format_Factory::create( $format );
 
-		// Generate content (note: this is legacy code, new exports use Export_Processor)
+		// Generate content (note: this is legacy code, new exports use Export_Processor).
 		$result = $format_handler->generate( $data, $file_path );
 
 		if ( is_wp_error( $result ) ) {
 			return;
 		}
 
-		// File is already written by generate(), no need to append
+		// File is already written by generate(), no need to append.
 	}
 
 	/**
 	 * Finalize export file
 	 *
-	 * @param int    $job_id Job ID
-	 * @param string $format File format
-	 * @param array  $parameters Job parameters
+	 * @param int    $job_id Job ID.
+	 * @param string $format File format.
+	 * @param array  $parameters Job parameters.
 	 */
 	protected function finalize_export( $job_id, $format, $parameters ) {
 		// Format-specific finalization (e.g., close XML root tag)
-		// This would be handled by format handlers in a real implementation
+		// This would be handled by format handlers in a real implementation.
 	}
 
 	/**
 	 * Complete job
 	 *
-	 * @param int   $job_id Job ID
-	 * @param array $result Processing result
+	 * @param int   $job_id Job ID.
+	 * @param array $result Processing result.
 	 */
 	protected function complete_job( $job_id, $result ) {
 		$job  = $this->job_model->find( $job_id );
@@ -273,11 +273,11 @@ class Background_Processor {
 	/**
 	 * Update job progress
 	 *
-	 * @param int   $job_id Job ID
-	 * @param array $result Processing result
+	 * @param int   $job_id Job ID.
+	 * @param array $result Processing result.
 	 */
 	protected function update_job_progress( $job_id, $result ) {
-		// Update job parameters with new offset
+		// Update job parameters with new offset.
 		$job        = $this->job_model->find( $job_id );
 		$parameters = json_decode( $job->parameters, true );
 
@@ -294,17 +294,17 @@ class Background_Processor {
 	/**
 	 * Handle job error
 	 *
-	 * @param int        $job_id Job ID
-	 * @param \Exception $e Exception
+	 * @param int        $job_id Job ID.
+	 * @param \Exception $e Exception.
 	 */
 	protected function handle_job_error( $job_id, $e ) {
-		// Get current retry count
+		// Get current retry count.
 		$job     = $this->job_model->find( $job_id );
 		$retries = isset( $job->retries ) ? (int) $job->retries : 0;
 
-		// Check if should retry
+		// Check if should retry.
 		if ( $retries < $this->max_retries ) {
-			// Increment retry count and reset to pending
+			// Increment retry count and reset to pending.
 			$this->job_model->update(
 				$job_id,
 				array(
@@ -313,11 +313,11 @@ class Background_Processor {
 				)
 			);
 
-			// Schedule retry
-			$this->schedule_next_run( 60 ); // Retry after 1 minute
+			// Schedule retry.
+			$this->schedule_next_run( 60 ); // Retry after 1 minute.
 
 		} else {
-			// Max retries reached, mark as failed
+			// Max retries reached, mark as failed.
 			$this->job_model->update(
 				$job_id,
 				array(
@@ -336,8 +336,8 @@ class Background_Processor {
 	/**
 	 * Process media sync job
 	 *
-	 * @param int   $job_id Job ID
-	 * @param array $parameters Job parameters
+	 * @param int   $job_id Job ID.
+	 * @param array $parameters Job parameters.
 	 * @return array Processing result
 	 */
 	protected function process_media_sync_job( $job_id, $parameters ) {
@@ -364,11 +364,11 @@ class Background_Processor {
 	/**
 	 * Schedule next run
 	 *
-	 * @param int $delay Optional. Delay in seconds (default: 0)
+	 * @param int $delay Optional. Delay in seconds (default: 0).
 	 */
 	protected function schedule_next_run( $delay = 0 ) {
 		// Always schedule immediate processing for continued jobs
-		// Don't check for existing scheduled events - we want to trigger NOW
+		// Don't check for existing scheduled events - we want to trigger NOW.
 		wp_schedule_single_event(
 			time() + $delay,
 			'rsl_ie_process_queue'
@@ -378,16 +378,16 @@ class Background_Processor {
 	/**
 	 * Trigger next batch via AJAX (non-blocking)
 	 *
-	 * @param int $job_id Job ID
+	 * @param int $job_id Job ID.
 	 */
 	protected function trigger_ajax_processing( $job_id ) {
-		// Only trigger for media sync jobs (they have dedicated AJAX endpoint)
+		// Only trigger for media sync jobs (they have dedicated AJAX endpoint).
 		$job = $this->job_model->find( $job_id );
-		if ( ! $job || ( $job->type !== 'media_sync' && 'media_sync' !== (string) $job->data_type ) ) {
+		if ( ! $job || ( 'media_sync' !== $job->type && 'media_sync' !== (string) $job->data_type ) ) {
 			return;
 		}
 
-		// Trigger via non-blocking HTTP request
+		// Trigger via non-blocking HTTP request.
 		wp_remote_post(
 			admin_url( 'admin-ajax.php' ),
 			array(
@@ -440,7 +440,7 @@ class Background_Processor {
 	/**
 	 * Set batch size
 	 *
-	 * @param int $size Batch size
+	 * @param int $size Batch size.
 	 */
 	public function set_batch_size( $size ) {
 		$this->batch_processor->set_batch_size( $size );
@@ -449,7 +449,7 @@ class Background_Processor {
 	/**
 	 * Set max retries
 	 *
-	 * @param int $retries Max retries
+	 * @param int $retries Max retries.
 	 */
 	public function set_max_retries( $retries ) {
 		$this->max_retries = max( 0, (int) $retries );

@@ -17,11 +17,11 @@ class Progress_Tracker {
 	/**
 	 * Update job progress with item counts
 	 *
-	 * @param int $job_id   Job ID to update
-	 * @param int $total    Total number of items
-	 * @param int $processed Number of items processed
-	 * @param int $success  Number of successful items
-	 * @param int $failed   Number of failed items
+	 * @param int $job_id   Job ID to update.
+	 * @param int $total    Total number of items.
+	 * @param int $processed Number of items processed.
+	 * @param int $success  Number of successful items.
+	 * @param int $failed   Number of failed items.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public static function update_progress( $job_id, $total, $processed, $success, $failed ) {
@@ -31,9 +31,9 @@ class Progress_Tracker {
 	/**
 	 * Calculate and update percentage progress
 	 *
-	 * @param int $job_id Job ID to update
-	 * @param int $processed Number of items processed
-	 * @param int $total Total number of items
+	 * @param int $job_id Job ID to update.
+	 * @param int $processed Number of items processed.
+	 * @param int $total Total number of items.
 	 * @return bool|int False on failure, percentage on success
 	 */
 	public static function update_percentage( $job_id, $processed, $total ) {
@@ -60,7 +60,7 @@ class Progress_Tracker {
 	/**
 	 * Estimate time remaining
 	 *
-	 * @param int $job_id Job ID
+	 * @param int $job_id Job ID.
 	 * @return array|null Estimate data or null
 	 */
 	public static function estimate_time_remaining( $job_id ) {
@@ -77,19 +77,19 @@ class Progress_Tracker {
 			return null;
 		}
 
-		// Calculate time elapsed
+		// Calculate time elapsed.
 		$started = strtotime( $progress['started_at'] );
 		$now     = time();
 		$elapsed = $now - $started;
 
-		// Calculate average time per item
+		// Calculate average time per item.
 		$time_per_item = $elapsed / $processed;
 
-		// Calculate remaining items and time
+		// Calculate remaining items and time.
 		$remaining_items = $total - $processed;
 		$remaining_time  = $remaining_items * $time_per_item;
 
-		// Calculate estimated completion time
+		// Calculate estimated completion time.
 		$estimated_completion = $now + $remaining_time;
 
 		return array(
@@ -106,7 +106,7 @@ class Progress_Tracker {
 	/**
 	 * Format duration in seconds to human-readable
 	 *
-	 * @param int $seconds Duration in seconds
+	 * @param int $seconds Duration in seconds.
 	 * @return string Formatted duration
 	 */
 	public static function format_duration( $seconds ) {
@@ -127,7 +127,7 @@ class Progress_Tracker {
 	/**
 	 * Get real-time progress data
 	 *
-	 * @param int $job_id Job ID
+	 * @param int $job_id Job ID.
 	 * @return array|null Progress data with estimates
 	 */
 	public static function get_realtime_progress( $job_id ) {
@@ -151,8 +151,8 @@ class Progress_Tracker {
 	/**
 	 * Batch update progress (for chunked operations)
 	 *
-	 * @param int   $job_id Job ID
-	 * @param array $batch_result Batch processing result
+	 * @param int   $job_id Job ID.
+	 * @param array $batch_result Batch processing result.
 	 * @return bool Success
 	 */
 	public static function update_batch_progress( $job_id, $batch_result ) {
@@ -173,8 +173,8 @@ class Progress_Tracker {
 	/**
 	 * Increment processed item counter
 	 *
-	 * @param int  $job_id  Job ID to increment
-	 * @param bool $success Whether the item was successful
+	 * @param int  $job_id  Job ID to increment.
+	 * @param bool $success Whether the item was successful.
 	 * @return int|WP_Error|false Number of rows affected or false
 	 */
 	public static function increment( $job_id, $success = true ) {
@@ -184,7 +184,7 @@ class Progress_Tracker {
 	/**
 	 * Get current progress information
 	 *
-	 * @param int $job_id Job ID to get progress for
+	 * @param int $job_id Job ID to get progress for.
 	 * @return array|null Progress information array or null
 	 */
 	public static function get_progress( $job_id ) {
@@ -194,8 +194,8 @@ class Progress_Tracker {
 	/**
 	 * Mark job as complete or failed
 	 *
-	 * @param int  $job_id  Job ID to mark
-	 * @param bool $success Whether completed successfully
+	 * @param int  $job_id  Job ID to mark.
+	 * @param bool $success Whether completed successfully.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public static function mark_complete( $job_id, $success = true ) {
@@ -207,7 +207,7 @@ class Progress_Tracker {
 	/**
 	 * Mark job as running/processing
 	 *
-	 * @param int $job_id Job ID to mark as running
+	 * @param int $job_id Job ID to mark as running.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public static function mark_running( $job_id ) {
@@ -217,8 +217,8 @@ class Progress_Tracker {
 	/**
 	 * Mark job as failed and optionally log error
 	 *
-	 * @param int    $job_id       Job ID to mark as failed
-	 * @param string $error_message Optional. Error message to log
+	 * @param int    $job_id       Job ID to mark as failed.
+	 * @param string $error_message Optional. Error message to log.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public static function mark_failed( $job_id, $error_message = '' ) {

@@ -32,12 +32,12 @@ class Regex_Rule extends Validation_Rule {
 	/**
 	 * Check if value matches regex pattern
 	 *
-	 * @param mixed $value   Value to validate
-	 * @param array $context Optional. Additional context
+	 * @param mixed $value   Value to validate.
+	 * @param array $context Optional. Additional context.
 	 * @return true|WP_Error True if valid, WP_Error if validation fails
 	 */
 	protected function check( $value, $context ) {
-		// Skip validation for empty values (use Required_Rule for that)
+		// Skip validation for empty values (use Required_Rule for that).
 		if ( $this->is_empty( $value ) ) {
 			return true;
 		}
@@ -52,7 +52,7 @@ class Regex_Rule extends Validation_Rule {
 			);
 		}
 
-		// Convert value to string
+		// Convert value to string.
 		$string_value = (string) $value;
 
 		if ( ! preg_match( $pattern, $string_value ) ) {
@@ -88,12 +88,12 @@ class Regex_Rule extends Validation_Rule {
 	private function get_pattern() {
 		$pattern = $this->get_option( 'pattern' );
 
-		// If pattern is a string starting with /, use it directly
+		// If pattern is a string starting with /, use it directly.
 		if ( is_string( $pattern ) && '/' === $pattern[0] ) {
 			return $pattern;
 		}
 
-		// Check if it's a named pattern
+		// Check if it's a named pattern.
 		if ( is_string( $pattern ) && isset( self::PATTERNS[ $pattern ] ) ) {
 			return self::PATTERNS[ $pattern ];
 		}

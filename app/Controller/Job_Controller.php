@@ -19,7 +19,7 @@ class Job_Controller extends Base_Controller {
 	/**
 	 * Format duration in human-readable format
 	 *
-	 * @param int $seconds Duration in seconds
+	 * @param int $seconds Duration in seconds.
 	 * @return string
 	 */
 	private function format_duration( $seconds ) {
@@ -168,18 +168,18 @@ class Job_Controller extends Base_Controller {
 			$where['ids'] = $favorite_ids;
 		}
 
-		// Get jobs using get_all method
+		// Get jobs using get_all method.
 		$jobs = $job_model->get_all( $where, $limit, $offset, 'created_at DESC' );
 
-		// Add action flags to each job
+		// Add action flags to each job.
 		foreach ( $jobs as &$job ) {
-			// Can resume: paused or failed jobs
+			// Can resume: paused or failed jobs.
 			$job->can_resume = in_array( $job->status, array( 'paused', 'failed' ), true );
 
-			// Can delete: any job
+			// Can delete: any job.
 			$job->can_delete = true;
 
-			// Can retry: any job
+			// Can retry: any job.
 			$job->can_retry   = true;
 			$job->can_restart = true;
 			if ( in_array( $job->type, array( 'content_sync_push', 'content_sync_pull' ), true ) ) {
@@ -239,7 +239,7 @@ class Job_Controller extends Base_Controller {
 		}
 		unset( $job );
 
-		// Get total count
+		// Get total count.
 		$total = $job_model->count( $where );
 
 		$this->send_success(
@@ -309,7 +309,7 @@ class Job_Controller extends Base_Controller {
 		}
 
 		unset( $job_data->request_payload, $job_data->request_key, $job_data->request_hash );
-		// Parse parameters and result
+		// Parse parameters and result.
 		$job_data->parameters = json_decode( $job_data->parameters, true );
 		$job_data->result     = json_decode( $job_data->result, true );
 
@@ -505,7 +505,7 @@ class Job_Controller extends Base_Controller {
 			$this->send_error( __( 'Job not found', 'import-export-by-rockstarlab' ), null, 404 );
 		}
 
-		// Check if job can be resumed
+		// Check if job can be resumed.
 		if ( ! in_array( $job_data->status, array( 'paused', 'failed', 'processing' ), true ) ) {
 			$this->send_error(
 				sprintf(
@@ -518,7 +518,7 @@ class Job_Controller extends Base_Controller {
 			);
 		}
 
-		// Update job status
+		// Update job status.
 		$updated = $job_model->update(
 			$job_id,
 			array(
@@ -531,7 +531,7 @@ class Job_Controller extends Base_Controller {
 			$this->send_error( $updated, null, 500 );
 		}
 
-		// Parse parameters for frontend
+		// Parse parameters for frontend.
 		$parameters = maybe_unserialize( $job_data->parameters );
 
 		$this->send_success(
@@ -606,26 +606,26 @@ class Job_Controller extends Base_Controller {
 			$this->send_error( __( 'Job not found', 'import-export-by-rockstarlab' ), null, 404 );
 		}
 
-		// Prepare settings - reset progress for media sync jobs
+		// Prepare settings - reset progress for media sync jobs.
 		$settings_to_use = $job_data->settings;
 		if ( 'media_sync' === $job_data->data_type && ! empty( $job_data->settings ) ) {
 			$settings = json_decode( $job_data->settings, true );
 			if ( is_array( $settings ) ) {
-				// Reset progress tracking fields but keep the original configuration
+				// Reset progress tracking fields but keep the original configuration.
 				unset( $settings['offset'] );
 				unset( $settings['processed_count'] );
 				unset( $settings['total_files'] );
 				unset( $settings['all_files'] );
-				// Reset offset to 0 for fresh start
+				// Reset offset to 0 for fresh start.
 				$settings['offset'] = 0;
 				$settings_to_use    = wp_json_encode( $settings );
 			}
 		}
 
-		// Get job parameters for response
+		// Get job parameters for response.
 		$parameters = maybe_unserialize( $job_data->parameters );
 
-		// For media sync, parameters might be empty but settings should contain all info
+		// For media sync, parameters might be empty but settings should contain all info.
 		if ( empty( $parameters ) && 'media_sync' === $job_data->data_type ) {
 			$parameters = json_decode( $job_data->settings, true );
 		}
@@ -634,7 +634,7 @@ class Job_Controller extends Base_Controller {
 			$this->send_error( __( 'Job configuration not found', 'import-export-by-rockstarlab' ), null, 400 );
 		}
 
-		// Create new job with same settings
+		// Create new job with same settings.
 		$new_job_payload = array(
 			'user_id'     => $job_data->user_id,
 			'type'        => $job_data->type,
@@ -717,26 +717,26 @@ class Job_Controller extends Base_Controller {
 			$this->send_error( __( 'Job not found', 'import-export-by-rockstarlab' ), null, 404 );
 		}
 
-		// Prepare settings - reset progress for media sync jobs
+		// Prepare settings - reset progress for media sync jobs.
 		$settings_to_use = $job_data->settings;
 		if ( 'media_sync' === $job_data->data_type && ! empty( $job_data->settings ) ) {
 			$settings = json_decode( $job_data->settings, true );
 			if ( is_array( $settings ) ) {
-				// Reset progress tracking fields but keep the original configuration
+				// Reset progress tracking fields but keep the original configuration.
 				unset( $settings['offset'] );
 				unset( $settings['processed_count'] );
 				unset( $settings['total_files'] );
 				unset( $settings['all_files'] );
-				// Reset offset to 0 for fresh start
+				// Reset offset to 0 for fresh start.
 				$settings['offset'] = 0;
 				$settings_to_use    = wp_json_encode( $settings );
 			}
 		}
 
-		// Get job parameters for response
+		// Get job parameters for response.
 		$parameters = maybe_unserialize( $job_data->parameters );
 
-		// For media sync, parameters might be empty but settings should contain all info
+		// For media sync, parameters might be empty but settings should contain all info.
 		if ( empty( $parameters ) && 'media_sync' === $job_data->data_type ) {
 			$parameters = json_decode( $job_data->settings, true );
 		}
@@ -745,7 +745,7 @@ class Job_Controller extends Base_Controller {
 			$this->send_error( __( 'Job configuration not found', 'import-export-by-rockstarlab' ), null, 400 );
 		}
 
-		// Create new job with same settings but set status to processing
+		// Create new job with same settings but set status to processing.
 		$new_job_payload = array(
 			'user_id'     => $job_data->user_id,
 			'type'        => $job_data->type,
@@ -754,7 +754,7 @@ class Job_Controller extends Base_Controller {
 			'job_name'    => isset( $job_data->job_name ) ? $job_data->job_name : null,
 			'parameters'  => $this->normalize_rerun_parameters( $job_data->type, $job_data->parameters ),
 			'settings'    => $settings_to_use,
-			'status'      => 'processing', // Set to processing immediately
+			'status'      => 'processing', // Set to processing immediately.
 		);
 
 		// Import/update jobs depend on the source file path for processing. When
@@ -806,7 +806,7 @@ class Job_Controller extends Base_Controller {
 			);
 		}
 
-		// Verify job exists
+		// Verify job exists.
 		$job_model = rsl_ie()->Model->job;
 		$job_data  = $job_model->find( $job_id );
 

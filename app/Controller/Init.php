@@ -113,14 +113,14 @@ class Init {
 	 **/
 	function __construct() {
 
-		// load plugin translations
+		// load plugin translations.
 		add_action( 'init', array( $this, 'load_translations' ) );
 
-		// load admin scripts and styles
+		// load admin scripts and styles.
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_assets' ) );
 		add_filter( 'admin_body_class', array( $this, 'plugin_admin_body_class' ) );
 
-		// add settings pages
+		// add settings pages.
 		add_action( 'admin_menu', array( $this, 'add_settings_pages' ) );
 		add_filter( 'admin_title', array( $this, 'hidden_page_admin_title' ), 10, 2 );
 		add_action( 'current_screen', array( $this, 'hidden_page_title' ) );
@@ -134,16 +134,16 @@ class Init {
 		add_action( 'admin_notices', array( $this, 'display_media_hash_admin_notice' ) );
 		add_action( 'admin_post_rsl_ie_media_hash_notice', array( $this, 'handle_media_hash_notice_action' ) );
 
-		// Initialize AJAX controllers
+		// Initialize AJAX controllers.
 		add_action( 'init', array( $this, 'init_controllers' ) );
 
-		// Initialize cron manager
+		// Initialize cron manager.
 		add_action( 'init', array( $this, 'init_cron_manager' ) );
 
 		// Initialize helpers that may read translated settings.
 		add_action( 'init', array( $this, 'init_helpers' ) );
 
-		// Handle welcome page redirect
+		// Handle welcome page redirect.
 		add_action( 'admin_init', array( $this, 'welcome_redirect' ) );
 		add_action( 'init', array( $this, 'redirect_import_tools' ), 20 );
 
@@ -210,11 +210,11 @@ class Init {
 		$this->site_migration_controller = new Site_Migration_Controller();
 		$this->site_migration_controller->init();
 
-		// Initialize REST API controller (safe initialization)
+		// Initialize REST API controller (safe initialization).
 		try {
 			$this->content_sync_api_controller = new Content_Sync_API_Controller();
 		} catch ( \Exception $e ) {
-			// Log error but don't break plugin activation
+			// Log error but don't break plugin activation.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			}
 		}
@@ -347,7 +347,7 @@ class Init {
 			true
 		);
 
-		// Localize script with AJAX data
+		// Localize script with AJAX data.
 		wp_localize_script(
 			'import-export-by-rockstarlab-scripts',
 			'rslIeData',
@@ -396,7 +396,7 @@ class Init {
 					'woocommerce' => class_exists( 'WooCommerce' ),
 				),
 				'i18n'                        => array(
-					// General
+					// General.
 					'skip'                              => __( 'Skip', 'import-export-by-rockstarlab' ),
 					'uploading'                         => __( 'Uploading...', 'import-export-by-rockstarlab' ),
 					'processing'                        => __( 'Processing...', 'import-export-by-rockstarlab' ),
@@ -442,7 +442,7 @@ class Init {
 					'code_required'                     => __( 'Please enter the transformation details.', 'import-export-by-rockstarlab' ),
 					'category_required'                 => __( 'Please select a category.', 'import-export-by-rockstarlab' ),
 
-					// Export Step 3
+					// Export Step 3.
 					'fieldAlreadyAdded'                 => __( 'This field is already added', 'import-export-by-rockstarlab' ),
 					'confirmRemoveAllFields'            => __( 'Are you sure you want to remove all fields?', 'import-export-by-rockstarlab' ),
 					'functionsSavedSuccess'             => __( 'Transformations saved successfully', 'import-export-by-rockstarlab' ),
@@ -496,7 +496,7 @@ class Init {
 					'testFailed'                        => __( 'Test failed', 'import-export-by-rockstarlab' ),
 					'errorTestingPipeline'              => __( 'Error testing pipeline', 'import-export-by-rockstarlab' ),
 
-					// Custom Field Modal
+					// Custom Field Modal.
 					'addTaxonomyField'                  => __( 'Add Taxonomy Field', 'import-export-by-rockstarlab' ),
 					'addCustomField'                    => __( 'Add Custom Field', 'import-export-by-rockstarlab' ),
 					'enterTaxonomySlug'                 => __( 'Enter taxonomy slug (e.g., category, post_tag, product_cat)', 'import-export-by-rockstarlab' ),
@@ -515,7 +515,7 @@ class Init {
 					'addTransformationFunction'         => __( 'Add transformation', 'import-export-by-rockstarlab' ),
 					'removeMapping'                     => __( 'Remove mapping', 'import-export-by-rockstarlab' ),
 
-					// Field transformations modal
+					// Field transformations modal.
 					'fieldTransformationFunctions'      => __( 'Field Transformations', 'import-export-by-rockstarlab' ),
 					'field'                             => __( 'Field', 'import-export-by-rockstarlab' ),
 					'type'                              => __( 'Type', 'import-export-by-rockstarlab' ),
@@ -541,7 +541,7 @@ class Init {
 					'autoMappedFields'                  => __( 'Auto-mapped %d fields', 'import-export-by-rockstarlab' ),
 					'dragSourceColumns'                 => __( 'Drag source columns to WordPress fields to create mappings', 'import-export-by-rockstarlab' ),
 
-					// Jobs Log
+					// Jobs Log.
 					'viewDetails'                       => __( 'View Details', 'import-export-by-rockstarlab' ),
 					'jobName'                           => __( 'Job Name', 'import-export-by-rockstarlab' ),
 					'clickToRenameJob'                  => __( 'Click to rename this job', 'import-export-by-rockstarlab' ),
@@ -603,7 +603,7 @@ class Init {
 					'statusPaused'                      => __( 'Paused', 'import-export-by-rockstarlab' ),
 					'statusCancelled'                   => __( 'Cancelled', 'import-export-by-rockstarlab' ),
 
-					// Content Sync
+					// Content Sync.
 					'failedLoadSites'                   => __( 'Failed to load sites', 'import-export-by-rockstarlab' ),
 					'confirmDeleteSiteConnection'       => __( 'Are you sure you want to delete this site connection?', 'import-export-by-rockstarlab' ),
 					'failedDeleteSite'                  => __( 'Failed to delete site', 'import-export-by-rockstarlab' ),
@@ -616,7 +616,7 @@ class Init {
 					// translators: %s = content placeholder.
 					'failedRegenerateApiKey'            => __( 'Failed to regenerate API key', 'import-export-by-rockstarlab' ),
 
-					// Media Sync
+					// Media Sync.
 					'noFilesFoundCriteria'              => __( 'No files found matching the criteria', 'import-export-by-rockstarlab' ),
 					// translators: %d is a dynamic value.
 					'foundFilesReadyToSync'             => __( 'Found %d files ready to sync', 'import-export-by-rockstarlab' ),
@@ -642,7 +642,7 @@ class Init {
 					// translators: %s = content placeholder.
 					'syncResumed'                       => __( 'Sync resumed', 'import-export-by-rockstarlab' ),
 					'confirmCancelSync'                 => __( 'Are you sure you want to cancel the synchronization?', 'import-export-by-rockstarlab' ) . "\n\n" . __( 'This will stop the process and you\'ll need to start over.', 'import-export-by-rockstarlab' ),
-					'syncCancelled'                     => __( 'Sync cancelled', 'import-export-by-rockstarlab' ),         // Post Sync
+					'syncCancelled'                     => __( 'Sync cancelled', 'import-export-by-rockstarlab' ),         // Post Sync.
 					'selectAtLeastOnePost'              => __( 'Please select at least one post', 'import-export-by-rockstarlab' ),
 					'selectSite'                        => __( 'Please select a site', 'import-export-by-rockstarlab' ),
 					// translators: %s = content placeholder.
@@ -683,13 +683,13 @@ class Init {
 					// translators: %1$s is a dynamic value, %2$s is a dynamic value.
 					'fileTypeNotAllowed'                => __( 'File type .%1$s is not allowed. Allowed types: %2$s', 'import-export-by-rockstarlab' ),
 
-					// Export
+					// Export.
 						'exportStartedSuccess'          => __( 'Export started successfully', 'import-export-by-rockstarlab' ),
 					'exportCompletedSuccess'            => __( 'Export completed successfully!', 'import-export-by-rockstarlab' ),
 					'confirmCancelExport'               => __( 'Are you sure you want to cancel this export?', 'import-export-by-rockstarlab' ),
 					'exportCancelled'                   => __( 'Export cancelled', 'import-export-by-rockstarlab' ),
 
-					// AI URL Importer
+					// AI URL Importer.
 					'testing'                           => __( 'Testing...', 'import-export-by-rockstarlab' ),
 					'testConnection'                    => __( 'Test Connection', 'import-export-by-rockstarlab' ),
 					'generatingPreview'                 => __( 'Generating Preview...', 'import-export-by-rockstarlab' ),
@@ -707,7 +707,7 @@ class Init {
 					// translators: %s is a dynamic value.
 					'importCompleted'                   => __( 'Import completed! %s URLs imported successfully.', 'import-export-by-rockstarlab' ),
 					// translators: %s is a dynamic value.
-					'importFailed'                      => __( 'Import failed: %s', 'import-export-by-rockstarlab' ),                  // Import
+					'importFailed'                      => __( 'Import failed: %s', 'import-export-by-rockstarlab' ),                  // Import.
 					'showingFirstRows'                  => __( 'Showing first 5 rows', 'import-export-by-rockstarlab' ),
 					'pleaseSelectTable'                 => __( 'Please select a database table above to see available columns', 'import-export-by-rockstarlab' ),
 					'selectTable'                       => __( 'Select a table...', 'import-export-by-rockstarlab' ),
@@ -734,7 +734,7 @@ class Init {
 					'errorLoadingPostTypes'             => __( 'Error loading post types', 'import-export-by-rockstarlab' ),
 					'errorLoadingTaxonomies'            => __( 'Error loading taxonomies', 'import-export-by-rockstarlab' ),
 
-					// Export Step 3
+					// Export Step 3.
 					'assignFunctionsTitle'              => __( 'Assign transformations', 'import-export-by-rockstarlab' ),
 					'addFunction'                       => __( 'Assign function', 'import-export-by-rockstarlab' ),
 					'remove'                            => __( 'Remove', 'import-export-by-rockstarlab' ),
@@ -764,7 +764,7 @@ class Init {
 					// translators: %s is a dynamic value.
 					'errorLabel'                        => __( 'Error: %s', 'import-export-by-rockstarlab' ),
 
-					// Export (UI strings used in export.js)
+					// Export (UI strings used in export.js).
 					'noDataAvailable'                   => __( 'No Data Available', 'import-export-by-rockstarlab' ),
 					'adjustFiltersMessage'              => __( 'Adjust your filters or select a different content type to continue with the export.', 'import-export-by-rockstarlab' ),
 					'postTypeRequired'                  => __( 'Post Type Required', 'import-export-by-rockstarlab' ),
@@ -803,7 +803,7 @@ class Init {
 					'enterValuesCommaSeparated'         => __( 'Enter values separated by comma (e.g., 1,5,8 or test1,test2)', 'import-export-by-rockstarlab' ),
 					'enterTwoNumbersCommaSeparated'     => __( 'Enter two numbers separated by comma (e.g., 10,100)', 'import-export-by-rockstarlab' ),
 
-					// Transformation Categories
+					// Transformation Categories.
 					'categoryStringOperations'          => __( 'String Operations', 'import-export-by-rockstarlab' ),
 					'categoryDateTime'                  => __( 'Date & Time', 'import-export-by-rockstarlab' ),
 					'categoryNumericOperations'         => __( 'Numeric Operations', 'import-export-by-rockstarlab' ),
@@ -813,7 +813,7 @@ class Init {
 					'categoryAdvanced'                  => __( 'Advanced', 'import-export-by-rockstarlab' ),
 					'categoryCustom'                    => __( 'Custom', 'import-export-by-rockstarlab' ),
 
-					// Export Field Groups
+					// Export Field Groups.
 					'fieldGroupStandard'                => __( 'Standard', 'import-export-by-rockstarlab' ),
 					'fieldGroupBasic'                   => __( 'Basic', 'import-export-by-rockstarlab' ),
 					'fieldGroupOther'                   => __( 'Other', 'import-export-by-rockstarlab' ),
@@ -879,7 +879,7 @@ class Init {
 					'fieldGroupTableColumns'            => __( 'Table Columns', 'import-export-by-rockstarlab' ),
 					'fieldGroupTableSelection'          => __( 'Table Selection', 'import-export-by-rockstarlab' ),
 
-					// Export Field Labels (Common)
+					// Export Field Labels (Common).
 					'fieldTitle'                        => __( 'Title', 'import-export-by-rockstarlab' ),
 					'fieldContent'                      => __( 'Content', 'import-export-by-rockstarlab' ),
 					'fieldExcerpt'                      => __( 'Excerpt', 'import-export-by-rockstarlab' ),
@@ -1067,7 +1067,7 @@ class Init {
 					'fieldSelectTableFirst'             => __( '⚠️ Please select a database table first', 'import-export-by-rockstarlab' ),
 					'fieldPleaseSelectTable'            => __( '⚠️ Please select a database table first', 'import-export-by-rockstarlab' ),
 
-					// Filter conditions
+					// Filter conditions.
 					'equals'                            => __( 'Equals', 'import-export-by-rockstarlab' ),
 					'notEquals'                         => __( 'Not Equals', 'import-export-by-rockstarlab' ),
 					'contains'                          => __( 'Contains', 'import-export-by-rockstarlab' ),
@@ -1083,7 +1083,7 @@ class Init {
 					'between'                           => __( 'Between', 'import-export-by-rockstarlab' ),
 					'onDate'                            => __( 'On Date', 'import-export-by-rockstarlab' ),
 					'before'                            => __( 'Before', 'import-export-by-rockstarlab' ),
-					'after'                             => __( 'After', 'import-export-by-rockstarlab' ),              // Content Sync
+					'after'                             => __( 'After', 'import-export-by-rockstarlab' ),              // Content Sync.
 					'addNewSite'                        => __( 'Add New Site', 'import-export-by-rockstarlab' ),
 					// Content Migration families.
 					'migrationMedia'                    => __( 'Media', 'import-export-by-rockstarlab' ),
@@ -1143,7 +1143,7 @@ class Init {
 					'endpointNotFound'                  => __( 'The requested endpoint was not found. Please check if the plugin is properly installed.', 'import-export-by-rockstarlab' ),
 
 					// translators: %s = content placeholder.
-					// Transformation integration
+					// Transformation integration.
 					'serverErrorPhpSyntax'              => __( 'Server error: Unable to validate the transformation details.', 'import-export-by-rockstarlab' ),
 					'serverErrorUnableToSave'           => __( 'Server error: Unable to save the transformation. Check the browser console for details.', 'import-export-by-rockstarlab' ),
 					// translators: %s = content placeholder.
@@ -1170,7 +1170,7 @@ class Init {
 					'showingFunctions'                  => __( 'Showing %1$s-%2$s of %3$s transformations', 'import-export-by-rockstarlab' ),
 					'customizeFunction'                 => __( 'Customize Transformation', 'import-export-by-rockstarlab' ),
 
-					// Media Sync
+					// Media Sync.
 					'scanning'                          => __( 'Scanning...', 'import-export-by-rockstarlab' ),
 					'starting'                          => __( 'Starting...', 'import-export-by-rockstarlab' ),
 					'processing'                        => __( 'Processing...', 'import-export-by-rockstarlab' ),
@@ -1189,7 +1189,7 @@ class Init {
 					// translators: %d is a dynamic value.
 					'andMoreErrors'                     => __( '... and %d more errors', 'import-export-by-rockstarlab' ),
 
-					// Completion messages
+					// Completion messages.
 					'syncCompleteTitle'                 => __( 'Synchronization Complete!', 'import-export-by-rockstarlab' ),
 					'mediaSkippedExplain'               => __( 'Skipped files are already in the Media Library, so they were not imported again.', 'import-export-by-rockstarlab' ),
 					// translators: %s is a dynamic value.
@@ -1206,14 +1206,14 @@ class Init {
 					// translators: %s is a dynamic value.
 					'processedBeforeCancellationPlural' => __( 'Processed %s files before cancellation.', 'import-export-by-rockstarlab' ),
 
-					// Folder browser
+					// Folder browser.
 					'goUp'                              => __( 'Go Up', 'import-export-by-rockstarlab' ),
 					'useThisFolder'                     => __( '. (Use this folder)', 'import-export-by-rockstarlab' ),
 
-					// Notifications
+					// Notifications.
 					'dismissNotice'                     => __( 'Dismiss this notice.', 'import-export-by-rockstarlab' ),
 
-					// Jobs Log
+					// Jobs Log.
 					'noJobsFound'                       => __( 'No jobs found.', 'import-export-by-rockstarlab' ),
 					// translators: %1$s is a dynamic value, %2$s is a dynamic value, %3$s is a dynamic value.
 					'showingJobs'                       => __( 'Showing %1$s-%2$s of %3$s jobs', 'import-export-by-rockstarlab' ),
@@ -1221,7 +1221,7 @@ class Init {
 			)
 		);
 
-		// Localize script for Content Sync page
+		// Localize script for Content Sync page.
 		if ( 'rsl-ie-content-sync' === $current_page || 'import-export-by-rockstarlab_page_rsl-ie-content-sync' === $admin_page ) {
 			wp_localize_script(
 				'import-export-by-rockstarlab-scripts',
@@ -2268,11 +2268,11 @@ class Init {
 	 * Handle redirect to welcome page after activation
 	 */
 	function welcome_redirect() {
-		// Check if we should redirect
+		// Check if we should redirect.
 		if ( get_transient( 'rsl_ie_activation_redirect' ) ) {
 			delete_transient( 'rsl_ie_activation_redirect' );
 
-			// Don't redirect if activating multiple plugins at once
+			// Don't redirect if activating multiple plugins at once.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Just checking for bulk activation, no nonce needed.
 			if ( ! isset( $_GET['activate-multi'] ) ) {
 				wp_safe_redirect( admin_url( 'admin.php?page=import-export-by-rockstarlab' ) );

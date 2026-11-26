@@ -38,19 +38,19 @@ class Cron_Manager {
 	 * Initialize cron hooks
 	 */
 	public function init() {
-		// Register cron action
+		// Register cron action.
 		add_action( self::CRON_HOOK, array( $this, 'process_queue' ) );
 
-		// Register media sync job cron action
+		// Register media sync job cron action.
 		add_action( 'rsl_ie_process_media_sync_job', array( $this, 'process_media_sync_job' ) );
 
-		// Register AI URL import job cron action
+		// Register AI URL import job cron action.
 		add_action( 'rsl_ie_process_ai_url_import', array( $this, 'process_ai_url_import' ) );
 
-		// Add custom cron schedule
+		// Add custom cron schedule.
 		add_filter( 'cron_schedules', array( $this, 'add_cron_schedules' ) );
 
-		// Schedule cron if not already scheduled
+		// Schedule cron if not already scheduled.
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			wp_schedule_event( time(), 'rsl_ie_every_minute', self::CRON_HOOK );
 		}
@@ -59,7 +59,7 @@ class Cron_Manager {
 	/**
 	 * Add custom cron schedules
 	 *
-	 * @param array $schedules Existing schedules
+	 * @param array $schedules Existing schedules.
 	 * @return array Modified schedules
 	 */
 	public function add_cron_schedules( $schedules ) {
@@ -84,12 +84,12 @@ class Cron_Manager {
 	 * Process queue (called by cron)
 	 */
 	public function process_queue() {
-		// Process next job
+		// Process next job.
 		$processed = $this->processor->process_next_job();
 
-		// If job was processed, check for more
+		// If job was processed, check for more.
 		if ( $processed ) {
-			// Schedule immediate next run if there are pending jobs
+			// Schedule immediate next run if there are pending jobs.
 			$this->schedule_immediate_run();
 		}
 	}
@@ -144,7 +144,7 @@ class Cron_Manager {
 	/**
 	 * Set batch size for processor
 	 *
-	 * @param int $size Batch size
+	 * @param int $size Batch size.
 	 */
 	public function set_batch_size( $size ) {
 		$this->processor->set_batch_size( $size );
@@ -153,7 +153,7 @@ class Cron_Manager {
 	/**
 	 * Set max retries for processor
 	 *
-	 * @param int $retries Max retries
+	 * @param int $retries Max retries.
 	 */
 	public function set_max_retries( $retries ) {
 		$this->processor->set_max_retries( $retries );
@@ -171,7 +171,7 @@ class Cron_Manager {
 	/**
 	 * Process media sync job
 	 *
-	 * @param int $job_id Job ID
+	 * @param int $job_id Job ID.
 	 */
 	public function process_media_sync_job( $job_id ) {
 		$processor = new Media_Sync_Processor();
@@ -181,7 +181,7 @@ class Cron_Manager {
 	/**
 	 * Process AI URL import job
 	 *
-	 * @param int $job_id Job ID
+	 * @param int $job_id Job ID.
 	 */
 	public function process_ai_url_import( $job_id ) {
 		$processor = new AI_URL_Import_Processor();

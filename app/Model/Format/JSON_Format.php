@@ -18,8 +18,8 @@ class JSON_Format implements File_Format_Interface {
 	/**
 	 * Parse entire JSON file
 	 *
-	 * @param string $file_path Absolute path to JSON file
-	 * @param array  $options   Optional. Parser options (depth, flags)
+	 * @param string $file_path Absolute path to JSON file.
+	 * @param array  $options   Optional. Parser options (depth, flags).
 	 * @return array|WP_Error Array of parsed data or WP_Error on failure
 	 */
 	public function parse( $file_path, $options = array() ) {
@@ -73,7 +73,7 @@ class JSON_Format implements File_Format_Interface {
 			);
 		}
 
-		// Ensure data is array of items
+		// Ensure data is array of items.
 		if ( ! is_array( $data ) ) {
 			return new \WP_Error( 'invalid_format', __( 'JSON file must contain an array', 'import-export-by-rockstarlab' ) );
 		}
@@ -84,10 +84,10 @@ class JSON_Format implements File_Format_Interface {
 	/**
 	 * Parse JSON file in chunks
 	 *
-	 * @param string $file_path Absolute path to JSON file
-	 * @param int    $offset    Starting index
-	 * @param int    $limit     Number of items to read
-	 * @param array  $options   Optional. Parser options
+	 * @param string $file_path Absolute path to JSON file.
+	 * @param int    $offset    Starting index.
+	 * @param int    $limit     Number of items to read.
+	 * @param array  $options   Optional. Parser options.
 	 * @return array|WP_Error Array of parsed data or WP_Error on failure
 	 */
 	public function parse_chunk( $file_path, $offset, $limit, $options = array() ) {
@@ -447,9 +447,9 @@ class JSON_Format implements File_Format_Interface {
 	/**
 	 * Generate JSON file from data
 	 *
-	 * @param array  $data      Data array to write
-	 * @param string $file_path Target file path
-	 * @param array  $options   Optional. Generation options (pretty_print, flags)
+	 * @param array  $data      Data array to write.
+	 * @param string $file_path Target file path.
+	 * @param array  $options   Optional. Generation options (pretty_print, flags).
 	 * @return bool|WP_Error True on success or WP_Error on failure
 	 */
 	public function generate( $data, $file_path, $options = array() ) {
@@ -499,7 +499,7 @@ class JSON_Format implements File_Format_Interface {
 	/**
 	 * Validate JSON file
 	 *
-	 * @param string $file_path Absolute path to file
+	 * @param string $file_path Absolute path to file.
 	 * @return bool|WP_Error True if valid or WP_Error with errors
 	 */
 	public function validate( $file_path ) {
@@ -511,7 +511,7 @@ class JSON_Format implements File_Format_Interface {
 			return new \WP_Error( 'file_not_readable', __( 'JSON file is not readable', 'import-export-by-rockstarlab' ) );
 		}
 
-		// Check file extension
+		// Check file extension.
 		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $extension, $this->get_extensions(), true ) ) {
 			return new \WP_Error( 'invalid_extension', __( 'Invalid JSON file extension', 'import-export-by-rockstarlab' ) );
@@ -568,8 +568,8 @@ class JSON_Format implements File_Format_Interface {
 	/**
 	 * Get JSON headers (field names from first object)
 	 *
-	 * @param string $file_path Absolute path to file
-	 * @param array  $options   Optional. Parser options
+	 * @param string $file_path Absolute path to file.
+	 * @param array  $options   Optional. Parser options.
 	 * @return array|WP_Error Array of headers or WP_Error on failure
 	 */
 	public function get_headers( $file_path, $options = array() ) {
@@ -599,7 +599,7 @@ class JSON_Format implements File_Format_Interface {
 	/**
 	 * Count items in JSON file
 	 *
-	 * @param string $file_path Absolute path to file
+	 * @param string $file_path Absolute path to file.
 	 * @return int|WP_Error Item count or WP_Error on failure
 	 */
 	public function count_rows( $file_path ) {

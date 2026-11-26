@@ -46,7 +46,7 @@ class App {
 	}
 
 	private function __construct() {
-		// Initialize model registry
+		// Initialize model registry.
 		$this->Model = new \RockStarLab\ImportExport\Model\Model_Registry();
 	}
 
@@ -57,11 +57,11 @@ class App {
 	 * Run the core
 	 **/
 	public function run() {
-		// Check if database tables exist and create if needed
+		// Check if database tables exist and create if needed.
 		if ( ! \RockStarLab\ImportExport\Helper\Database_Migration::tables_exist() ) {
 			\RockStarLab\ImportExport\Helper\Database_Migration::create_tables();
 		} else {
-			// Check if database needs migration (version changed)
+			// Check if database needs migration (version changed).
 			$current_version = \RockStarLab\ImportExport\Helper\Database_Migration::get_version();
 			$latest_version  = \RockStarLab\ImportExport\Helper\Database_Migration::DB_VERSION;
 
@@ -74,14 +74,14 @@ class App {
 		// and a new site with the same ID inherited its jobs, connections and keys.
 		add_filter( 'wpmu_drop_tables', array( \RockStarLab\ImportExport\Helper\Database_Migration::class, 'add_site_tables_to_drop' ), 10, 2 );
 
-		// Initialize Media Hash helper to add MD5 hashes to all uploads
+		// Initialize Media Hash helper to add MD5 hashes to all uploads.
 		\RockStarLab\ImportExport\Helper\Media_Hash::init();
 
-		// Initialize Chunk Upload handler for large file uploads
+		// Initialize Chunk Upload handler for large file uploads.
 		new \RockStarLab\ImportExport\Helper\Chunk_Upload();
 		\RockStarLab\ImportExport\Service\Job_Runner::register();
 
-		// Load core classes
+		// Load core classes.
 		$this->_dispatch();
 	}
 
@@ -96,7 +96,7 @@ class App {
 		$this->Controller = new \stdClass();
 		$this->View       = new \RockStarLab\ImportExport\View\View();
 
-		// Load controllers manually
+		// Load controllers manually.
 		$controllers = array(
 			'Abilities_Controller',
 			'Agent_Controller',
@@ -119,7 +119,7 @@ class App {
 		$directory = RSL_IE_PATH . '/app/' . $layer . $dir;
 		$handle    = opendir( $directory );
 
-		if ( count( glob( "$directory/*" ) ) === 0 ) {
+		if ( 0 === count( glob( "$directory/*" ) ) ) {
 			return false;
 		}
 
@@ -127,10 +127,10 @@ class App {
 
 			if ( is_file( $directory . $file ) ) {
 
-				// Figure out class name from file name
+				// Figure out class name from file name.
 				$class = str_replace( '.php', '', $file );
 
-				// Avoid recursion
+				// Avoid recursion.
 				if ( $class !== get_class( $this ) ) {
 					$classPath            = "\\RockStarLab\ImportExport\\{$layer}\\{$class}";
 					$this->$layer->$class = new $classPath();
@@ -149,10 +149,10 @@ class App {
 		foreach ( $list as $controller_name ) {
 
 			if ( is_file( $directory . $controller_name . '.php' ) ) {
-				// Convert controller name to class name (first letter uppercase)
+				// Convert controller name to class name (first letter uppercase).
 				$class = ucfirst( $controller_name );
 
-				// Avoid recursion
+				// Avoid recursion.
 				if ( $class !== get_class( $this ) ) {
 					$classPath                          = "\\RockStarLab\ImportExport\\Controller\\{$class}";
 					$this->Controller->$controller_name = new $classPath();

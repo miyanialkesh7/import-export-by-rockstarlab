@@ -18,8 +18,8 @@ class Data_Transformer {
 	 * Sanitize data based on type
 	 * Applies WordPress sanitization functions based on data type
 	 *
-	 * @param mixed  $data Data to sanitize
-	 * @param string $type Type of sanitization: text, email, url, html, int, float, bool, slug, key
+	 * @param mixed  $data Data to sanitize.
+	 * @param string $type Type of sanitization: text, email, url, html, int, float, bool, slug, key.
 	 * @return mixed Sanitized data
 	 */
 	public static function sanitize_data( $data, $type = 'text' ) {
@@ -50,8 +50,8 @@ class Data_Transformer {
 	 * Format date string to specified format
 	 * Converts timestamps and date strings to desired format
 	 *
-	 * @param string|int $date   Date string or Unix timestamp
-	 * @param string     $format PHP date format, default 'Y-m-d H:i:s'
+	 * @param string|int $date   Date string or Unix timestamp.
+	 * @param string     $format PHP date format, default 'Y-m-d H:i:s'.
 	 * @return string Formatted date string or original value if invalid
 	 */
 	public static function format_date( $date, $format = 'Y-m-d H:i:s' ) {
@@ -71,8 +71,8 @@ class Data_Transformer {
 	 * Validate required fields in data array
 	 * Checks if all required fields are present and not empty
 	 *
-	 * @param array $data           Data array to validate
-	 * @param array $required_fields Array of required field names
+	 * @param array $data           Data array to validate.
+	 * @param array $required_fields Array of required field names.
 	 * @return bool|array True if all fields valid, array of error messages if validation fails
 	 */
 	public static function validate_required( $data, $required_fields = array() ) {
@@ -91,7 +91,7 @@ class Data_Transformer {
 	 * Apply multiple transformations to a field value.
 	 * Supports search/replace, regex, case changes, prefix/suffix, and PRO integrations.
 	 *
-	 * @param mixed $value          Value to transform
+	 * @param mixed $value          Value to transform.
 	 * @param array $transformations {
 	 *     Array of transformation rules to apply sequentially.
 	 *
@@ -161,9 +161,9 @@ class Data_Transformer {
 	 * Parse CSV line into array
 	 * Uses str_getcsv with configurable delimiter and enclosure
 	 *
-	 * @param string $line      CSV line to parse
-	 * @param string $delimiter Field delimiter, default ','
-	 * @param string $enclosure Field enclosure character, default '"'
+	 * @param string $line      CSV line to parse.
+	 * @param string $delimiter Field delimiter, default ','.
+	 * @param string $enclosure Field enclosure character, default '"'.
 	 * @return array Parsed CSV fields
 	 */
 	public static function parse_csv_line( $line, $delimiter = ',', $enclosure = '"' ) {
@@ -174,9 +174,9 @@ class Data_Transformer {
 	 * Convert array to CSV line
 	 * Uses fputcsv with configurable delimiter and enclosure
 	 *
-	 * @param array  $data      Array of values to convert
-	 * @param string $delimiter Field delimiter, default ','
-	 * @param string $enclosure Field enclosure character, default '"'
+	 * @param array  $data      Array of values to convert.
+	 * @param string $delimiter Field delimiter, default ','.
+	 * @param string $enclosure Field enclosure character, default '"'.
 	 * @return string CSV line without trailing newline
 	 */
 	public static function array_to_csv( $data, $delimiter = ',', $enclosure = '"' ) {
@@ -193,8 +193,8 @@ class Data_Transformer {
 	 * Normalize array keys to valid WordPress meta keys
 	 * Converts keys to lowercase and sanitizes them
 	 *
-	 * @param array $array     Array with keys to normalize
-	 * @param bool  $lowercase Whether to convert keys to lowercase, default true
+	 * @param array $array     Array with keys to normalize.
+	 * @param bool  $lowercase Whether to convert keys to lowercase, default true.
 	 * @return array Array with normalized keys
 	 */
 	public static function normalize_array_keys( $array, $lowercase = true ) {
@@ -213,7 +213,7 @@ class Data_Transformer {
 	 * Recursively clean string values
 	 * Strips slashes and trims whitespace from strings, processes arrays recursively
 	 *
-	 * @param mixed $value Value to clean (string, array, or other)
+	 * @param mixed $value Value to clean (string, array, or other).
 	 * @return mixed Cleaned value
 	 */
 	public static function deep_clean( $value ) {

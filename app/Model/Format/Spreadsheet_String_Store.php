@@ -20,10 +20,10 @@ class Spreadsheet_String_Store {
 		if ( null !== $path ) {
 			$length = 0;
 			if ( $count ) {
-				if ( fseek( $this->index, ( $count - 1 ) * 40 ) !== 0 ) {
+				if ( 0 !== fseek( $this->index, ( $count - 1 ) * 40 ) ) {
 					throw new \RuntimeException( esc_html__( 'Invalid string checkpoint.', 'import-export-by-rockstarlab' ) ); }
 				$last = fread( $this->index, 40 );
-				if ( strlen( $last ) !== 40 || ! ctype_digit( $last ) ) {
+				if ( 40 !== strlen( $last ) || ! ctype_digit( $last ) ) {
 					throw new \RuntimeException( esc_html__( 'Invalid string checkpoint.', 'import-export-by-rockstarlab' ) ); }
 				$length = (int) substr( $last, 0, 20 ) + (int) substr( $last, 20 );
 			}
@@ -96,7 +96,7 @@ class Spreadsheet_String_Store {
 		if ( ! is_int( $id ) || $id < 0 || $id >= $this->count || 0 !== fseek( $this->index, $id * 40 ) ) {
 			throw new \RuntimeException( esc_html__( 'Invalid shared-string reference.', 'import-export-by-rockstarlab' ) ); }
 		$entry = fread( $this->index, 40 );
-		if ( strlen( $entry ) !== 40 || ! ctype_digit( $entry ) ) {
+		if ( 40 !== strlen( $entry ) || ! ctype_digit( $entry ) ) {
 			throw new \RuntimeException( esc_html__( 'Invalid spreadsheet string index.', 'import-export-by-rockstarlab' ) ); }
 		$offset    = (int) substr( $entry, 0, 20 );
 		$remaining = (int) substr( $entry, 20 );

@@ -3257,7 +3257,7 @@ class Content_Sync_Service {
 		}
 
 		// Convert numeric strings to integers (important for attachment IDs).
-		if ( is_string( $value ) && is_numeric( $value ) && strpos( $value, '.' ) === false ) {
+		if ( is_string( $value ) && is_numeric( $value ) && false === strpos( $value, '.' ) ) {
 			return intval( $value );
 		}
 
@@ -3783,7 +3783,7 @@ class Content_Sync_Service {
 				$has_sub_fields = false;
 				$row_prefix     = $field_name . '_0_';
 				foreach ( $meta as $meta_key => $meta_value ) {
-					if ( strpos( $meta_key, $row_prefix ) === 0 ) {
+					if ( 0 === strpos( $meta_key, $row_prefix ) ) {
 						$has_sub_fields = true;
 						break;
 					}
@@ -3803,7 +3803,7 @@ class Content_Sync_Service {
 
 					// Find all fields for this row.
 					foreach ( $meta as $meta_key => $meta_value ) {
-						if ( strpos( $meta_key, $row_prefix ) === 0 ) {
+						if ( 0 === strpos( $meta_key, $row_prefix ) ) {
 							++$found_fields;
 							// Extract field name without row prefix.
 							$sub_field_name = substr( $meta_key, strlen( $row_prefix ) );
@@ -3814,7 +3814,7 @@ class Content_Sync_Service {
 								$nested_prefix         = $field_name . '_' . $i . '_' . $sub_field_name . '_0_';
 								$nested_has_sub_fields = false;
 								foreach ( $meta as $nested_key => $nested_val ) {
-									if ( strpos( $nested_key, $nested_prefix ) === 0 ) {
+									if ( 0 === strpos( $nested_key, $nested_prefix ) ) {
 										$nested_has_sub_fields = true;
 										break;
 									}
@@ -3864,7 +3864,7 @@ class Content_Sync_Service {
 			$row_prefix = $parent_prefix . '_' . $i . '_';
 
 			foreach ( $meta as $meta_key => $meta_value ) {
-				if ( strpos( $meta_key, $row_prefix ) === 0 ) {
+				if ( 0 === strpos( $meta_key, $row_prefix ) ) {
 					$sub_field_name = substr( $meta_key, strlen( $row_prefix ) );
 
 					// Check for even deeper nesting.
@@ -3873,7 +3873,7 @@ class Content_Sync_Service {
 						$nested_prefix         = $parent_prefix . '_' . $i . '_' . $sub_field_name . '_0_';
 						$has_nested_sub_fields = false;
 						foreach ( $meta as $check_key => $check_value ) {
-							if ( strpos( $check_key, $nested_prefix ) === 0 ) {
+							if ( 0 === strpos( $check_key, $nested_prefix ) ) {
 								$has_nested_sub_fields = true;
 								break;
 							}
@@ -5028,7 +5028,7 @@ class Content_Sync_Service {
 			// the target site and the translator cannot map them.
 			if ( function_exists( 'acf_get_field' ) ) {
 				foreach ( $prepared_meta as $meta_key => $meta_value ) {
-					if ( strpos( $meta_key, '_' ) === 0 ) {
+					if ( 0 === strpos( $meta_key, '_' ) ) {
 						continue;
 					}
 					$field_ref_key = '_' . $meta_key;
@@ -5036,7 +5036,7 @@ class Content_Sync_Service {
 						continue;
 					}
 					$field_ref = $prepared_meta[ $field_ref_key ];
-					if ( ! is_string( $field_ref ) || strpos( $field_ref, 'field_' ) !== 0 ) {
+					if ( ! is_string( $field_ref ) || 0 !== strpos( $field_ref, 'field_' ) ) {
 						continue;
 					}
 					$field_obj = acf_get_field( $field_ref );
