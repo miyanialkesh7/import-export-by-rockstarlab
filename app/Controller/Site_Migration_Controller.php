@@ -16,8 +16,16 @@ use RockStarLab\ImportExport\Model\Import\Importer_Factory;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * AJAX endpoints for the site migration wizard: plan, start, package and download.
+ */
 class Site_Migration_Controller extends Base_Controller {
 
+	/**
+	 * Map the migration AJAX actions to the methods that handle them.
+	 *
+	 * @return array AJAX action => array with the callback name.
+	 */
 	protected function get_ajax_actions() {
 		return array(
 			'migration_get_plan'             => array( 'callback' => 'get_plan' ),
@@ -35,6 +43,11 @@ class Site_Migration_Controller extends Base_Controller {
 		);
 	}
 
+	/**
+	 * AJAX: hide the migration introduction notice for the current user.
+	 *
+	 * @return void
+	 */
 	public function dismiss_intro_notice() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -53,6 +66,11 @@ class Site_Migration_Controller extends Base_Controller {
 		$this->send_success( array( 'dismissed' => true ) );
 	}
 
+	/**
+	 * AJAX: return the ordered migration steps available on this site.
+	 *
+	 * @return void
+	 */
 	public function get_plan() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -82,6 +100,12 @@ class Site_Migration_Controller extends Base_Controller {
 		$this->migration_progress( true );
 	}
 
+	/**
+	 * AJAX: report the progress of a migration job, optionally advancing it first.
+	 *
+	 * @param mixed $advance Whether to process the next batch before reporting.
+	 * @return void
+	 */
 	private function migration_progress( $advance ) {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -113,6 +137,11 @@ class Site_Migration_Controller extends Base_Controller {
 		$this->send_success( $result );
 	}
 
+	/**
+	 * AJAX: start a migration (export to a package, or sync with another site) for the chosen steps.
+	 *
+	 * @return void
+	 */
 	public function start_migration() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -166,6 +195,11 @@ class Site_Migration_Controller extends Base_Controller {
 		$this->send_error( __( 'Only file migration is supported.', 'import-export-by-rockstarlab' ), null, 400 );
 	}
 
+	/**
+	 * AJAX: record the progress reported by the browser for a migration job.
+	 *
+	 * @return void
+	 */
 	public function update_migration() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -210,6 +244,11 @@ class Site_Migration_Controller extends Base_Controller {
 		);
 	}
 
+	/**
+	 * AJAX: bundle the export files of a migration into one ZIP package.
+	 *
+	 * @return void
+	 */
 	public function package_exports() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -306,6 +345,11 @@ class Site_Migration_Controller extends Base_Controller {
 		);
 	}
 
+	/**
+	 * AJAX: receive an uploaded migration ZIP package.
+	 *
+	 * @return void
+	 */
 	public function upload_package() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -343,6 +387,11 @@ class Site_Migration_Controller extends Base_Controller {
 		$this->send_success( $prepared );
 	}
 
+	/**
+	 * AJAX: unpack and index an uploaded migration package, one batch at a time.
+	 *
+	 * @return void
+	 */
 	public function prepare_package() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -356,6 +405,11 @@ class Site_Migration_Controller extends Base_Controller {
 		$this->send_success( $prepared );
 	}
 
+	/**
+	 * AJAX: return a nonce-protected download URL for a finished migration package.
+	 *
+	 * @return void
+	 */
 	public function get_download_url() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -403,6 +457,11 @@ class Site_Migration_Controller extends Base_Controller {
 		);
 	}
 
+	/**
+	 * AJAX: read the column headers of a file for the import mapping step.
+	 *
+	 * @return void
+	 */
 	public function get_file_headers() {
 		$verification = $this->verify_request();
 		if ( is_wp_error( $verification ) ) {
@@ -423,6 +482,11 @@ class Site_Migration_Controller extends Base_Controller {
 		$this->send_success( array( 'headers' => $preview['headers'] ) );
 	}
 
+	/**
+	 * Send a finished migration package to an administrator after checking the download nonce.
+	 *
+	 * @return void
+	 */
 	public function secure_download() {
 		$job_id = isset( $_GET['job_id'] ) ? absint( wp_unslash( $_GET['job_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$nonce  = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -461,15 +525,32 @@ class Site_Migration_Controller extends Base_Controller {
 		exit;
 	}
 
+	/**
+	 * Get the migration steps this site can run.
+	 *
+	 * @return array Ordered steps, or an empty array when none are available.
+	 */
 	private function get_available_steps() {
 		$steps = \RockStarLab\ImportExport\Abilities\Migration_Plan::steps();
 		return is_wp_error( $steps ) ? array() : $steps;
 	}
 
+	/**
+	 * Sanitize a list of migration step keys.
+	 *
+	 * @param mixed $steps Step keys from the request.
+	 * @return string[] Non-empty step keys.
+	 */
 	private function sanitize_step_keys( $steps ) {
 		return array_values( array_filter( array_map( 'sanitize_key', (array) $steps ) ) );
 	}
 
+	/**
+	 * Reduce the submitted export field settings to a list of field names.
+	 *
+	 * @param mixed $fields Field names or field definition arrays from the request.
+	 * @return string[] Field names.
+	 */
 	private function normalize_export_fields( $fields ) {
 		$normalized = array();
 		foreach ( (array) $fields as $field ) {
@@ -491,6 +572,11 @@ class Site_Migration_Controller extends Base_Controller {
 		return array_values( array_unique( array_filter( array_map( 'sanitize_text_field', $normalized ) ) ) );
 	}
 
+	/**
+	 * List the content types that need the PRO add-on, for display in the migration plan.
+	 *
+	 * @return string[] Translated labels.
+	 */
 	private function get_pro_only_labels() {
 		return array(
 			__( 'Menus', 'import-export-by-rockstarlab' ),

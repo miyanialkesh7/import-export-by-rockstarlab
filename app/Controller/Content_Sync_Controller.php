@@ -294,6 +294,8 @@ class Content_Sync_Controller extends Base_Controller {
 
 	/**
 	 * Enqueue assets for post list screens
+	 *
+	 * @param mixed $hook_suffix Current admin page hook suffix.
 	 */
 	public function enqueue_post_list_assets( $hook_suffix ) {
 		// The HPOS orders list behaves as the shop_order post list.

@@ -16,6 +16,9 @@ use RockStarLab\ImportExport\Helper\Site_URL;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * REST API for syncing posts, terms, comments and media with a connected site.
+ */
 class Content_Sync_API_Controller {
 
 	/**
@@ -907,7 +910,7 @@ class Content_Sync_API_Controller {
 	/**
 	 * Convert flat ACF meta structure to hierarchical for repeater/flexible content fields
 	 *
-	 * @param array $meta Post meta array.
+	 * @param array $meta           Post meta array.
 	 * @param array $acf_field_keys ACF field keys mapping.
 	 * @return array Modified meta array
 	 */
@@ -997,9 +1000,9 @@ class Content_Sync_API_Controller {
 	/**
 	 * Extract nested repeater data recursively
 	 *
-	 * @param array  $meta Post meta array.
-	 * @param string $parent_prefix Parent field prefix (e.g., "repeater_0_nested_repeater").
-	 * @param int    $row_count Number of rows.
+	 * @param array  $meta           Post meta array.
+	 * @param string $parent_prefix  Parent field prefix (e.g., "repeater_0_nested_repeater").
+	 * @param int    $row_count      Number of rows.
 	 * @param array  $acf_field_keys ACF field keys mapping.
 	 * @return array Nested rows data
 	 */
@@ -1057,8 +1060,8 @@ class Content_Sync_API_Controller {
 	 * @param int   $parent_post_id Local product post ID.
 	 * @param array $variations     Variation data from the source site.
 	 * @param array $image_map      Source attachment ID → local attachment ID map.
-	 * @param array $image_sources Source media payloads.
-	 * @param bool  $verified Whether to require confirmed variation identities.
+	 * @param array $image_sources  Source media payloads.
+	 * @param bool  $verified       Whether to require confirmed variation identities.
 	 * @return mixed
 	 */
 	private function import_product_variations( $parent_post_id, $variations, $image_map, $image_sources = array(), $verified = false ) {
@@ -1080,6 +1083,7 @@ class Content_Sync_API_Controller {
 	 * @param int   $parent_post_id Local grouped product post ID.
 	 * @param array $children       Array of child product data from the source site.
 	 * @param array $image_map      Source attachment ID → local attachment ID map.
+	 * @param array $image_sources  Source URLs of the transferred images, keyed by source attachment ID.
 	 * @return int[] Array of local child product post IDs.
 	 */
 	private function import_grouped_children( $parent_post_id, $children, $image_map, $image_sources = array() ) {
@@ -1280,7 +1284,7 @@ class Content_Sync_API_Controller {
 	 * copies (from this push, or synced earlier); drop IDs with no local copy instead of
 	 * linking whatever product happens to have that ID here.
 	 *
-	 * @param int   $product_id         Local product.
+	 * @param int   $product_id          Local product.
 	 * @param array $source_to_local_map Source post ID => local post ID of this push.
 	 * @return void
 	 */
@@ -1386,6 +1390,13 @@ class Content_Sync_API_Controller {
 		return apply_filters( 'rsl_ie_sync_extension', false, 'peer', 'find_existing_product_by_sku', array( $post_data ), $helpers );
 	}
 
+	/**
+	 * Set the product type (simple, variable, grouped, external) of a synced WooCommerce product after it is saved.
+	 *
+	 * @param mixed $post_id   Local product post ID.
+	 * @param array $post_data Incoming product payload.
+	 * @return void
+	 */
 	private function sync_woocommerce_product_type( $post_id, array $post_data ) {
 		$helpers = array(
 			'find_existing_post_by_source_meta' => function ( ...$args ) {
@@ -1662,7 +1673,7 @@ class Content_Sync_API_Controller {
 	 *
 	 * @param int   $post_id  Local post ID.
 	 * @param array $comments Synced comments payload.
-	 * @param array $users Server-validated comment-to-local-user assignments.
+	 * @param array $users    Server-validated comment-to-local-user assignments.
 	 * @return void|\WP_Error
 	 */
 	private function import_synced_comments( $post_id, $comments, array $users = array() ) {
@@ -1771,8 +1782,8 @@ class Content_Sync_API_Controller {
 	/**
 	 * Find an existing synced comment on a local post.
 	 *
-	 * @param int $post_id            Local post ID.
-	 * @param int $source_comment_id  Source comment ID.
+	 * @param int $post_id           Local post ID.
+	 * @param int $source_comment_id Source comment ID.
 	 * @return int
 	 */
 	private function find_existing_comment_by_original_id( $post_id, $source_comment_id ) {
@@ -1840,7 +1851,12 @@ class Content_Sync_API_Controller {
 		return $this->send_content_payload( $request, $post_ids );
 	}
 
-	/** Called only after source authorization, inside any negotiated PRO scope. */
+	/**
+	 * Called only after source authorization, inside any negotiated PRO scope.
+	 *
+	 * @param mixed $request  REST request that asked for the content.
+	 * @param array $post_ids IDs of the posts to send.
+	 */
 	private function send_content_payload( $request, array $post_ids ) {
 		$payload       = $this->prepare_posts( $post_ids );
 		$posts_data    = $payload['posts'];
@@ -2082,6 +2098,12 @@ class Content_Sync_API_Controller {
 		);
 	}
 
+	/**
+	 * Collect the image URLs found in the HTML of a term's ACF field.
+	 *
+	 * @param mixed $content HTML from the ACF field.
+	 * @return string[] Image URLs.
+	 */
 	private function extract_image_urls_from_term_acf_html( $content ) {
 		$urls = array();
 
@@ -2113,11 +2135,24 @@ class Content_Sync_API_Controller {
 		return array_values( array_unique( $urls ) );
 	}
 
+	/**
+	 * Tell whether a URL points to an image file.
+	 *
+	 * @param mixed $url URL to check.
+	 * @return bool
+	 */
 	private function is_term_acf_image_url( $url ) {
 		$path = (string) \RockStarLab\ImportExport\Helper\Content_Sync_Media::url_path( html_entity_decode( (string) $url, ENT_QUOTES, get_bloginfo( 'charset' ) ) );
 		return '' !== $path && (bool) preg_match( '~\.(?:jpe?g|png|gif|webp|avif|svg)$~i', $path );
 	}
 
+	/**
+	 * Get the ACF field objects stored on a term.
+	 *
+	 * @param mixed $term_id  Term ID.
+	 * @param mixed $taxonomy Taxonomy the term belongs to.
+	 * @return array|false Field objects, or false when ACF is not available.
+	 */
 	private function get_term_acf_field_objects( $term_id, $taxonomy ) {
 		if ( ! function_exists( 'get_field_objects' ) ) {
 			return false;
@@ -2255,7 +2290,7 @@ class Content_Sync_API_Controller {
 	/**
 	 * Return commentable post types for comments vs WooCommerce reviews.
 	 *
-	 * @param string $comment_type Comment subtype.
+	 * @param string $comment_type        Comment subtype.
 	 * @param string $requested_post_type Requested post type.
 	 * @return string|array
 	 */
@@ -2278,6 +2313,7 @@ class Content_Sync_API_Controller {
 	/**
 	 * Get product IDs for separating normal comments from WooCommerce reviews.
 	 *
+	 * @param string $language Language code to limit the products to, "all" for every language, or an empty string.
 	 * @return int[]
 	 */
 	private function get_product_post_ids_for_comment_filter( $language = '' ) {
@@ -2311,6 +2347,7 @@ class Content_Sync_API_Controller {
 	 *
 	 * @param \WP_Comment $comment      Comment object.
 	 * @param string      $comment_type Requested comment subtype.
+	 * @param string      $language     Language code the sync is limited to, or an empty string.
 	 * @return bool
 	 */
 	private function is_comment_in_sync_context( $comment, $comment_type = '', $language = '' ) {
@@ -2442,6 +2479,13 @@ class Content_Sync_API_Controller {
 		return (array) apply_filters( 'rsl_ie_sync_term_payload', $data, $term, $taxonomy );
 	}
 
+	/**
+	 * Get the ACF fields of a term that should travel with it, keyed by field name.
+	 *
+	 * @param mixed $term_id  Term ID.
+	 * @param mixed $taxonomy Taxonomy the term belongs to.
+	 * @return array
+	 */
 	private function get_term_acf_fields_for_sync( $term_id, $taxonomy ) {
 		$fields = array();
 
@@ -2541,6 +2585,12 @@ class Content_Sync_API_Controller {
 		return $value;
 	}
 
+	/**
+	 * Tell whether an ACF array key usually holds an attachment ID.
+	 *
+	 * @param mixed $key Array key from the ACF value.
+	 * @return bool
+	 */
 	private function looks_like_term_acf_media_key( $key ) {
 		if ( is_int( $key ) ) {
 			return true;
@@ -2866,7 +2916,9 @@ class Content_Sync_API_Controller {
 	/**
 	 * Import standalone synced comments.
 	 *
-	 * @param array $comments Comment payloads.
+	 * @param array $comments       Comment payloads.
+	 * @param array $post_mapping   Source post ID => local post ID.
+	 * @param int   $target_post_id Post to attach the comments to, or 0 to use the mapping.
 	 * @return array Counts.
 	 */
 	private function import_synced_standalone_comments( $comments, $post_mapping = array(), $target_post_id = 0 ) {
@@ -2877,6 +2929,7 @@ class Content_Sync_API_Controller {
 	 * Resolve the target post for a synced standalone comment.
 	 *
 	 * @param array $comment_data Comment payload.
+	 * @param array $post_mapping Source post ID => local post ID.
 	 * @return int Post ID or 0.
 	 */
 	private function resolve_synced_comment_post_id( $comment_data, $post_mapping = array() ) {
@@ -2955,7 +3008,7 @@ class Content_Sync_API_Controller {
 	/**
 	 * Import synced ACF fields into a comment.
 	 *
-	 * @param int   $comment_id    Comment ID.
+	 * @param int   $comment_id   Comment ID.
 	 * @param array $comment_data Comment sync payload.
 	 * @return void
 	 */
@@ -3057,7 +3110,8 @@ class Content_Sync_API_Controller {
 	/**
 	 * Determine whether a raw comment meta key belongs to ACF.
 	 *
-	 * @param string $meta_key Meta key.
+	 * @param string $meta_key     Meta key.
+	 * @param mixed  $comment_data Comment payload that carries the ACF data.
 	 * @return bool
 	 */
 	private function is_acf_comment_sync_meta_key( $meta_key, $comment_data ) {
@@ -3114,7 +3168,8 @@ class Content_Sync_API_Controller {
 	/**
 	 * Count direct children of a post
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int    $post_id   Post ID.
+	 * @param string $post_type Post type of the children to count, or an empty string for any.
 	 * @return int Children count.
 	 */
 	private function count_children( $post_id, $post_type = '' ) {
@@ -3238,6 +3293,7 @@ class Content_Sync_API_Controller {
 	 *
 	 * @param string $taxonomy Taxonomy name.
 	 * @param string $path     Parent slug path.
+	 * @param array  $names    Term names by slug, used when a missing parent term has to be created.
 	 * @return int Final parent term ID.
 	 */
 	private function resolve_synced_term_parent_path( $taxonomy, $path, array $names = array() ) {

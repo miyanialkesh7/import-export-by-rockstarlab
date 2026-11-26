@@ -15,6 +15,9 @@ use RockStarLab\ImportExport\Model\Connected_Site;
 
 defined( 'ABSPATH' ) or exit;
 
+/**
+ * Plugin bootstrap: registers the admin menu and pages, assets, translations and the other controllers.
+ */
 class Init {
 
 	/**
@@ -111,7 +114,7 @@ class Init {
 	/**
 	 * Constructor
 	 **/
-	function __construct() {
+	public function __construct() {
 
 		// load plugin translations.
 		add_action( 'init', array( $this, 'load_translations' ) );
@@ -160,7 +163,7 @@ class Init {
 	/**
 	 * Initialize helper hooks after WordPress is ready for translations.
 	 */
-	function init_helpers() {
+	public function init_helpers() {
 		// Show 5-star review request notice (plugin pages only, after 1 week).
 		\RockStarLab\ImportExport\Helper\Review_Notice::init();
 
@@ -171,7 +174,7 @@ class Init {
 	/**
 	 * Initialize AJAX controllers
 	 */
-	function init_controllers() {
+	public function init_controllers() {
 		( new Notices_Controller() )->init();
 
 		$this->import_controller = new Import_Controller();
@@ -229,7 +232,7 @@ class Init {
 	/**
 	 * Initialize Cron Manager
 	 */
-	function init_cron_manager() {
+	public function init_cron_manager() {
 		$this->cron_manager = new \RockStarLab\ImportExport\Model\Queue\Cron_Manager();
 		$this->cron_manager->init();
 		\RockStarLab\ImportExport\Helper\Job_Scheduler::init();
@@ -242,7 +245,7 @@ class Init {
 	 * a language pack from translate.wordpress.org. A language pack in
 	 * wp-content/languages/plugins/ still loads first for PHP strings when present.
 	 */
-	function load_translations() {
+	public function load_translations() {
 		// Runs on init already: a callback added to init at the same priority from inside init is
 		// skipped by WP_Hook (on a multisite network the PHP texts stayed in English), so load now.
 		$this->load_textdomain();
@@ -289,8 +292,10 @@ class Init {
 
 	/**
 	 * Load admin scripts
+	 *
+	 * @param mixed $admin_page Current admin page hook suffix.
 	 */
-	function load_admin_assets( $admin_page ) {
+	public function load_admin_assets( $admin_page ) {
 		$current_page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$current_page = is_string( $current_page ) ? sanitize_key( wp_unslash( $current_page ) ) : '';
 
@@ -1269,8 +1274,8 @@ class Init {
 	 * Open the export wizard with selected attachments; WordPress verifies the bulk nonce.
 	 *
 	 * @param string $redirect_url Original return URL.
-	 * @param string $action Selected action.
-	 * @param array  $ids Selected attachment IDs.
+	 * @param string $action       Selected action.
+	 * @param array  $ids          Selected attachment IDs.
 	 * @return string
 	 */
 	public function handle_media_export_bulk_action( $redirect_url, $action, $ids ) {
@@ -1480,7 +1485,7 @@ class Init {
 				var exportButtonId = 'rsl-ie-export-selected-terms-btn';
 				var syncButtonId = 'rsl-ie-sync-selected-terms-btn';
 
-				function ready( callback ) {
+				public function ready( callback ) {
 					if ( document.readyState === 'loading' ) {
 						document.addEventListener( 'DOMContentLoaded', callback );
 					} else {
@@ -1488,7 +1493,7 @@ class Init {
 					}
 				}
 
-				function getSelectedIds() {
+				public function getSelectedIds() {
 					var checkboxes = document.querySelectorAll( 'tbody .check-column input[type="checkbox"]:checked' );
 					var ids = [];
 
@@ -1502,7 +1507,7 @@ class Init {
 					return ids;
 				}
 
-				function updateButtons() {
+				public function updateButtons() {
 					var ids = getSelectedIds();
 					var hasSelection = ids.length > 0;
 					var exportButton = document.getElementById( exportButtonId );
@@ -1521,7 +1526,7 @@ class Init {
 					}
 				}
 
-				function createButton( id, label, disabled, title ) {
+				public function createButton( id, label, disabled, title ) {
 					var button = document.createElement( 'button' );
 					button.type = 'button';
 					button.id = id;
@@ -1793,7 +1798,12 @@ class Init {
 	}
 
 
-	/** Keep our CSS scope stable when WordPress derives the screen class from a custom menu title. */
+	/**
+	 * Keep our CSS scope stable when WordPress derives the screen class from a custom menu title.
+	 *
+	 * @param mixed $classes Space-separated body classes.
+	 * @return string Body classes with the plugin screen classes added.
+	 */
 	public function plugin_admin_body_class( $classes ) {
 		global $plugin_page, $hook_suffix;
 		$page = (string) $plugin_page;
@@ -1875,7 +1885,7 @@ class Init {
 	 * @param \WP_Screen|null $screen Current admin screen.
 	 * @return void
 	 */
-	function add_plugin_help_tab( $screen ) {
+	public function add_plugin_help_tab( $screen ) {
 		if ( ! $screen || empty( $screen->id ) || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -1908,7 +1918,7 @@ class Init {
 	/**
 	 * Add plugin's settings pages
 	 */
-	function add_settings_pages() {
+	public function add_settings_pages() {
 		$admin_menu_settings = \RockStarLab\ImportExport\Helper\Admin_Menu_Settings::get_settings();
 		$admin_menu_title    = $admin_menu_settings['menu_title'];
 
@@ -2100,28 +2110,28 @@ class Init {
 	/**
 	 * Display Import Settings Page
 	 */
-	function display_settings_import_page() {
+	public function display_settings_import_page() {
 		rsl_ie()->View->load( 'settings/import' );
 	}
 
 	/**
 	 * Display Export Settings Page
 	 */
-	function display_settings_export_page() {
+	public function display_settings_export_page() {
 		rsl_ie()->View->load( 'settings/export' );
 	}
 
 	/**
 	 * Display Content Migration page.
 	 */
-	function display_site_migration_page() {
+	public function display_site_migration_page() {
 		rsl_ie()->View->load( 'settings/site_migration' );
 	}
 
 	/**
 	 * Display Content Sync Settings Page
 	 */
-	function display_content_sync_page() {
+	public function display_content_sync_page() {
 		rsl_ie()->View->load( 'settings/content_sync' );
 	}
 
@@ -2143,14 +2153,17 @@ class Init {
 		exit;
 	}
 
-	function display_media_sync_page() {
+	/**
+	 * Display the Media Sync page.
+	 */
+	public function display_media_sync_page() {
 		rsl_ie()->View->load( 'settings/media_sync' );
 	}
 
 	/**
 	 * Display maintenance tools.
 	 */
-	function display_tools_page() {
+	public function display_tools_page() {
 		rsl_ie()->View->load( 'settings/tools' );
 	}
 
@@ -2159,7 +2172,7 @@ class Init {
 	 *
 	 * @return void
 	 */
-	function display_media_hash_admin_notice() {
+	public function display_media_hash_admin_notice() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -2192,7 +2205,7 @@ class Init {
 	 *
 	 * @return void
 	 */
-	function handle_media_hash_notice_action() {
+	public function handle_media_hash_notice_action() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die(
 				esc_html__( 'You do not have permission to perform this action.', 'import-export-by-rockstarlab' ),
@@ -2218,35 +2231,35 @@ class Init {
 	/**
 	 * Display AI URL Importer Page
 	 */
-	function display_ai_url_importer_page() {
+	public function display_ai_url_importer_page() {
 		rsl_ie()->View->load( 'settings/ai_url_importer' );
 	}
 
 	/**
 	 * Display Jobs Log Page
 	 */
-	function display_jobs_log_page() {
+	public function display_jobs_log_page() {
 		rsl_ie()->View->load( 'settings/jobs-log' );
 	}
 
 	/**
 	 * Display Schedules Page.
 	 */
-	function display_schedules_page() {
+	public function display_schedules_page() {
 		rsl_ie()->View->load( 'settings/schedules' );
 	}
 
 	/**
 	 * Display Plugin Options Page
 	 */
-	function display_plugin_options_page() {
+	public function display_plugin_options_page() {
 		rsl_ie()->View->load( 'settings/plugin_options' );
 	}
 
 	/**
 	 * Display hidden general plugin settings page.
 	 */
-	function display_plugin_settings_page() {
+	public function display_plugin_settings_page() {
 		rsl_ie()->View->load( 'settings/plugin_settings' );
 	}
 
@@ -2260,14 +2273,14 @@ class Init {
 	/**
 	 * Display Welcome Page
 	 */
-	function display_welcome_page() {
+	public function display_welcome_page() {
 		include RSL_IE_PATH . 'app/View/settings/welcome.php';
 	}
 
 	/**
 	 * Handle redirect to welcome page after activation
 	 */
-	function welcome_redirect() {
+	public function welcome_redirect() {
 		// Check if we should redirect.
 		if ( get_transient( 'rsl_ie_activation_redirect' ) ) {
 			delete_transient( 'rsl_ie_activation_redirect' );

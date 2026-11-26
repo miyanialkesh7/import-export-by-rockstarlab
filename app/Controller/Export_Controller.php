@@ -15,6 +15,9 @@ use RockStarLab\ImportExport\Helper\ACF_Fields;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * AJAX endpoints that start, run, monitor and download exports.
+ */
 class Export_Controller extends Base_Controller {
 
 	/**

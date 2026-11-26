@@ -201,7 +201,7 @@ class Media_Library_Sync_Controller {
 	 * Keep the existing nonce and response envelope for the Media Library UI.
 	 *
 	 * @param string $operation Operation.
-	 * @param string $action Registered AJAX action.
+	 * @param string $action    Registered AJAX action.
 	 * @return void
 	 */
 	private function ajax_operation( $operation, $action ) {
@@ -258,7 +258,12 @@ class Media_Library_Sync_Controller {
 	public function rest_receive_media( $request ) {
 		return $this->peer_operation( 'receive_media', $request );
 	}
-	/** Authenticated staging protocol; no filesystem path is returned. */
+	/**
+	 * Authenticated staging protocol; no filesystem path is returned.
+	 *
+	 * @param mixed $request REST request.
+	 * @return mixed REST response, or WP_Error.
+	 */
 	public function rest_media_chunk( $request ) {
 		return Sync_Authentication::run(
 			$request,
@@ -397,7 +402,7 @@ class Media_Library_Sync_Controller {
 	 * Revalidate and restore the bound API-key owner for every peer call.
 	 *
 	 * @param string           $operation Server-selected operation.
-	 * @param \WP_REST_Request $request Request.
+	 * @param \WP_REST_Request $request   Request.
 	 * @return mixed
 	 */
 	private function peer_operation( $operation, $request ) {

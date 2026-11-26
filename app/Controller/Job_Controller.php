@@ -15,6 +15,9 @@ use RockStarLab\ImportExport\Helper\Ajax_Security;
 
 defined( 'ABSPATH' ) or exit;
 
+/**
+ * AJAX endpoints for the Jobs Log: list, rename, pause, resume, restart and delete jobs.
+ */
 class Job_Controller extends Base_Controller {
 	/**
 	 * Format duration in human-readable format
@@ -44,8 +47,8 @@ class Job_Controller extends Base_Controller {
 	 * prepared_data/offset). When re-running from Jobs Log we want to preserve
 	 * the user configuration but reset runtime state so processing starts over.
 	 *
-	 * @param string $job_type
-	 * @param mixed  $raw_parameters
+	 * @param string $job_type       Job type, for example import or export.
+	 * @param mixed  $raw_parameters Stored job parameters (JSON string).
 	 * @return mixed
 	 */
 	private function normalize_rerun_parameters( $job_type, $raw_parameters ) {
