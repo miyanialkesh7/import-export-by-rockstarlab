@@ -1,12 +1,31 @@
 <?php
-/** Iterate worksheet cells in source order, without materializing rows or sheets. */
+/**
+ * Iterate worksheet cells in source order, without materializing rows or sheets.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Streams the cells of an XLSX worksheet.
+ */
 class XLSX_Cell_Stream {
+	/**
+	 * Stream the cells of the worksheet one at a time.
+	 *
+	 * @param Spreadsheet_XML_Parts         $parts          Opened parts of the XLSX archive.
+	 * @param array                         $map            Part map from XLSX_Part_Map::resolve().
+	 * @param Spreadsheet_String_Store|null $shared_strings Shared strings, or null to load them.
+	 * @param array|null                    $checkpoint     Checkpoint to resume from; updated while reading.
+	 * @param XLSX_Formula_Store|null       $formula_store  Store for shared formulas, or null to create one.
+	 * @return \Generator Cells with their row, column and value.
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	public static function cells( Spreadsheet_XML_Parts $parts, array $map, ?Spreadsheet_String_Store $shared_strings = null, &$checkpoint = null, $formula_store = null ) {
 		$resume       = func_num_args() > 3;
 		$strings      = $shared_strings;

@@ -1,5 +1,10 @@
 <?php
-/** Normalize one XLSX cell using the same value binder as the legacy reader. */
+/**
+ * Normalize one XLSX cell using the same value binder as the legacy reader.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -7,13 +12,42 @@ use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Decodes a single XLSX cell into the value the sheet shows.
+ */
 class XLSX_Cell_Decoder {
+	/**
+	 * Spreadsheet helper used to format values.
+	 *
+	 * @var \PhpOffice\PhpSpreadsheet\Spreadsheet|null
+	 */
 	private $book;
+	/**
+	 * Excel calendar, 1900 or 1904.
+	 *
+	 * @var int
+	 */
 	private $calendar;
+	/**
+	 * Whether the decoder keeps the values already in the sheet.
+	 *
+	 * @var bool
+	 */
 	private $preserve_existing = false;
+	/**
+	 * Tell whether the decoder keeps the values already in the sheet.
+	 *
+	 * @return bool
+	 */
 	public function preserves_existing() {
 		return $this->preserve_existing; }
 
+	/**
+	 * Create the decoder.
+	 *
+	 * @param int $calendar Excel calendar: 1900 or 1904.
+	 * @throws \RuntimeException When the calendar is not supported.
+	 */
 	public function __construct( $calendar = 1900 ) {
 		if ( ! in_array( $calendar, array( 1900, 1904 ), true ) ) {
 			throw new \RuntimeException( esc_html__( 'Invalid spreadsheet calendar.', 'import-export-by-rockstarlab' ) ); }
@@ -21,7 +55,16 @@ class XLSX_Cell_Decoder {
 		$this->book     = new Spreadsheet();
 	}
 
-	/** The worksheet reader must supply shared formula resolution. */
+	/**
+	 * The worksheet reader must supply shared formula resolution.
+	 *
+	 * @param \SimpleXMLElement             $cell           The worksheet cell element.
+	 * @param mixed                         $namespace      XML namespace of the worksheet.
+	 * @param mixed                         $coordinate     Cell coordinate, for example B7.
+	 * @param Spreadsheet_String_Store|null $strings        Shared strings.
+	 * @param callable                      $shared_formula Callback that resolves shared formulas.
+	 * @return mixed Cell value.
+	 */
 	public function decode( \SimpleXMLElement $cell, $namespace, $coordinate, ?Spreadsheet_String_Store $strings, callable $shared_formula ) {
 		$previous = \PhpOffice\PhpSpreadsheet\Shared\Date::getExcelCalendar();
 		try {
@@ -31,6 +74,17 @@ class XLSX_Cell_Decoder {
 			\PhpOffice\PhpSpreadsheet\Shared\Date::setExcelCalendar( $previous ); }
 	}
 
+	/**
+	 * Decode a cell value according to its type, formula and number format.
+	 *
+	 * @param \SimpleXMLElement             $cell           The worksheet cell element.
+	 * @param mixed                         $namespace      XML namespace of the worksheet.
+	 * @param mixed                         $coordinate     Cell coordinate, for example B7.
+	 * @param Spreadsheet_String_Store|null $strings        Shared strings.
+	 * @param callable                      $shared_formula Callback that resolves shared formulas.
+	 * @return mixed
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	private function decode_value( \SimpleXMLElement $cell, $namespace, $coordinate, ?Spreadsheet_String_Store $strings, callable $shared_formula ) {
 		$type               = (string) $cell['t'];
 		$c                  = $cell->children( $namespace );
@@ -95,10 +149,18 @@ class XLSX_Cell_Decoder {
 			return (string) $value;
 	}
 
+	/**
+	 * Release the spreadsheet helper object.
+	 *
+	 * @return void
+	 */
 	public function close() {
 		if ( $this->book ) {
 			$this->book->disconnectWorksheets();
 			$this->book = null; } }
+	/**
+	 * Release resources when the decoder is released.
+	 */
 	public function __destruct() {
 		$this->close(); }
 }

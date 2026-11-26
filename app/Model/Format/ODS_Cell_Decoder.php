@@ -1,5 +1,10 @@
 <?php
-/** Decode a single ODS cell, preserving the installed data-only reader's values. */
+/**
+ * Decode a single ODS cell, preserving the installed data-only reader's values.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 use PhpOffice\PhpSpreadsheet\Reader\Ods;
@@ -8,7 +13,16 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Decodes a single ODS cell.
+ */
 class ODS_Cell_Decoder extends Ods {
+	/**
+	 * Decode one ODS cell into the value the sheet shows.
+	 *
+	 * @param \DOMElement $cell The table:table-cell element.
+	 * @return mixed Cell value, or null when the cell is empty.
+	 */
 	public function decode( \DOMElement $cell ) {
 		$office = 'urn:oasis:names:tc:opendocument:xmlns:office:1.0';
 		$table  = 'urn:oasis:names:tc:opendocument:xmlns:table:1.0';

@@ -65,7 +65,14 @@ class Spreadsheet_Format implements File_Format_Interface {
 			return self::parse_error( $error ); }
 	}
 
-	/** Yield normalized rows without building a second complete row array. */
+	/**
+	 * Yield normalized rows without building a second complete row array.
+	 *
+	 * @param mixed      $file_path   Path of the spreadsheet file.
+	 * @param array      $options     Reader options.
+	 * @param array|null $raw_headers Receives the header row as it appears in the file.
+	 * @throws \RuntimeException When the file fails validation.
+	 */
 	public function rows( $file_path, $options = array(), &$raw_headers = null ) {
 		$validation = $this->basic_file_validation( $file_path );
 		if ( is_wp_error( $validation ) ) {
@@ -90,7 +97,12 @@ class Spreadsheet_Format implements File_Format_Interface {
 		}
 	}
 
-	/** Build a bounded sample and exact count with a single worksheet load. */
+	/**
+	 * Build a bounded sample and exact count with a single worksheet load.
+	 *
+	 * @param mixed $file_path Path of the spreadsheet file.
+	 * @param array $options   Reader options.
+	 */
 	public function preview( $file_path, $options = array() ) {
 		$validation = $this->basic_file_validation( $file_path );
 		if ( is_wp_error( $validation ) ) {
@@ -132,7 +144,13 @@ class Spreadsheet_Format implements File_Format_Interface {
 		}
 	}
 
-	/** Iterate nonempty normalized rows of an already loaded worksheet. */
+	/**
+	 * Iterate nonempty normalized rows of an already loaded worksheet.
+	 *
+	 * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet       Loaded worksheet.
+	 * @param array                                         $options     Reader options.
+	 * @param array|null                                    $raw_headers Receives the header row as it appears in the sheet.
+	 */
 	private function worksheet_rows( $sheet, array $options, &$raw_headers = null ) {
 		$raw_headers = array();
 		$highest_row = (int) $sheet->getHighestDataRow();
@@ -385,7 +403,7 @@ class Spreadsheet_Format implements File_Format_Interface {
 	 * Count spreadsheet rows, excluding the header row.
 	 *
 	 * @param string $file_path Absolute path to file.
-	 * @param array  $options Optional parser settings.
+	 * @param array  $options   Optional parser settings.
 	 * @return int|\WP_Error Row count or WP_Error on failure.
 	 */
 	public function count_rows( $file_path, $options = array() ) {

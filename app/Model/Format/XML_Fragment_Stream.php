@@ -1,18 +1,69 @@
 <?php
-/** Seekable XML record boundaries; libxml remains the syntax and namespace validator. */
+/**
+ * Seekable XML record boundaries; libxml remains the syntax and namespace validator.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fclose,WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fread -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
 
 defined( 'ABSPATH' ) || exit;
+/**
+ * Reads an XML file by byte position and splits it into complete records.
+ */
 class XML_Fragment_Stream {
+	/**
+	 * Handle of the XML file.
+	 *
+	 * @var resource|false
+	 */
 	private $stream;
+	/**
+	 * Bytes read but not yet consumed.
+	 *
+	 * @var string
+	 */
 	private $buffer   = '';
+	/**
+	 * Read position inside the buffer.
+	 *
+	 * @var int
+	 */
 	private $position = 0;
+	/**
+	 * File offset of the start of the buffer.
+	 *
+	 * @var int
+	 */
 	private $base     = 0;
+	/**
+	 * Character encoding of the file.
+	 *
+	 * @var string
+	 */
 	private $encoding;
+	/**
+	 * Bytes per character unit.
+	 *
+	 * @var int
+	 */
 	private $width;
+	/**
+	 * Whether multi-byte units are little-endian.
+	 *
+	 * @var bool
+	 */
 	private $little;
+	/**
+	 * Open an XML file at a byte offset.
+	 *
+	 * @param mixed $path     Path of the XML file.
+	 * @param mixed $offset   Byte offset to start reading at.
+	 * @param array $encoding Encoding details: name, byte width and byte order.
+	 * @throws \RuntimeException When the file cannot be opened or positioned.
+	 */
 	public function __construct( $path, $offset, $encoding = array(
 		'name'   => 'UTF-8',
 		'width'  => 1,
@@ -26,6 +77,12 @@ class XML_Fragment_Stream {
 			throw new \RuntimeException( esc_html__( 'Cannot seek XML source.', 'import-export-by-rockstarlab' ) );}
 		$this->base = $offset;
 	}
+	/**
+	 * Refill the read buffer when it is used up.
+	 *
+	 * @return bool False at the end of the file.
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	private function fill() {
 		if ( $this->position < strlen( $this->buffer ) ) {
 			return true;}
@@ -36,8 +93,19 @@ class XML_Fragment_Stream {
 			throw new \RuntimeException( esc_html__( 'Cannot read XML source.', 'import-export-by-rockstarlab' ) );}
 		return '' !== $this->buffer;
 	}
+	/**
+	 * Read one byte.
+	 *
+	 * @return string|null Byte, or null at the end of the file.
+	 */
 	private function byte() {
 		return $this->fill() ? $this->buffer[ $this->position++ ] : null;}
+	/**
+	 * Read one encoded character unit (one or more bytes, depending on the encoding).
+	 *
+	 * @return string|null Raw bytes, or null at the end of the file.
+	 * @throws \RuntimeException When the encoding is incomplete.
+	 */
 	private function unit() {
 		$raw = '';for ( $i = 0;$i < $this->width;++$i ) {
 			$byte = $this->byte();
@@ -48,12 +116,25 @@ class XML_Fragment_Stream {
 			}$raw .= $byte;}
 		return $raw;
 	}
+	/**
+	 * Get the single-byte equivalent of a raw unit when it is a plain ASCII character.
+	 *
+	 * @param mixed $raw Raw bytes of the unit.
+	 * @return string Character, or an empty string when the unit is not ASCII.
+	 */
 	private function symbol( $raw ) {
 		if ( 1 === $this->width ) {
 			return $raw;}
 		$char = $this->little ? $raw[0] : $raw[ $this->width - 1 ];
 		return $raw === ( $this->little ? $char . str_repeat( "\0", $this->width - 1 ) : str_repeat( "\0", $this->width - 1 ) . $char ) ? $char : "\x80";
 	}
+	/**
+	 * Convert raw bytes of the file encoding to UTF-8.
+	 *
+	 * @param mixed $raw Raw bytes.
+	 * @return string
+	 * @throws \RuntimeException When the bytes are invalid for the encoding.
+	 */
 	private function decoded( $raw ) {
 		if ( 'UTF-8' === $this->encoding ) {
 			return $raw;}
@@ -62,6 +143,12 @@ class XML_Fragment_Stream {
 			throw new \RuntimeException( esc_html__( 'Invalid XML encoding.', 'import-export-by-rockstarlab' ) );}
 		return $value;
 	}
+	/**
+	 * Read the next token: a tag or the text before it.
+	 *
+	 * @return string|null Raw bytes of the token, or null at the end of the file.
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	private function token() {
 		$first = $this->unit();
 		if ( null === $first ) {
@@ -107,7 +194,14 @@ class XML_Fragment_Stream {
 		}
 		throw new \RuntimeException( esc_html__( 'Incomplete XML token.', 'import-export-by-rockstarlab' ) );
 	}
-	/** Each checkpoint starts after a complete outermost matching record. */
+	/**
+	 * Each checkpoint starts after a complete outermost matching record.
+	 *
+	 * @param mixed $item      Name of the record element to split on.
+	 * @param array $state     Parser state: byte offset, open-element stack and declaration.
+	 * @param int   $max_bytes Stop after the first record that ends beyond this many bytes; 0 for no limit.
+	 * @throws \RuntimeException When the XML is malformed.
+	 */
 	public function segments( $item, array $state, $max_bytes = 0 ) {
 		$stack       = $state['stack'];
 		$roots       = $state['roots'];
@@ -175,6 +269,9 @@ class XML_Fragment_Stream {
 			'eof'    => true,
 		);
 	}
+	/**
+	 * Close the file when the object is released.
+	 */
 	public function __destruct() {
 		if ( is_resource( $this->stream ) ) {
 			fclose( $this->stream );}}

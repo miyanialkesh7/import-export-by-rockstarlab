@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Picks the file format handler for an extension, MIME type or file.
+ */
 class Format_Factory {
 
 	/**

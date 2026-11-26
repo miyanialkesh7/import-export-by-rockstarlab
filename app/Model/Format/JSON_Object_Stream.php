@@ -1,13 +1,27 @@
 <?php
-/** Disk-backed legacy object iteration with native duplicate-key semantics. */
+/**
+ * Disk-backed legacy object iteration with native duplicate-key semantics.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPress.WP.AlternativeFunctions.file_system_operations_fclose,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents,WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fwrite,WordPress.WP.AlternativeFunctions.file_system_operations_mkdir,WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Streams the entries of a JSON object, keeping the first key position and the last value of duplicate keys.
+ */
 class JSON_Object_Stream {
-	/** Keep first-key order and last-key value without retaining all keys or rows. */
+	/**
+	 * Keep first-key order and last-key value without retaining all keys or rows.
+	 *
+	 * @param mixed $path    Path of the JSON file.
+	 * @param array $options Parser options.
+	 * @throws \RuntimeException When the temporary index cannot be created or the JSON is invalid.
+	 */
 	public static function rows( $path, array $options = array() ) {
 		$directory = rtrim( get_temp_dir(), '/\\' ) . '/rsl-json-' . bin2hex( random_bytes( 16 ) );
 		if ( ! mkdir( $directory, 0700 ) ) {

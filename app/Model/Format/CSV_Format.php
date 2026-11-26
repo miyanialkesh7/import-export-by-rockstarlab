@@ -13,6 +13,9 @@ namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Reads and writes CSV files.
+ */
 class CSV_Format implements File_Format_Interface {
 	/**
 	 * Default delimiter
@@ -126,7 +129,15 @@ class CSV_Format implements File_Format_Interface {
 		return $data;
 	}
 
-	/** Stream rows with the same CSV mapping and quoting rules as parse(). */
+	/**
+	 * Stream rows with the same CSV mapping and quoting rules as parse().
+	 *
+	 * @param mixed      $file_path       Path of the CSV file.
+	 * @param array      $options         Parser options (delimiter, enclosure, header handling, encoding).
+	 * @param array|null $cursor          Resume cursor from a previous call; updated as rows are read.
+	 * @param array|null $preview_headers Receives the header row as it appears in the file.
+	 * @throws \RuntimeException When the CSV file does not exist or cannot be read.
+	 */
 	public function rows( $file_path, $options = array(), &$cursor = null, &$preview_headers = null ) {
 		list( $file_path, $options ) = $this->normalize_source( $file_path, (array) $options );
 		if ( ! file_exists( $file_path ) ) {
@@ -238,7 +249,12 @@ class CSV_Format implements File_Format_Interface {
 		}
 	}
 
-	/** Read headers, sample and logical row count from one CSV stream. */
+	/**
+	 * Read headers, sample and logical row count from one CSV stream.
+	 *
+	 * @param mixed $path    Path of the CSV file.
+	 * @param array $options Parser options.
+	 */
 	public function preview( $path, array $options = array() ) {
 		list( $path, $options ) = $this->normalize_source( $path, (array) $options );
 		$result                 = array(
@@ -643,7 +659,7 @@ class CSV_Format implements File_Format_Interface {
 	/**
 	 * Convert text to UTF-8 with whichever extension supports the encoding.
 	 *
-	 * mbstring has no Windows-1250, iconv on some systems has no UTF-16, so neither
+	 * The mbstring extension has no Windows-1250 and iconv on some systems has no UTF-16, so neither
 	 * alone covers every encoding the importer offers.
 	 *
 	 * @param string $text     Text.
@@ -827,7 +843,7 @@ class CSV_Format implements File_Format_Interface {
 
 	/** * Read a possibly multiline CSV record (for quoted fields containing newlines).
 	 *
-	 * @param resource $handle   File handle.
+	 * @param resource $handle    File handle.
 	 * @param string   $enclosure Enclosure char.
 	 * @param string   $escape    Escape char.
 	 * @return string|false Record line or false on EOF
@@ -1018,7 +1034,7 @@ class CSV_Format implements File_Format_Interface {
 	 * Count rows in CSV file
 	 *
 	 * @param string $file_path Absolute path to file.
-	 * @param array  $options Optional parser settings.
+	 * @param array  $options   Optional parser settings.
 	 * @return int|\WP_Error Row count or WP_Error on failure
 	 */
 	public function count_rows( $file_path, $options = array() ) {

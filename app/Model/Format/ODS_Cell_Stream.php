@@ -1,11 +1,29 @@
 <?php
-/** Read ODS cell repetitions without retaining a worksheet DOM. */
+/**
+ * Read ODS cell repetitions without retaining a worksheet DOM.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Streams the cells of an ODS worksheet.
+ */
 class ODS_Cell_Stream {
 	private const TABLE = 'urn:oasis:names:tc:opendocument:xmlns:table:1.0';
+	/**
+	 * Stream the cells of the selected worksheet one at a time.
+	 *
+	 * @param Spreadsheet_XML_Parts $parts      Opened parts of the ODS archive.
+	 * @param mixed                 $selected   Worksheet chosen by ODS_Sheet_Selector.
+	 * @param array|null            $checkpoint Checkpoint to resume from; updated while reading.
+	 * @param bool                  $compact    Whether to return only cells that hold a value.
+	 * @return \Generator Cells with their row, column and value.
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	public static function cells( Spreadsheet_XML_Parts $parts, $selected, &$checkpoint = null, $compact = false ) {
 		$resume            = func_num_args() > 2;
 		$decoder           = new ODS_Cell_Decoder();
@@ -109,6 +127,14 @@ class ODS_Cell_Stream {
 				$checkpoint['state'][ $field ] = $$field; }
 		}
 	}
+	/**
+	 * Read a repeat count attribute, such as the number of identical columns or rows.
+	 *
+	 * @param \XMLReader $node      XML reader positioned on the element.
+	 * @param mixed      $attribute Attribute name to read.
+	 * @return int Repeat count, at least 1.
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	private static function repeat( \XMLReader $node, $attribute ) {
 		$value = $node->getAttributeNs( $attribute, self::TABLE );
 		if ( null === $value ) {

@@ -13,6 +13,9 @@ namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Reads and writes XML files.
+ */
 class XML_Format implements File_Format_Interface {
 
 	/**
@@ -56,7 +59,14 @@ class XML_Format implements File_Format_Interface {
 	}
 
 
-	/** Stream records while validating the complete document before publication. */
+	/**
+	 * Stream records while validating the complete document before publication.
+	 *
+	 * @param mixed      $file_path Path of the XML file.
+	 * @param array      $options   Parser options (record element, flattening).
+	 * @param array|null $cursor    Resume cursor from a previous call; updated as rows are read.
+	 * @throws \RuntimeException When the document is invalid.
+	 */
 	public function rows( $file_path, $options = array(), &$cursor = null ) {
 		// Cursor and spool identities stay keyed by the caller's options; the
 		// detected record element depends only on the (fingerprinted) file.
@@ -109,7 +119,12 @@ class XML_Format implements File_Format_Interface {
 		);
 	}
 
-	/** Detect byte width once; old cursors retain their established decoder. */
+	/**
+	 * Detect byte width once; old cursors retain their established decoder.
+	 *
+	 * @param mixed $path Path of the XML file.
+	 * @return array|false Encoding name, byte width and byte order, or false when the file cannot be read.
+	 */
 	private function seekable_encoding( $path ) {
 		$input = fopen( $path, 'rb' );
 		if ( ! $input ) {
@@ -156,7 +171,18 @@ class XML_Format implements File_Format_Interface {
 		return $encoding;
 	}
 
-	/** Resume from a source byte boundary with inherited element/namespace context. */
+	/**
+	 * Resume from a source byte boundary with inherited element/namespace context.
+	 *
+	 * @param mixed $path     Path of the XML file.
+	 * @param mixed $options  Parser options.
+	 * @param mixed $cursor   Resume cursor.
+	 * @param mixed $identity Fingerprint of the file and options the cursor belongs to.
+	 * @param mixed $settings Resolved record settings.
+	 * @param mixed $encoding Encoding details from seekable_encoding().
+	 * @return \Generator
+	 * @throws \RuntimeException When the document is invalid.
+	 */
 	private function seekable_rows( $path, $options, &$cursor, $identity, $settings, $encoding ) {
 		$initial = array(
 			'offset'      => 0,
@@ -210,7 +236,15 @@ class XML_Format implements File_Format_Interface {
 		if ( ! hash_equals( $digest, (string) hash_file( 'sha256', $path ) ) ) {
 			throw new \RuntimeException( esc_html__( 'Changed XML prefix.', 'import-export-by-rockstarlab' ) ); }
 	}
-	/** XMLReader validates source documents or isolated fragments with ancestor context. */
+	/**
+	 * XMLReader validates source documents or isolated fragments with ancestor context.
+	 *
+	 * @param mixed $file_path Path of the XML file.
+	 * @param mixed $options   Parser options.
+	 * @param bool  $memory    Whether to read the whole document in memory.
+	 * @return \Generator
+	 * @throws \RuntimeException When the document is invalid.
+	 */
 	private function document_rows( $file_path, $options, $memory = false ) {
 		$reader   = new \XMLReader();
 		$previous = libxml_use_internal_errors( true );
@@ -274,6 +308,7 @@ class XML_Format implements File_Format_Interface {
 	 * Parse single XML element into array
 	 *
 	 * @param \XMLReader $reader XMLReader instance.
+	 * @param bool       $flat   Whether to flatten nested elements into one level.
 	 * @return array|\WP_Error Parsed element data or WP_Error on failure.
 	 */
 	private function parse_xml_element( $reader, $flat = false ) {
@@ -985,8 +1020,9 @@ class XML_Format implements File_Format_Interface {
 	/**
 	 * Write array data to XML
 	 *
-	 * @param \XMLWriter $xml  XMLWriter instance.
-	 * @param array      $data Data to write.
+	 * @param \XMLWriter $xml   XMLWriter instance.
+	 * @param array      $data  Data to write.
+	 * @param int        $depth Nesting level, used to keep empty values distinct.
 	 */
 	private function write_xml_array( $xml, $data, $depth = 0 ) {
 		foreach ( $data as $key => $value ) {

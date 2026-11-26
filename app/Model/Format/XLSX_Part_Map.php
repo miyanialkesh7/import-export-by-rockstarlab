@@ -1,15 +1,30 @@
 <?php
-/** Resolve import parts without retaining the package relationship tables. */
+/**
+ * Resolve import parts without retaining the package relationship tables.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Finds the worksheet, shared-string, style and theme parts of an XLSX workbook.
+ */
 class XLSX_Part_Map {
 
 	private const MAIN = array( 'http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'http://purl.oclc.org/ooxml/spreadsheetml/main' );
 	private const REL  = array( 'http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'http://purl.oclc.org/ooxml/officeDocument/relationships' );
 
-	/** Data-only XLSX imports use the first sheet, independently of activeTab. */
+	/**
+	 * Data-only XLSX imports use the first sheet, independently of activeTab.
+	 *
+	 * @param Spreadsheet_XML_Parts $parts       Opened parts of the XLSX archive.
+	 * @param int                   $sheet_index Zero-based index of the worksheet to read.
+	 * @return array Part names by role.
+	 * @throws \RuntimeException When the index is invalid or the workbook structure is ambiguous.
+	 */
 	public static function resolve( Spreadsheet_XML_Parts $parts, $sheet_index = 0 ) {
 		if ( ! is_int( $sheet_index ) || $sheet_index < 0 ) {
 			throw new \RuntimeException( esc_html__( 'Invalid worksheet index.', 'import-export-by-rockstarlab' ) ); }
@@ -100,6 +115,8 @@ class XLSX_Part_Map {
 	 * The worksheet stores 13.80 as 13.8; the style says how many decimals were shown,
 	 * so the importer can read back the same text that was exported.
 	 *
+	 * @param Spreadsheet_XML_Parts $parts Opened parts of the XLSX archive.
+	 * @param mixed                 $path  Part name of the styles file.
 	 * @return array<int,int> Style index => decimals.
 	 */
 	private static function fixed_decimals( Spreadsheet_XML_Parts $parts, $path ) {
@@ -183,6 +200,8 @@ class XLSX_Part_Map {
 	 * Cell styles that show a number as a date or time. The worksheet stores dates as
 	 * serial numbers (45366.39 = 15 March 2024 09:30), which are useless after import.
 	 *
+	 * @param Spreadsheet_XML_Parts $parts Opened parts of the XLSX archive.
+	 * @param mixed                 $path  Part name of the styles file.
 	 * @return array<int,string> Style index => 'date', 'datetime' or 'time'.
 	 */
 	private static function date_styles( Spreadsheet_XML_Parts $parts, $path ) {
@@ -232,7 +251,11 @@ class XLSX_Part_Map {
 		return $styles;
 	}
 
-	/** Whether a custom number format shows a date, a date and time, or a time. */
+	/**
+	 * Whether a custom number format shows a date, a date and time, or a time.
+	 *
+	 * @param mixed $code Number format code.
+	 */
 	private static function date_kind( $code ) {
 		// Drop quoted text, escaped characters, colors/conditions and the elapsed-time brackets.
 		$plain = preg_replace( array( '/"[^"]*"/', '/\\\\./', '/\[[^\]]*\]/' ), '', strtolower( explode( ';', $code )[0] ) );
@@ -245,7 +268,11 @@ class XLSX_Part_Map {
 		return $time ? 'time' : null;
 	}
 
-	/** Yield theme parts without collecting relationship records. */
+	/**
+	 * Yield theme parts without collecting relationship records.
+	 *
+	 * @param Spreadsheet_XML_Parts $parts Opened parts of the XLSX archive.
+	 */
 	public static function themes( Spreadsheet_XML_Parts $parts ) {
 		foreach ( self::relationships( $parts, '_rels/.rels' ) as $root ) {
 			if ( ! self::type( $root['type'], 'officeDocument' ) ) {
@@ -260,6 +287,14 @@ class XLSX_Part_Map {
 		}
 	}
 
+	/**
+	 * Read the relationship records of a part.
+	 *
+	 * @param Spreadsheet_XML_Parts $parts Opened parts of the XLSX archive.
+	 * @param mixed                 $name  Name of the .rels part.
+	 * @return \Generator Relationships with their type, target and mode.
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	private static function relationships( Spreadsheet_XML_Parts $parts, $name ) {
 		$namespace = 'http://schemas.openxmlformats.org/package/2006/relationships';
 		$root      = false;
@@ -284,6 +319,13 @@ class XLSX_Part_Map {
 			throw new \RuntimeException( esc_html__( 'Missing spreadsheet relationships.', 'import-export-by-rockstarlab' ) ); }
 	}
 
+	/**
+	 * Tell whether a relationship type ends in the given suffix, in either OOXML namespace.
+	 *
+	 * @param mixed $type   Relationship type URI.
+	 * @param mixed $suffix Type name, for example worksheet.
+	 * @return bool
+	 */
 	private static function type( $type, $suffix ) {
 		foreach ( self::REL as $namespace ) {
 			if ( $namespace . '/' . $suffix === $type ) {
@@ -292,6 +334,14 @@ class XLSX_Part_Map {
 		return false;
 	}
 
+	/**
+	 * Turn a relationship target into an archive part name, rejecting external or unsafe targets.
+	 *
+	 * @param mixed $source Directory of the part that holds the relationship.
+	 * @param array $rel    Relationship record.
+	 * @return string|false Part name, or false when the target is not allowed.
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	private static function target( $source, array $rel ) {
 		$target = $rel['target'];
 		if ( ! in_array( $rel['mode'], array( null, '', 'Internal' ), true ) || ! is_string( $target ) || '' === $target || preg_match( '/[\\\\\\x00-\\x20?#:]|^\/\//', $target ) ) {

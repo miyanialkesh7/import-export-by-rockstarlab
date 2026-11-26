@@ -13,6 +13,9 @@ namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Reads and writes JSON files.
+ */
 class JSON_Format implements File_Format_Interface {
 
 	/**
@@ -94,7 +97,13 @@ class JSON_Format implements File_Format_Interface {
 		return $this->scan_rows( $file_path, $offset, $limit, $options );
 	}
 
-	/** Iterate validated rows; legacy objects use a private disk index for duplicate keys. */
+	/**
+	 * Iterate validated rows; legacy objects use a private disk index for duplicate keys.
+	 *
+	 * @param mixed $path    Path of the JSON file.
+	 * @param array $options Parser options (for example which key holds the records).
+	 * @throws \RuntimeException When the file cannot be read.
+	 */
 	public function rows( $path, array $options = array() ) {
 		$handle = @fopen( $path, 'rb' );
 		if ( ! $handle ) {
@@ -362,7 +371,12 @@ class JSON_Format implements File_Format_Interface {
 		return array_keys( $value ) === range( 0, count( $value ) - 1 );
 	}
 
-	/** Validate every item and derive preview metadata from one container scan. */
+	/**
+	 * Validate every item and derive preview metadata from one container scan.
+	 *
+	 * @param mixed $path    Path of the JSON file.
+	 * @param array $options Parser options.
+	 */
 	public function preview( $path, array $options = array() ) {
 		$result = array(
 			'headers'    => array(),
@@ -606,7 +620,15 @@ class JSON_Format implements File_Format_Interface {
 		return $this->scan_rows( $file_path, 0, 0, array(), true );
 	}
 
-	/** Validate the entire document while retaining only the requested rows. */
+	/**
+	 * Validate the entire document while retaining only the requested rows.
+	 *
+	 * @param mixed $path       Path of the JSON file.
+	 * @param mixed $offset     Number of rows to skip.
+	 * @param mixed $limit      Maximum number of rows to keep.
+	 * @param array $options    Parser options.
+	 * @param bool  $count_only Whether to only count the rows without keeping any.
+	 */
 	private function scan_rows( $path, $offset, $limit, array $options, $count_only = false ) {
 		// Preserve native key and slicing semantics while bounding retained rows.
 		$stream = @fopen( $path, 'rb' );

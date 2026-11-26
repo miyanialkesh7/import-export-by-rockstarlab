@@ -1,10 +1,26 @@
 <?php
-/** Resolve the stored ODS active sheet without loading settings/content documents. */
+/**
+ * Resolve the stored ODS active sheet without loading settings/content documents.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Chooses which ODS worksheet to import.
+ */
 class ODS_Sheet_Selector {
+	/**
+	 * Choose the worksheet to read: the active one when the settings name it, otherwise the first.
+	 *
+	 * @param Spreadsheet_XML_Parts $parts      Opened parts of the ODS archive.
+	 * @param array|null            $checkpoint Checkpoint to resume from; updated while reading.
+	 * @return array Selected worksheet descriptor.
+	 * @throws \RuntimeException When the spreadsheet data is invalid or cannot be read.
+	 */
 	public static function select( Spreadsheet_XML_Parts $parts, &$checkpoint = null ) {
 		$resume = func_num_args() > 1;
 		$active = $checkpoint['active'] ?? null;

@@ -1,10 +1,25 @@
 <?php
-/** Validate required theme structure without retaining palettes or font lists. */
+/**
+ * Validate required theme structure without retaining palettes or font lists.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Validates the theme parts of an XLSX workbook.
+ */
 class XLSX_Theme_Validator {
+	/**
+	 * Check that every theme part of the workbook is well-formed XML.
+	 *
+	 * @param Spreadsheet_XML_Parts $parts Opened parts of the XLSX archive.
+	 * @return null|void Nothing; stops at the first invalid theme part.
+	 * @throws \RuntimeException When a theme part is invalid.
+	 */
 	public static function validate( Spreadsheet_XML_Parts $parts ) {
 		foreach ( XLSX_Part_Map::themes( $parts ) as $path ) {
 			try {

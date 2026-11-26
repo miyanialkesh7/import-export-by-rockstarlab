@@ -1,17 +1,52 @@
 <?php
-/** Bounded ZIP-to-XML staging for spreadsheet readers. */
+/**
+ * Bounded ZIP-to-XML staging for spreadsheet readers.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fclose,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents,WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fread,WordPress.WP.AlternativeFunctions.file_system_operations_fwrite,WordPress.WP.AlternativeFunctions.file_system_operations_mkdir,WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Reads the XML parts of a spreadsheet archive without loading them whole.
+ */
 class Spreadsheet_XML_Parts {
+	/**
+	 * The opened spreadsheet archive.
+	 *
+	 * @var \ZipArchive|null
+	 */
 	private $zip;
+	/**
+	 * Directory that holds the staged parts.
+	 *
+	 * @var string
+	 */
 	private $directory;
+	/**
+	 * Paths of the staged parts by part name.
+	 *
+	 * @var array
+	 */
 	private $paths      = array();
+	/**
+	 * Whether the directory was supplied by the caller and must be kept.
+	 *
+	 * @var bool
+	 */
 	private $persistent = false;
 
+	/**
+	 * Open a spreadsheet archive.
+	 *
+	 * @param mixed $path      Path of the XLSX or ODS file.
+	 * @param mixed $directory Existing directory to keep staged parts in, or null for a temporary one.
+	 * @throws \RuntimeException When the archive is invalid or the staging directory cannot be created.
+	 */
 	public function __construct( $path, $directory = null ) {
 		$this->zip = new \ZipArchive();
 		if ( true !== $this->zip->open( $path ) ) {
@@ -23,10 +58,22 @@ class Spreadsheet_XML_Parts {
 			throw new \RuntimeException( esc_html__( 'Cannot stage spreadsheet XML.', 'import-export-by-rockstarlab' ) ); }
 	}
 
+	/**
+	 * Tell whether the archive contains a part.
+	 *
+	 * @param mixed $name Part name inside the archive.
+	 * @return bool
+	 */
 	public function has( $name ) {
 		return false !== $this->zip->locateName( $name ); }
 
-	/** ZIP names are lookup keys only; they never become filesystem paths. */
+	/**
+	 * ZIP names are lookup keys only; they never become filesystem paths.
+	 *
+	 * @param mixed $name Part name inside the archive.
+	 * @return string Path of the staged part.
+	 * @throws \RuntimeException When the part is missing or too large.
+	 */
 	public function path( $name ) {
 		if ( isset( $this->paths[ $name ] ) ) {
 			return $this->paths[ $name ]; }
@@ -76,7 +123,13 @@ class Spreadsheet_XML_Parts {
 		}
 	}
 
-	/** Stage a large XML member over requests before opening its parser. */
+	/**
+	 * Stage a large XML member over requests before opening its parser.
+	 *
+	 * @param mixed $name   Part name inside the archive.
+	 * @param array $cursor Copy position, updated until the part is fully staged.
+	 * @throws \RuntimeException When the part is unsafe or cannot be copied.
+	 */
 	public function stage( $name, array &$cursor ) {
 		$path = $this->directory . '/' . hash( 'sha256', $name );
 		if ( is_link( $path ) || is_link( $path . '.ready' ) ) {
@@ -97,7 +150,14 @@ class Spreadsheet_XML_Parts {
 		return true;
 	}
 
-	/** Visit XML nodes without enabling external entities or document types. */
+	/**
+	 * Visit XML nodes without enabling external entities or document types.
+	 *
+	 * @param mixed      $name       Part name inside the archive.
+	 * @param array|null $checkpoint Checkpoint to resume from, or null to read the whole part.
+	 * @return \Generator XMLReader nodes.
+	 * @throws \RuntimeException When the part is not valid XML.
+	 */
 	public function nodes( $name, &$checkpoint = null ) {
 		if ( func_num_args() > 1 ) {
 			yield from $this->slice_nodes( $name, $checkpoint );
@@ -124,7 +184,14 @@ class Spreadsheet_XML_Parts {
 		}
 	}
 
-	/** Read a bounded set of complete cell/string fragments from a byte checkpoint. */
+	/**
+	 * Read a bounded set of complete cell/string fragments from a byte checkpoint.
+	 *
+	 * @param mixed $name       Part name inside the archive.
+	 * @param mixed $checkpoint Checkpoint to resume from.
+	 * @return \Generator
+	 * @throws \RuntimeException When the part is not valid XML.
+	 */
 	private function slice_nodes( $name, &$checkpoint ) {
 		$state   = $checkpoint['xml'] ?? array(
 			'offset'      => 0,
@@ -180,7 +247,12 @@ class Spreadsheet_XML_Parts {
 		}
 	}
 
-	/** Release only after readers for this part have closed; it can be staged again. */
+	/**
+	 * Release only after readers for this part have closed; it can be staged again.
+	 *
+	 * @param mixed $name Part name inside the archive.
+	 * @throws \RuntimeException When the staged file cannot be removed.
+	 */
 	public function release( $name ) {
 		if ( $this->persistent ) {
 			return; }
@@ -195,6 +267,11 @@ class Spreadsheet_XML_Parts {
 		unset( $this->paths[ $name ] );
 	}
 
+	/**
+	 * Close the archive and remove the staged parts.
+	 *
+	 * @return void
+	 */
 	public function close() {
 		if ( $this->zip ) {
 			$this->zip->close();
@@ -209,6 +286,9 @@ class Spreadsheet_XML_Parts {
 		$this->paths = array();
 	}
 
+	/**
+	 * Close the archive when the object is released.
+	 */
 	public function __destruct() {
 		$this->close(); }
 }

@@ -4,7 +4,10 @@
  *
  * Parse errors that JSON_Format::invalid_json_error() turns into a translated hint are
  * thrown in English on purpose: the message is the lookup key, not text for the reader.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
  */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fclose,WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fread -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
@@ -13,6 +16,15 @@ defined( 'ABSPATH' ) || exit;
 
 /** Keeps only one encoded row in memory; json_decode validates each value. */
 class JSON_Row_Stream {
+	/**
+	 * Stream the records of a JSON array one at a time, with a cursor to resume from.
+	 *
+	 * @param mixed      $path    Path of the JSON file.
+	 * @param array      $options Parser options.
+	 * @param array|null $cursor  Resume cursor; updated as records are read.
+	 * @return \Generator Rows keyed by position.
+	 * @throws \RuntimeException When the file cannot be read or is not a valid JSON container.
+	 */
 	public static function rows( $path, array $options = array(), &$cursor = null ) {
 		$stream = fopen( $path, 'rb' );
 		if ( ! $stream ) {

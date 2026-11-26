@@ -1,11 +1,25 @@
 <?php
-/** Complete XLSX staging before exposing normalized import rows. */
+/**
+ * Complete XLSX staging before exposing normalized import rows.
+ *
+ * @package RockStarLab\ImportExport\Model\Format
+ */
+
 namespace RockStarLab\ImportExport\Model\Format;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Streams the rows of an XLSX worksheet.
+ */
 class XLSX_Row_Stream {
-	/** Validate every worksheet's cells without retaining their values. */
+	/**
+	 * Validate every worksheet's cells without retaining their values.
+	 *
+	 * @param mixed $path           Path of the XLSX file.
+	 * @param bool  $validate_theme Whether to also validate the theme parts.
+	 * @return true|\WP_Error
+	 */
 	public static function validate_cells( $path, $validate_theme = false ) {
 		$parts   = new Spreadsheet_XML_Parts( $path );
 		$strings = null;
@@ -33,21 +47,51 @@ class XLSX_Row_Stream {
 			} $parts->close(); }
 	}
 
+	/**
+	 * Read the header row of the worksheet.
+	 *
+	 * @param mixed $path    Path of the XLSX file.
+	 * @param array $options Reader options.
+	 * @return array Header names.
+	 */
 	public static function headers( $path, array $options = array() ) {
 		foreach ( self::scan( $path, $options, true ) as $headers ) {
 			return $headers; }
 	}
 
-	/** Return complete worksheet metadata and a bounded sample from one staging pass. */
+	/**
+	 * Return complete worksheet metadata and a bounded sample from one staging pass.
+	 *
+	 * @param mixed $path    Path of the XLSX file.
+	 * @param array $options Reader options.
+	 */
 	public static function preview( $path, array $options = array() ) {
 		foreach ( self::scan( $path, $options, false, true ) as $summary ) {
 			return $summary;
 		}
 	}
 
+	/**
+	 * Stream the rows of the worksheet as associative arrays.
+	 *
+	 * @param mixed      $path        Path of the XLSX file.
+	 * @param array      $options     Reader options.
+	 * @param array|null $raw_headers Receives the header row as it appears in the file.
+	 * @return \Generator
+	 */
 	public static function rows( $path, array $options = array(), &$raw_headers = null ) {
 		yield from self::scan( $path, $options, false, false, $raw_headers ); }
 
+	/**
+	 * Stage the worksheet cells on disk and yield headers, a preview or rows from them.
+	 *
+	 * @param mixed      $path         Path of the XLSX file.
+	 * @param array      $options      Reader options.
+	 * @param mixed      $headers_only Whether to stop after the header row.
+	 * @param bool       $preview      Whether to yield a bounded sample with metadata.
+	 * @param array|null $raw_headers  Receives the header row as it appears in the file.
+	 * @return \Generator
+	 */
 	private static function scan( $path, array $options, $headers_only, $preview = false, &$raw_headers = null ) {
 		$parts = null;
 		$store = null;
