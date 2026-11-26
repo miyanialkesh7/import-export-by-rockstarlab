@@ -52,7 +52,7 @@ class Content_Sync_Service {
 	 * Invoke the standalone ability contract under its owning provider.
 	 *
 	 * @param string $action Operation.
-	 * @param array  $input Parsed input.
+	 * @param array  $input  Parsed input.
 	 * @param string $domain Server-selected domain.
 	 * @return array|\WP_Error
 	 */
@@ -104,7 +104,7 @@ class Content_Sync_Service {
 	/**
 	 * Select the server-owned Free policy; callers cannot set it through input.
 	 *
-	 * @param bool   $free_scope Restrict to the provider ability domain.
+	 * @param bool   $free_scope   Restrict to the provider ability domain.
 	 * @param string $policy_class Server-selected provider policy.
 	 */
 	public function __construct( $free_scope = false, $policy_class = Sync_Policy::class ) {
@@ -117,7 +117,7 @@ class Content_Sync_Service {
 	 * Dispatch an explicit service operation.
 	 *
 	 * @param string $action Operation name.
-	 * @param array  $input Parsed input, independent of HTTP globals.
+	 * @param array  $input  Parsed input, independent of HTTP globals.
 	 * @return array|\WP_Error
 	 */
 	public function execute( $action, array $input = array() ) {
@@ -480,7 +480,7 @@ class Content_Sync_Service {
 	/**
 	 * Return commentable post types for comments vs WooCommerce reviews.
 	 *
-	 * @param string $comment_type Comment subtype.
+	 * @param string $comment_type        Comment subtype.
 	 * @param string $requested_post_type Requested post type.
 	 * @return string|array
 	 */
@@ -913,8 +913,8 @@ class Content_Sync_Service {
 	/**
 	 * Post type recorded for a content sync history row.
 	 *
-	 * @param string       $direction push|pull.
-	 * @param array        $post_ids Selected post IDs.
+	 * @param string       $direction    push|pull.
+	 * @param array        $post_ids     Selected post IDs.
 	 * @param array|string $post_mapping Explicit source/target mapping.
 	 * @return string
 	 */
@@ -940,9 +940,9 @@ class Content_Sync_Service {
 	/**
 	 * Create a Jobs Log row for immediate content sync actions.
 	 *
-	 * @param string $direction push|pull.
-	 * @param array  $site Connected site.
-	 * @param array  $post_ids Selected post IDs.
+	 * @param string $direction    push|pull.
+	 * @param array  $site         Connected site.
+	 * @param array  $post_ids     Selected post IDs.
 	 * @param array  $post_mapping Explicit source/target mapping.
 	 * @return int
 	 * @throws \RuntimeException When the history row cannot be created.
@@ -1000,9 +1000,9 @@ class Content_Sync_Service {
 	/**
 	 * Mark a content sync job complete with debug details.
 	 *
-	 * @param int   $job_id Job ID.
+	 * @param int   $job_id    Job ID.
 	 * @param int   $processed Processed count.
-	 * @param array $result Debug result.
+	 * @param array $result    Debug result.
 	 * @return void
 	 */
 	private function complete_content_sync_job( $job_id, $processed, $result ) {
@@ -1040,7 +1040,7 @@ class Content_Sync_Service {
 	/**
 	 * Mark a content sync job failed.
 	 *
-	 * @param int    $job_id Job ID.
+	 * @param int    $job_id  Job ID.
 	 * @param string $message Error message.
 	 * @return void
 	 */
@@ -1073,10 +1073,10 @@ class Content_Sync_Service {
 	/**
 	 * POST to a connected site's Content Sync REST API and decode response.
 	 *
-	 * @param array  $site Connected site record.
+	 * @param array  $site     Connected site record.
 	 * @param string $endpoint Remote endpoint without namespace.
-	 * @param array  $payload JSON payload.
-	 * @param int    $timeout Request timeout.
+	 * @param array  $payload  JSON payload.
+	 * @param int    $timeout  Request timeout.
 	 * @return array|\WP_Error
 	 */
 	/**
@@ -1130,6 +1130,15 @@ class Content_Sync_Service {
 		return $ancestors;
 	}
 
+	/**
+	 * Send an authenticated POST request to a connected site.
+	 *
+	 * @param mixed $site     Connected site record.
+	 * @param mixed $endpoint REST route on the connected site.
+	 * @param mixed $payload  Request payload.
+	 * @param int   $timeout  Timeout in seconds.
+	 * @return array|\WP_Error Decoded response, or an error.
+	 */
 	private function remote_post( $site, $endpoint, $payload, $timeout = 30 ) {
 		$response = \RockStarLab\ImportExport\Helper\Remote_API::post(
 			$site['remote_url'],
@@ -1167,7 +1176,7 @@ class Content_Sync_Service {
 	/**
 	 * Extract a readable message from a remote REST error response.
 	 *
-	 * @param mixed $data Remote decoded response.
+	 * @param mixed $data        Remote decoded response.
 	 * @param int   $status_code HTTP status code.
 	 * @return string
 	 */
@@ -1968,7 +1977,7 @@ class Content_Sync_Service {
 	 * Upload images to remote site
 	 *
 	 * @param array $images Array of image data.
-	 * @param array $site Site connection data.
+	 * @param array $site   Site connection data.
 	 * @return array Mapping of old attachment IDs to new ones
 	 */
 	private function upload_images_to_remote( $images, $site ) {
@@ -1994,7 +2003,7 @@ class Content_Sync_Service {
 	 * Download remote image payloads and return source attachment ID => local ID map.
 	 *
 	 * @param array $remote_images Remote image payloads.
-	 * @param array $site Connected site.
+	 * @param array $site          Connected site.
 	 * @return array<int,int>
 	 */
 	private function download_remote_images_for_sync( $remote_images, $site ) {
@@ -2022,7 +2031,7 @@ class Content_Sync_Service {
 	 * Upload single image to remote site
 	 *
 	 * @param array $image Image data.
-	 * @param array $site Site connection data.
+	 * @param array $site  Site connection data.
 	 * @return int Confirmed destination attachment ID.
 	 * @throws \RuntimeException If media transfer fails before content can be sent.
 	 */
@@ -3202,9 +3211,9 @@ class Content_Sync_Service {
 	/**
 	 * Download image from remote site
 	 *
-	 * @param array $image Image data from remote.
-	 * @param array $site Site connection data.
-	 * @param mixed $image_map Image map.
+	 * @param array $image         Image data from remote.
+	 * @param array $site          Site connection data.
+	 * @param mixed $image_map     Image map.
 	 * @param mixed $image_sources Image sources.
 	 * @return int Confirmed destination attachment ID.
 	 * @throws \RuntimeException If media cannot be downloaded or imported.
@@ -3221,7 +3230,7 @@ class Content_Sync_Service {
 	 * Complete attachment fields after every media dependency has a destination ID.
 	 *
 	 * @param array $images Source media.
-	 * @param array $map Complete source-to-target mapping.
+	 * @param array $map    Complete source-to-target mapping.
 	 * @return void
 	 * @throws \RuntimeException If destination metadata cannot be applied.
 	 */
@@ -3318,7 +3327,7 @@ class Content_Sync_Service {
 	 *
 	 * @param int   $post_id  Local post ID.
 	 * @param array $comments Synced comments payload.
-	 * @param array $users Server-validated comment-to-local-user assignments.
+	 * @param array $users    Server-validated comment-to-local-user assignments.
 	 * @return void|\WP_Error
 	 */
 	private function import_synced_comments( $post_id, $comments, array $users = array() ) {
@@ -3428,8 +3437,8 @@ class Content_Sync_Service {
 	/**
 	 * Find an existing synced comment on a local post.
 	 *
-	 * @param int $post_id            Local post ID.
-	 * @param int $source_comment_id  Source comment ID.
+	 * @param int $post_id           Local post ID.
+	 * @param int $source_comment_id Source comment ID.
 	 * @return int
 	 */
 	private function find_existing_comment_by_original_id( $post_id, $source_comment_id ) {
@@ -3450,8 +3459,8 @@ class Content_Sync_Service {
 	/**
 	 * Import standalone synced comments by resolving each target post first.
 	 *
-	 * @param array $comments Comment payloads.
-	 * @param mixed $post_mapping Post mapping.
+	 * @param array $comments       Comment payloads.
+	 * @param mixed $post_mapping   Post mapping.
 	 * @param mixed $target_post_id Target post id.
 	 * @return array Counts.
 	 */
@@ -3720,8 +3729,8 @@ class Content_Sync_Service {
 	 * @param int   $parent_post_id Local product post ID.
 	 * @param array $variations     Variation data from the source site.
 	 * @param array $image_map      Source attachment ID => local attachment ID map.
-	 * @param mixed $image_sources Image sources.
-	 * @param bool  $verified Whether to require confirmed variation identities.
+	 * @param mixed $image_sources  Image sources.
+	 * @param bool  $verified       Whether to require confirmed variation identities.
 	 * @return mixed
 	 */
 	private function import_product_variations( $parent_post_id, $variations, $image_map, $image_sources = array(), $verified = false ) {
@@ -3742,7 +3751,7 @@ class Content_Sync_Service {
 	 * @param int   $parent_post_id Local grouped product post ID.
 	 * @param array $children       Child product data from the source site.
 	 * @param array $image_map      Source attachment ID => local attachment ID map.
-	 * @param mixed $image_sources Image sources.
+	 * @param mixed $image_sources  Image sources.
 	 * @return int[]
 	 */
 	private function import_grouped_children( $parent_post_id, $children, $image_map, $image_sources = array() ) {
@@ -3760,7 +3769,7 @@ class Content_Sync_Service {
 	/**
 	 * Convert flat ACF meta structure to hierarchical for repeater/flexible content fields
 	 *
-	 * @param array $meta Post meta array.
+	 * @param array $meta           Post meta array.
 	 * @param array $acf_field_keys ACF field keys mapping.
 	 * @return array Modified meta array
 	 */
@@ -3850,9 +3859,9 @@ class Content_Sync_Service {
 	/**
 	 * Extract nested repeater data recursively
 	 *
-	 * @param array  $meta Post meta array.
-	 * @param string $parent_prefix Parent field prefix (e.g., "repeater_0_nested_repeater").
-	 * @param int    $row_count Number of rows.
+	 * @param array  $meta           Post meta array.
+	 * @param string $parent_prefix  Parent field prefix (e.g., "repeater_0_nested_repeater").
+	 * @param int    $row_count      Number of rows.
 	 * @param array  $acf_field_keys ACF field keys mapping.
 	 * @return array Nested rows data
 	 */
@@ -4074,7 +4083,7 @@ class Content_Sync_Service {
 	/**
 	 * Sync woocommerce product type.
 	 *
-	 * @param mixed $post_id Post id.
+	 * @param mixed $post_id   Post id.
 	 * @param array $post_data Post data.
 	 * @return mixed
 	 */
@@ -4270,9 +4279,9 @@ class Content_Sync_Service {
 	/**
 	 * Preserve taxonomy WYSIWYG shortcodes in sync payloads.
 	 *
-	 * @param mixed $term_id Term id.
+	 * @param mixed $term_id    Term id.
 	 * @param mixed $field_name Field name.
-	 * @param mixed $field Field.
+	 * @param mixed $field      Field.
 	 */
 	private function export_term_acf_sync_value( $term_id, $field_name, $field ) {
 		$type = is_array( $field ) ? (string) ( $field['type'] ?? '' ) : '';
@@ -4394,7 +4403,7 @@ class Content_Sync_Service {
 	/**
 	 * Get term acf field objects.
 	 *
-	 * @param mixed $term_id Term id.
+	 * @param mixed $term_id  Term id.
 	 * @param mixed $taxonomy Taxonomy.
 	 * @return array|false
 	 */
@@ -4611,6 +4620,7 @@ class Content_Sync_Service {
 	 *
 	 * @param string $taxonomy Taxonomy name.
 	 * @param string $path     Parent slug path.
+	 * @param array  $names    Term names by slug, used when a missing parent term has to be created.
 	 * @return int Final parent term ID.
 	 */
 	private function resolve_synced_term_parent_path( $taxonomy, $path, array $names = array() ) {

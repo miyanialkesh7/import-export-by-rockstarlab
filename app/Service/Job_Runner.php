@@ -70,6 +70,13 @@ class Job_Runner {
 		self::run( $job_id, true );
 	}
 
+	/**
+	 * Run the next batch of a job through the service that owns it.
+	 *
+	 * @param int  $job_id          Job ID.
+	 * @param bool $drain_migration Whether to keep running until the migration batch queue is empty.
+	 * @return mixed Result of the batch, or an error when no service supports the job.
+	 */
 	public static function run( $job_id, $drain_migration = false ) {
 		$job = rsl_ie()->Model->job->find( (int) $job_id );
 		if ( ! $job || ( ! Job_Service::supports( $job ) && ! Sync_Job_Service::supports( $job ) && ! Migration_Service::supports( $job ) && ! AI_URL_Service::supports( $job ) && ! ( 'import' === $job->type && 'media_sync' === $job->data_type ) ) || ! in_array( $job->status, array( 'pending', 'processing' ), true ) ) {

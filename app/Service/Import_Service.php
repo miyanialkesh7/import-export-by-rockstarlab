@@ -105,7 +105,7 @@ class Import_Service {
 	 * Preparation stays in the first batch to preserve the existing async UI.
 	 * No caller-supplied prepared data, offset or execution context is stored.
 	 *
-	 * @param array $input Import request.
+	 * @param array $input               Import request.
 	 * @param int   $migration_parent_id Internal active parent.
 	 * @return array|\WP_Error
 	 */
@@ -422,6 +422,7 @@ class Import_Service {
 	 *
 	 * @param array $request Normalized request.
 	 * @param int   $job_id  Optional job ID for importer logging.
+	 * @param bool  $sample  Sample rows kept for the preview.
 	 * @return array|\WP_Error
 	 */
 	private function prepare_file( array $request, $job_id, $sample = false ) {
@@ -642,7 +643,13 @@ class Import_Service {
 		return is_wp_error( $columns ) ? $columns : $columns[0];
 	}
 
-	/** Prepare supported streamed rows without retaining a complete raw dataset. */
+	/**
+	 * Prepare supported streamed rows without retaining a complete raw dataset.
+	 *
+	 * @param array $request Import or export request.
+	 * @param int   $job_id  Job ID.
+	 * @param bool  $sample  Sample rows kept for the preview.
+	 */
 	private function prepare_streamed_rows( array $request, $job_id, $sample = false ) {
 		$result = array(
 			'data'          => array(),
@@ -739,7 +746,11 @@ class Import_Service {
 		}
 	}
 
-	/** Detect resumable JSON arrays without consuming a container or changing object semantics. */
+	/**
+	 * Detect resumable JSON arrays without consuming a container or changing object semantics.
+	 *
+	 * @param mixed $path Path of the file to inspect.
+	 */
 	private function is_json_array( $path ) {
 		$stream = fopen( $path, 'rb' );
 		if ( ! $stream ) {
@@ -753,7 +764,13 @@ class Import_Service {
 			fclose( $stream ); }
 	}
 
-	/** Prepare one CSV/JSON-array slice; migration posts/pages/comments use their frozen seed maps. */
+	/**
+	 * Prepare one CSV/JSON-array slice; migration posts/pages/comments use their frozen seed maps.
+	 *
+	 * @param mixed $job        Import job record.
+	 * @param array $request    Import or export request.
+	 * @param array $parameters Job parameters the rows belong to.
+	 */
 	private function prepare_resumable_slice( $job, array $request, array &$parameters ) {
 		$state_key = $request['format'] . '_preparation';
 		$state     = $parameters[ $state_key ] ?? null;
@@ -872,7 +889,14 @@ class Import_Service {
 		);
 	}
 
-	/** Retain a witness row for audited all/any validators, preserving error row numbers. */
+	/**
+	 * Retain a witness row for audited all/any validators, preserving error row numbers.
+	 *
+	 * @param array $result Result data.
+	 * @param mixed $sample Sample rows kept for the preview.
+	 * @param mixed $item   Item.
+	 * @param mixed $index  Position.
+	 */
 	private function retain_validation_row( array &$result, $sample, $item, $index ) {
 		if ( is_callable( $sample ) ) {
 			$ordinal = $result['total_count'] + $index;
@@ -882,7 +906,13 @@ class Import_Service {
 			$result['data'][] = $item; }
 	}
 
-	/** Apply the existing importer and relationship policy to one raw row set. */
+	/**
+	 * Apply the existing importer and relationship policy to one raw row set.
+	 *
+	 * @param array $request Import or export request.
+	 * @param int   $job_id  Job ID.
+	 * @param array $data    Rows to prepare.
+	 */
 	private function prepare_rows( array $request, $job_id, array $data ) {
 		$import_type = $request['import_type'];
 		$options     = $request['options'];
@@ -1478,8 +1508,8 @@ class Import_Service {
 	/**
 	 * Finalize a completed child once all parent maps have been collected.
 	 *
-	 * @param int        $id Child ID.
-	 * @param array      $maps Parent-owned maps.
+	 * @param int        $id     Child ID.
+	 * @param array      $maps   Parent-owned maps.
 	 * @param array|null $cursor Parent-owned continuation cursor, when supplied.
 	 * @return bool|\WP_Error
 	 */
@@ -1516,6 +1546,10 @@ class Import_Service {
 	 * the synchronous finalization contract.
 	 * An expired map restarts validation before any further repairs.
 	 *
+	 * @param int   $job_id  Job ID.
+	 * @param int   $count   Number of prepared rows.
+	 * @param array $request Import or export request.
+	 * @param mixed $cursor  Cursor of the prepared rows.
 	 * @return bool|\WP_Error False means another finalization tick is needed.
 	 */
 	private function finalize_stored_rows( $job_id, $count, array $request, &$cursor = null ) {
@@ -1803,9 +1837,10 @@ class Import_Service {
 	/**
 	 * Apply import search/replace rules to prepared import data.
 	 *
-	 * @param array $data    Prepared import rows.
-	 * @param array $options Import options.
-	 * @param int   $replacement_count Number of replacements applied.
+	 * @param array  $data              Prepared import rows.
+	 * @param array  $options           Import options.
+	 * @param int    $replacement_count Number of replacements applied.
+	 * @param string $import_type       Import type.
 	 * @return array Prepared data with replacements applied.
 	 */
 	private function apply_replace_links_rules_to_data( $data, $options, &$replacement_count = 0, $import_type = '' ) {
@@ -1963,8 +1998,8 @@ class Import_Service {
 	 * encoded Elementor/SEO/ACF payloads can be rewritten without changing the
 	 * original structure.
 	 *
-	 * @param mixed $value Value to update.
-	 * @param array $rules Normalized replacement rules.
+	 * @param mixed $value             Value to update.
+	 * @param array $rules             Normalized replacement rules.
 	 * @param int   $replacement_count Number of replacements applied.
 	 * @return mixed Updated value.
 	 */
@@ -1982,6 +2017,15 @@ class Import_Service {
 		return $host && strtolower( (string) $host ) === strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
 	}
 
+	/**
+	 * Apply the replace-links rules to a value, walking arrays and objects.
+	 *
+	 * @param mixed $value             Value.
+	 * @param mixed $rules             Replace-links rules.
+	 * @param int   $replacement_count Number of replacements made so far.
+	 * @param array $source_fields     Names of the fields the value came from.
+	 * @return mixed The value with the rules applied.
+	 */
 	private function apply_replace_links_rules_to_value( $value, $rules, &$replacement_count = 0, array $source_fields = array() ) {
 		if ( is_object( $value ) && $value instanceof \stdClass ) {
 			return (object) $this->apply_replace_links_rules_to_value( (array) $value, $rules, $replacement_count, $source_fields );
@@ -2060,6 +2104,7 @@ class Import_Service {
 	 *
 	 * @param int   $job_id        Job ID.
 	 * @param array $prepared_data Prepared items (includes `_rsl_ie_source_*` keys when available).
+	 * @param bool  $clear_map     Whether to clear the stored ID map afterwards.
 	 * @return void
 	 */
 	private function fix_post_parent_relationships( $job_id, $prepared_data, $clear_map = true ) {
@@ -2464,6 +2509,7 @@ class Import_Service {
 	 *
 	 * @param int   $job_id        Job ID.
 	 * @param array $prepared_data Prepared items.
+	 * @param bool  $clear_map     Whether to clear the stored ID map afterwards.
 	 * @return void
 	 */
 	private function fix_comment_parent_relationships( $job_id, $prepared_data, $clear_map = true ) {
@@ -2546,6 +2592,7 @@ class Import_Service {
 	 *
 	 * @param int   $job_id        Job ID.
 	 * @param array $prepared_data Prepared items.
+	 * @param bool  $clear_map     Whether to clear the stored ID map afterwards.
 	 * @return void
 	 */
 	private function fix_term_parent_relationships( $job_id, $prepared_data, $clear_map = true ) {

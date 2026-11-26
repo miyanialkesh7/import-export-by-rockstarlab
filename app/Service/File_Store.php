@@ -121,7 +121,7 @@ class File_Store {
 	/**
 	 * Remove only regular files directly inside this resource's private directory.
 	 *
-	 * @param string $id File ID.
+	 * @param string $id    File ID.
 	 * @param int    $limit Maximum attempted unlinks; zero removes all.
 	 * @return true|\WP_Error
 	 */
@@ -192,7 +192,7 @@ class File_Store {
 	 * Walk direct regular files without materializing the directory listing.
 	 *
 	 * @param string $directory Private resource directory.
-	 * @param string $prefix Optional basename prefix.
+	 * @param string $prefix    Optional basename prefix.
 	 * @return \Generator
 	 */
 	public static function regular_files( $directory, $prefix = '' ) {
@@ -228,8 +228,9 @@ class File_Store {
 	/**
 	 * Consistent transport-independent failures.
 	 *
-	 * @param string $reason Machine-readable reason.
-	 * @param int    $status HTTP status.
+	 * @param string $reason  Machine-readable reason.
+	 * @param int    $status  HTTP status.
+	 * @param string $message Error message.
 	 * @return \WP_Error
 	 */
 	public static function error( $reason, $status = 400, $message = '' ) {

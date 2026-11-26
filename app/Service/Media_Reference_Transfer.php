@@ -1,13 +1,32 @@
 <?php
-/** Reference-only media envelopes for content, menu and ACF transfers. */
+/**
+ * Reference-only media envelopes for content, menu and ACF transfers.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Transfers the media files that a sync or migration payload refers to.
+ */
 class Media_Reference_Transfer {
+	/**
+	 * Stack of the media transfers that are running, newest last.
+	 *
+	 * @var array
+	 */
 	private static $context = array();
 
-	/** The connection comes only from an authorized outbound service, never peer input. */
+	/**
+	 * The connection comes only from an authorized outbound service, never peer input.
+	 *
+	 * @param mixed    $direction Transfer direction: push or pull.
+	 * @param array    $site      Connected site record.
+	 * @param callable $callback  Callback.
+	 */
 	public static function run( $direction, array $site, callable $callback ) {
 		self::$context[] = array(
 			'direction' => $direction,
@@ -20,6 +39,12 @@ class Media_Reference_Transfer {
 		}
 	}
 
+	/**
+	 * Collect the files behind the media references of a payload, after checking each proof.
+	 *
+	 * @param array $proofs Proofs that the files belong to the references.
+	 * @return array
+	 */
 	public static function export( array $proofs ) {
 		$files   = array();
 		$context = end( self::$context );
@@ -49,7 +74,12 @@ class Media_Reference_Transfer {
 		return $files;
 	}
 
-	/** Verify every receipt against current destination bytes before assigning any references. */
+	/**
+	 * Verify every receipt against current destination bytes before assigning any references.
+	 *
+	 * @param array $files  Files that belong to the references.
+	 * @param array $proofs Proofs that the files belong to the references.
+	 */
 	public static function receive( array $files, array $proofs ) {
 		$check = self::check( $files, $proofs );
 		if ( is_wp_error( $check ) ) {
@@ -81,6 +111,13 @@ class Media_Reference_Transfer {
 		return $mapping;
 	}
 
+	/**
+	 * Check that the received files match the proofs sent with them.
+	 *
+	 * @param array $files  Files that belong to the references.
+	 * @param array $proofs Proofs that the files belong to the references.
+	 * @return true|\WP_Error
+	 */
 	public static function check( array $files, array $proofs ) {
 		if ( count( $files ) !== count( $proofs ) ) {
 			return Migration_Sync_Maps::error();

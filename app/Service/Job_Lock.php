@@ -34,8 +34,9 @@ class Job_Lock {
 	/**
 	 * Lock a server-selected resource namespace on this site.
 	 *
-	 * @param string $scope Internal resource namespace.
+	 * @param string $scope       Internal resource namespace.
 	 * @param string $resource_id Resource identifier.
+	 * @param int    $wait        Seconds to wait for the lock before giving up.
 	 * @return string|false|\WP_Error
 	 */
 	public static function acquire_resource( $scope, $resource_id, $wait = 0 ) {
@@ -58,7 +59,12 @@ class Job_Lock {
 		return $name;
 	}
 
-	/** Whether this process already owns a resource lock. */
+	/**
+	 * Whether this process already owns a resource lock.
+	 *
+	 * @param mixed $scope       Scope of the lock.
+	 * @param mixed $resource_id ID of the locked resource.
+	 */
 	public static function holds_resource( $scope, $resource_id ) {
 		global $wpdb;
 		$name = 'rsl_ie_' . $scope . '_' . md5( DB_NAME . ':' . $wpdb->prefix . ':' . $resource_id );
@@ -79,7 +85,11 @@ class Job_Lock {
 		return false;
 	}
 
-	/** Verify an internal continuation is running under its owning queue lock. */
+	/**
+	 * Verify an internal continuation is running under its owning queue lock.
+	 *
+	 * @param int $job_id Job ID.
+	 */
 	public static function holds( $job_id ) {
 		global $wpdb;
 		$name = 'rsl_ie_job_' . md5( DB_NAME . ':' . $wpdb->prefix . ':' . (int) $job_id );

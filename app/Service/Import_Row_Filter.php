@@ -9,6 +9,9 @@ namespace RockStarLab\ImportExport\Service;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Applies the row filters chosen for an import (column, condition, text).
+ */
 class Import_Row_Filter {
 	const OPERATORS = array( 'equals', 'not_equals', 'contains', 'not_contains', 'starts_with', 'is_empty', 'is_not_empty', 'greater_than', 'less_than', 'in', 'not_in' );
 
@@ -77,7 +80,12 @@ class Import_Row_Filter {
 		return $out;
 	}
 
-	/** One condition against one row. A missing column is treated as empty. */
+	/**
+	 * One condition against one row. A missing column is treated as empty.
+	 *
+	 * @param array $row    Row data.
+	 * @param array $filter Row filter definition.
+	 */
 	public static function matches( array $row, array $filter ) {
 		$actual = self::column( $row, $filter['field'] );
 		$want   = (string) $filter['value'];
@@ -148,7 +156,12 @@ class Import_Row_Filter {
 		return is_numeric( $text ) ? (float) $text : null;
 	}
 
-	/** Numbers compare as numbers, dates as dates, everything else as text; null = not comparable. */
+	/**
+	 * Numbers compare as numbers, dates as dates, everything else as text; null = not comparable.
+	 *
+	 * @param mixed $a First value.
+	 * @param mixed $b Second value.
+	 */
 	private static function compare( $a, $b ) {
 		$wanted = self::number( $b );
 		if ( null !== $wanted && ! preg_match( '/^\d{4}-\d{2}-\d{2}/', $b ) ) {
@@ -167,7 +180,12 @@ class Import_Row_Filter {
 		return strcmp( mb_strtolower( $a ), mb_strtolower( $b ) );
 	}
 
-	/** Column value; case-insensitive header match; arrays are joined by commas. */
+	/**
+	 * Column value; case-insensitive header match; arrays are joined by commas.
+	 *
+	 * @param array $row   Row data.
+	 * @param mixed $field Field name.
+	 */
 	private static function column( array $row, $field ) {
 		$value = null;
 		if ( array_key_exists( $field, $row ) ) {
@@ -195,6 +213,11 @@ class Import_Row_Filter {
 		return is_scalar( $value ) ? (string) $value : '';
 	}
 
+	/**
+	 * Build the error returned when a row filter is incomplete.
+	 *
+	 * @return \WP_Error
+	 */
 	private static function invalid() {
 		return new \WP_Error( 'rsl_ie_invalid_row_filters', __( 'Each row filter needs a column, a supported condition and a text value.', 'import-export-by-rockstarlab' ), array( 'status' => 400 ) );
 	}

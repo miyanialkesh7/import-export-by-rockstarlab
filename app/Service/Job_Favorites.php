@@ -12,6 +12,9 @@ namespace RockStarLab\ImportExport\Service;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Remembers which jobs a user marked as favorites.
+ */
 class Job_Favorites {
 
 	const META = 'rsl_ie_favorite_jobs';

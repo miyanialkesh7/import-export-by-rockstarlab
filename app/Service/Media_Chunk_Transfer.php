@@ -1,11 +1,25 @@
 <?php
-/** Shared synchronous adapter for the resumable media protocol. */
+/**
+ * Shared synchronous adapter for the resumable media protocol.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 defined( 'ABSPATH' ) || exit;
 
 /** Keep the direct API result contract while bounding each network request. */
 class Media_Chunk_Transfer {
+	/**
+	 * Run a media sync with a connected site, one bounded network request at a time.
+	 *
+	 * @param mixed $direction Transfer direction: push or pull.
+	 * @param array $site      Connected site record.
+	 * @param array $input     Request input.
+	 * @param array $metadata  Attachment metadata.
+	 * @return array|\WP_Error Result in the format of the direct media sync API, or an error.
+	 */
 	public function execute( $direction, array $site, array $input, array $metadata = array() ) {
 		$media  = new Media_Library_Sync_Service();
 		$access = $media->preflight( $direction, array( 'site_id' => (int) $site['id'] ) + $input, true );

@@ -1,17 +1,35 @@
 <?php
-/** Prepared import rows, published by a compact job descriptor. */
+/**
+ * Prepared import rows, published by a compact job descriptor.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned tables: no WordPress API exists for them, and these are transient job rows that must not be cached.
 
 defined( 'ABSPATH' ) || exit;
+/**
+ * Keeps the prepared rows of an import job in the database and reads them back in batches.
+ */
 class Import_Row_Store {
-	/** Replace unpublished rows while the import job lock is held. */
+	/**
+	 * Replace unpublished rows while the import job lock is held.
+	 *
+	 * @param int $job_id Job ID.
+	 */
 	public static function reset( $job_id ) {
 		global $wpdb;
 		return false !== $wpdb->delete( $wpdb->prefix . 'rsl_ie_import_rows', array( 'job_id' => $job_id ), array( '%d' ) ) ? true : self::error();
 	}
-	/** Store a prepared slice before publishing its count. */
+	/**
+	 * Store a prepared slice before publishing its count.
+	 *
+	 * @param int   $job_id Job ID.
+	 * @param int   $offset Row offset the rows start at.
+	 * @param array $rows   Rows to store at the offset.
+	 */
 	public static function append( $job_id, $offset, array $rows ) {
 		global $wpdb;
 		foreach ( $rows as $row ) {
@@ -44,7 +62,15 @@ class Import_Row_Store {
 		);
 	}
 
-	/** Atomically publish a preparation slice and its server-owned cursor under the job lock. */
+	/**
+	 * Atomically publish a preparation slice and its server-owned cursor under the job lock.
+	 *
+	 * @param int   $job_id              Job ID.
+	 * @param int   $offset              Row offset the rows start at.
+	 * @param array $rows                Rows to store at the offset.
+	 * @param mixed $expected_parameters Job parameters the rows were prepared for.
+	 * @param array $parameters          Job parameters the rows belong to.
+	 */
 	public static function append_checkpoint( $job_id, $offset, array $rows, $expected_parameters, array $parameters ) {
 		global $wpdb;
 		$jobs    = $wpdb->prefix . 'rsl_ie_jobs';
@@ -80,7 +106,14 @@ class Import_Row_Store {
 		}
 	}
 
-	/** Read only requested rows, requiring contiguous identities and valid bytes. */
+	/**
+	 * Read only requested rows, requiring contiguous identities and valid bytes.
+	 *
+	 * @param int $job_id Job ID.
+	 * @param int $count  Total number of prepared rows.
+	 * @param int $offset Row offset the rows start at.
+	 * @param int $limit  Maximum number of rows to read.
+	 */
 	public static function read( $job_id, $count, $offset, $limit ) {
 		if ( ! is_int( $count ) || $count < 0 || $offset < 0 || $limit < 0 ) {
 			return self::error(); }
@@ -102,7 +135,14 @@ class Import_Row_Store {
 		}
 		return $result;
 	}
-	/** Bound worker payload allocation while always allowing one complete record. */
+	/**
+	 * Bound worker payload allocation while always allowing one complete record.
+	 *
+	 * @param int $job_id Job ID.
+	 * @param int $count  Total number of prepared rows.
+	 * @param int $offset Row offset the rows start at.
+	 * @param int $limit  Maximum number of rows to read.
+	 */
 	public static function read_batch( $job_id, $count, $offset, $limit ) {
 		if ( ! is_int( $count ) || $count < 0 || ! is_int( $offset ) || $offset < 0 || ! is_int( $limit ) || $limit < 1 || $limit > 500 ) {
 			return self::error(); }
@@ -126,6 +166,13 @@ class Import_Row_Store {
 		return self::read( $job_id, $count, $offset, $take );
 	}
 
+	/**
+	 * Read every prepared row of an import job, 100 at a time.
+	 *
+	 * @param int $job_id Job ID.
+	 * @param int $count  Total number of prepared rows.
+	 * @return array|\WP_Error All rows, or an error when they are unavailable.
+	 */
 	public static function all( $job_id, $count ) {
 		$result = array();
 		for ( $offset = 0; $offset < $count; $offset += 100 ) {
@@ -137,6 +184,11 @@ class Import_Row_Store {
 		}
 		return $result;
 	}
+	/**
+	 * Build the error returned when the prepared rows are missing or have changed.
+	 *
+	 * @return \WP_Error
+	 */
 	private static function error() {
 		return new \WP_Error( 'rsl_ie_import_rows_unavailable', __( 'Prepared import rows are unavailable or changed.', 'import-export-by-rockstarlab' ), array( 'status' => 409 ) );
 	}

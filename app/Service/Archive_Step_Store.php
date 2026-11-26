@@ -1,11 +1,27 @@
 <?php
-/** One private record per archive step; counts are published by the owning checkpoint. */
+/**
+ * One private record per archive step; counts are published by the owning checkpoint.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents,WordPress.WP.AlternativeFunctions.rename_rename -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
 
 defined( 'ABSPATH' ) || exit;
+/**
+ * Stores migration archive steps on disk, each with an integrity hash.
+ */
 class Archive_Step_Store {
+	/**
+	 * Get the file that stores one archive step, after validating the reference.
+	 *
+	 * @param array $reference Stored reference to the snapshot data.
+	 * @param mixed $index     Position.
+	 * @return string
+	 * @throws \RuntimeException When the reference or index is invalid, or the storage cannot be opened.
+	 */
 	private static function path( array $reference, $index ) {
 		if ( ! is_int( $index ) || $index < 0 || ! preg_match( '/\A(public|job-[0-9]+)\z/', $reference['scope'] ?? '' ) ) {
 			throw new \RuntimeException( esc_html__( 'Invalid archive step reference.', 'import-export-by-rockstarlab' ) ); }
@@ -17,6 +33,15 @@ class Archive_Step_Store {
 			throw new \RuntimeException( esc_html__( 'Unsafe archive step.', 'import-export-by-rockstarlab' ) ); }
 		return $path;
 	}
+	/**
+	 * Store one migration archive step on disk with an integrity hash.
+	 *
+	 * @param array $reference Stored reference to the snapshot data.
+	 * @param mixed $index     Position.
+	 * @param array $record    Step data.
+	 * @return void
+	 * @throws \RuntimeException When the step cannot be encoded or written.
+	 */
 	public static function put( array $reference, $index, array $record ) {
 		$path = self::path( $reference, $index );
 		$json = wp_json_encode( $record );
@@ -26,6 +51,14 @@ class Archive_Step_Store {
 		if ( strlen( $bytes ) !== file_put_contents( $path . '.tmp', $bytes ) || ! rename( $path . '.tmp', $path ) ) {
 			throw new \RuntimeException( esc_html__( 'Cannot save archive step.', 'import-export-by-rockstarlab' ) ); }
 	}
+	/**
+	 * Read one stored archive step and verify its integrity hash.
+	 *
+	 * @param array $reference Stored reference to the snapshot data.
+	 * @param mixed $index     Position.
+	 * @return array The step.
+	 * @throws \RuntimeException When the file is missing or fails the integrity check.
+	 */
 	public static function get( array $reference, $index ) {
 		$bytes = file_get_contents( self::path( $reference, $index ) );
 		if ( ! is_string( $bytes ) || strlen( $bytes ) < 66 || ! hash_equals( substr( $bytes, 0, 64 ), hash( 'sha256', substr( $bytes, 65 ) ) ) ) {
@@ -35,6 +68,12 @@ class Archive_Step_Store {
 			throw new \RuntimeException( esc_html__( 'Invalid archive step.', 'import-export-by-rockstarlab' ) ); }
 		return $record;
 	}
+	/**
+	 * Yield every stored archive step in order.
+	 *
+	 * @param array $reference Stored reference to the snapshot data.
+	 * @return \Generator Steps keyed by index.
+	 */
 	public static function rows( array $reference ) {
 		for ( $index = 0; $index < $reference['count']; ++$index ) {
 			yield $index => self::get( $reference, $index ); }

@@ -1,5 +1,10 @@
 <?php
-/** Resumable single-file push steps for a durable caller. */
+/**
+ * Resumable single-file push steps for a durable caller.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 use RockStarLab\ImportExport\Abilities\Media_Library_Catalog;
@@ -8,7 +13,15 @@ defined( 'ABSPATH' ) || exit;
 
 /** The caller must persist returned state before scheduling another step. */
 class Media_Chunk_Push {
-	/** Execute one step. State and request identity must come from the owning job. */
+	/**
+	 * Execute one step. State and request identity must come from the owning job.
+	 *
+	 * @param int   $site_id     ID of the connected site.
+	 * @param mixed $fingerprint Fingerprint of the connected peer, used to detect a changed peer.
+	 * @param mixed $request_id  Identifier of the request, used to make retries safe.
+	 * @param array $input       Request input.
+	 * @param array $state       Saved state of the push.
+	 */
 	public function advance( $site_id, $fingerprint, $request_id, array $input, array $state = array() ) {
 		$media  = new Media_Library_Sync_Service();
 		$access = $media->preflight( 'push', array( 'site_id' => $site_id ) + $input, true );
@@ -155,7 +168,14 @@ class Media_Chunk_Push {
 		return $state;
 	}
 
-	/** Clean one resource after the caller has durably stored the completed result. */
+	/**
+	 * Clean one resource after the caller has durably stored the completed result.
+	 *
+	 * @param int   $site_id     ID of the connected site.
+	 * @param mixed $fingerprint Fingerprint of the connected peer, used to detect a changed peer.
+	 * @param array $state       Saved state of the push.
+	 * @param bool  $abandon     Whether to abandon the transfer instead of finishing it.
+	 */
 	public function cleanup( $site_id, $fingerprint, array $state, $abandon = false ) {
 		if ( ! $abandon && ( 'done' !== ( $state['phase'] ?? null ) || ! isset( $state['result'] ) ) ) {
 			return $this->error(); }
@@ -206,10 +226,22 @@ class Media_Chunk_Push {
 		return $state;
 	}
 
+	/**
+	 * Check that a peer progress report is consistent with the file size.
+	 *
+	 * @param array $result Result data.
+	 * @param mixed $size   File size in bytes.
+	 * @return bool
+	 */
 	private function progress( array $result, $size ) {
 		return File_Store::valid_id( $result['transfer_id'] ?? null ) && ( $result['size'] ?? null ) === $size && is_int( $result['offset'] ?? null ) && $result['offset'] >= 0 && $result['offset'] <= $size && ( $result['ready'] ?? null ) === ( $result['offset'] === $size ) && ( $result['offset'] === $size || 0 === $result['offset'] % Media_Chunk_Store::CHUNK_BYTES );
 	}
 
+	/**
+	 * Build the error returned when the transfer checkpoint or the peer response is invalid.
+	 *
+	 * @return \WP_Error
+	 */
 	private function error() {
 		return new \WP_Error( 'rsl_ie_media_chunk_checkpoint', __( 'The media transfer checkpoint or peer response is invalid.', 'import-export-by-rockstarlab' ), array( 'status' => 409 ) );
 	}

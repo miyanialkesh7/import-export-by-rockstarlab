@@ -68,7 +68,7 @@ class Export_Service {
 	/**
 	 * Persist only normalized query parameters and server-owned identity.
 	 *
-	 * @param array $input Export request.
+	 * @param array $input               Export request.
 	 * @param int   $migration_parent_id Internal parent, never read from request data.
 	 * @return array|\WP_Error
 	 */
@@ -175,7 +175,7 @@ class Export_Service {
 	/**
 	 * Execute one batch and checkpoint the exact committed spool length.
 	 *
-	 * @param object $job Job record.
+	 * @param object $job        Job record.
 	 * @param array  $parameters Stored query and spool position.
 	 * @return array|\WP_Error
 	 */
@@ -276,10 +276,10 @@ class Export_Service {
 	/**
 	 * Append a batch after truncating any uncommitted tail from an interrupted run.
 	 *
-	 * @param int      $job_id Job ID.
-	 * @param array    $rows Exported rows.
+	 * @param int      $job_id    Job ID.
+	 * @param array    $rows      Exported rows.
 	 * @param int|null $committed Last persisted byte length, null for legacy jobs.
-	 * @param int      $offset Persisted source offset.
+	 * @param int      $offset    Persisted source offset.
 	 * @return int|\WP_Error
 	 */
 	private function append_batch( $job_id, array $rows, $committed, $offset ) {
@@ -317,7 +317,7 @@ class Export_Service {
 	 * Read exactly the committed spool, failing on missing or malformed data.
 	 *
 	 * @param int $job_id Job ID.
-	 * @param int $bytes Committed length.
+	 * @param int $bytes  Committed length.
 	 * @return array|\WP_Error
 	 */
 	private function read_spool( $job_id, $bytes ) {
@@ -354,7 +354,7 @@ class Export_Service {
 	 * Stream the committed spool one row at a time.
 	 *
 	 * @param int $job_id Job ID.
-	 * @param int $bytes Committed length.
+	 * @param int $bytes  Committed length.
 	 * @return \Generator|\WP_Error
 	 * @throws \RuntimeException When a spooled row is malformed.
 	 */
@@ -407,9 +407,9 @@ class Export_Service {
 	/**
 	 * Generate the final file and publish its path only after successful writes.
 	 *
-	 * @param int   $job_id Job ID.
+	 * @param int   $job_id  Job ID.
 	 * @param array $request Normalized request.
-	 * @param array $data Exported rows.
+	 * @param array $data    Exported rows.
 	 * @return true|\WP_Error
 	 */
 	private function finalize( $job_id, array $request, $data ) {
@@ -521,9 +521,9 @@ class Export_Service {
 	 * Upload a finished export to a saved FTP, FTPS or SFTP server and note the outcome on the job.
 	 * The file stays available for download either way.
 	 *
-	 * @param int    $job_id Job.
+	 * @param int    $job_id      Job.
 	 * @param string $destination rsl-remote address of a folder (ending with /) or a file.
-	 * @param string $path Local export file.
+	 * @param string $path        Local export file.
 	 */
 	private function upload_to_server( $job_id, $destination, $path ) {
 		$sent = ( new Remote_File_Service() )->upload( $destination, $path, wp_basename( $path ) );
@@ -591,7 +591,7 @@ class Export_Service {
 	/**
 	 * Rename row keys, keeping the column order.
 	 *
-	 * @param array $rows Exported rows.
+	 * @param array $rows    Exported rows.
 	 * @param array $headers Field => column name.
 	 * @return array
 	 */
@@ -611,6 +611,12 @@ class Export_Service {
 		return $rows;
 	}
 
+	/**
+	 * Describe the current state of an export job.
+	 *
+	 * @param mixed $job Job record.
+	 * @return array Completion flag, status and item counts.
+	 */
 	private function snapshot( $job ) {
 		return array(
 			'completed' => ! in_array( $job->status, array( 'pending', 'processing' ), true ),
@@ -625,7 +631,7 @@ class Export_Service {
 	 * Fail without overwriting a concurrent lifecycle change.
 	 *
 	 * @param int       $job_id Job ID.
-	 * @param \WP_Error $error Failure.
+	 * @param \WP_Error $error  Failure.
 	 * @return \WP_Error
 	 */
 	private function fail( $job_id, \WP_Error $error ) {

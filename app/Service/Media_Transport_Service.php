@@ -20,7 +20,7 @@ class Media_Transport_Service {
 	/**
 	 * Validate closed transport input and recheck execution permissions.
 	 *
-	 * @param array $input Peer payload.
+	 * @param array $input  Peer payload.
 	 * @param bool  $upload Whether file bytes are required.
 	 * @return array|\WP_Error
 	 */
@@ -118,7 +118,7 @@ class Media_Transport_Service {
 	 * Send actual current bytes rather than trusting a cached source hash or arbitrary disk path.
 	 *
 	 * @param array $image Server-collected source media description.
-	 * @param array $site Stored connected site.
+	 * @param array $site  Stored connected site.
 	 * @return int|\WP_Error
 	 */
 	public function push_image( array $image, array $site ) {
@@ -133,7 +133,12 @@ class Media_Transport_Service {
 		return $this->push_external_image( $image, $site );
 	}
 
-	/** Download public media to disk, then send bounded blocks without a Base64 file envelope. */
+	/**
+	 * Download public media to disk, then send bounded blocks without a Base64 file envelope.
+	 *
+	 * @param array $image Image reference to send.
+	 * @param array $site  Connected site record.
+	 */
 	private function push_external_image( array $image, array $site ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$temp = wp_tempnam( $image['file_name'] ?? 'media' );
@@ -249,7 +254,12 @@ class Media_Transport_Service {
 	}
 
 
-	/** Transfer large local attachments using the same validated chunk protocol as media sync. */
+	/**
+	 * Transfer large local attachments using the same validated chunk protocol as media sync.
+	 *
+	 * @param array $image Image reference to send.
+	 * @param array $site  Connected site record.
+	 */
 	private function push_chunked_image( array $image, array $site ) {
 		$result = ( new Media_Chunk_Transfer() )->execute( 'push', $site, array( 'media_ids' => array( (int) $image['attachment_id'] ) ), $image );
 		if ( is_wp_error( $result ) ) {
@@ -263,7 +273,7 @@ class Media_Transport_Service {
 	 * Fetch current remote bytes; remote file_path and cached hashes never select a local file.
 	 *
 	 * @param array $image Source image metadata.
-	 * @param array $site Stored connection.
+	 * @param array $site  Stored connection.
 	 * @return int|\WP_Error
 	 */
 	public function pull_image( array $image, array $site ) {
@@ -379,9 +389,9 @@ class Media_Transport_Service {
 	/**
 	 * Apply attachment text and ACF only after all source IDs have destination mappings.
 	 *
-	 * @param int   $id Authorized target attachment.
-	 * @param array $image Source metadata.
-	 * @param array $map Complete source-to-target map.
+	 * @param int   $id      Authorized target attachment.
+	 * @param array $image   Source metadata.
+	 * @param array $map     Complete source-to-target map.
 	 * @param array $sources Source URL metadata.
 	 * @return true|\WP_Error
 	 */
@@ -435,10 +445,10 @@ class Media_Transport_Service {
 	/**
 	 * Map portable JSON, nested media objects and HTML using the completed transfer map.
 	 *
-	 * @param mixed $value Portable field value.
-	 * @param array $map Media IDs.
+	 * @param mixed $value   Portable field value.
+	 * @param array $map     Media IDs.
 	 * @param array $sources Source metadata.
-	 * @param array $urls Exact source URL replacements.
+	 * @param array $urls    Exact source URL replacements.
 	 * @return mixed
 	 */
 	private function map_field_value( $value, array $map, array $sources, array $urls ) {
@@ -462,7 +472,7 @@ class Media_Transport_Service {
 	/**
 	 * Safe errors do not expose remote text, credentials or disk paths.
 	 *
-	 * @param string $code Error suffix.
+	 * @param string $code   Error suffix.
 	 * @param int    $status HTTP status.
 	 * @return \WP_Error
 	 */

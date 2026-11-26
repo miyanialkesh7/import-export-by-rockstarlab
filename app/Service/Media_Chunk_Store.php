@@ -1,5 +1,10 @@
 <?php
-/** Private, owner-scoped binary staging for resumable media transport. */
+/**
+ * Private, owner-scoped binary staging for resumable media transport.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fclose,WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fread,WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
@@ -8,14 +13,32 @@ namespace RockStarLab\ImportExport\Service;
 use RockStarLab\ImportExport\Abilities\Access_Policy;
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Stages chunked media transfers: transfers, source snapshots, checkpoints and cleanup.
+ */
 class Media_Chunk_Store {
 	const CHUNK_BYTES = 1048576;
 
+	/**
+	 * Check that the current user may manage media transfers.
+	 *
+	 * @return true|\WP_Error
+	 */
 	private static function access() {
 		$access = Access_Policy::check_management();
 		return is_wp_error( $access ) ? $access : ( current_user_can( 'upload_files' ) ? true : File_Store::error( 'forbidden', 403 ) );
 	}
 
+	/**
+	 * Start (or resume) a chunked media transfer.
+	 *
+	 * @param mixed  $name             Name.
+	 * @param mixed  $size             File size in bytes.
+	 * @param mixed  $sha256           SHA-256 of the file.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 * @param mixed  $request_id       Identifier of the request, used to make retries safe.
+	 * @return array|\WP_Error Transfer state, or an error.
+	 */
 	public static function begin( $name, $size, $sha256, $credential_scope = 'local', $request_id = null ) {
 		if ( null === $request_id ) {
 			return self::create_transfer( $name, $size, $sha256, $credential_scope ); }
@@ -42,7 +65,13 @@ class Media_Chunk_Store {
 			Job_Lock::release( $lock ); }
 	}
 
-	/** Seed private staging from a verified local duplicate instead of retransmitting bytes. */
+	/**
+	 * Seed private staging from a verified local duplicate instead of retransmitting bytes.
+	 *
+	 * @param mixed  $id    Transfer ID.
+	 * @param mixed  $md5   MD5 hash of the file.
+	 * @param string $scope Credential scope, prefixed with source:.
+	 */
 	public static function reuse_attachment( $id, $md5, $scope = 'local' ) {
 		$r = self::record( $id, $scope );
 		if ( is_wp_error( $r ) ) {
@@ -82,6 +111,17 @@ class Media_Chunk_Store {
 			fclose( $stream ); }
 	}
 
+	/**
+	 * Create the record and staging file of a new transfer after validating the file name and type.
+	 *
+	 * @param mixed $name             Name.
+	 * @param mixed $size             File size in bytes.
+	 * @param mixed $sha256           SHA-256 of the file.
+	 * @param mixed $credential_scope Scope of the credentials that own the transfer.
+	 * @param mixed $id               Transfer ID.
+	 * @param array $source           Source data.
+	 * @return array|\WP_Error Transfer state, or an error.
+	 */
 	private static function create_transfer( $name, $size, $sha256, $credential_scope, $id = null, array $source = array() ) {
 		$access = self::access();
 		if ( is_wp_error( $access ) ) {
@@ -110,6 +150,14 @@ class Media_Chunk_Store {
 		return self::describe( $record );
 	}
 
+	/**
+	 * Load the stored record of a transfer.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 * @param bool   $allow_cleanup    Whether to also load a transfer already marked for cleanup.
+	 * @return array|\WP_Error Transfer record, or an error when it is missing or not accessible.
+	 */
 	private static function record( $id, $credential_scope = 'local', $allow_cleanup = false ) {
 		$access = self::access();
 		if ( is_wp_error( $access ) ) {
@@ -120,6 +168,12 @@ class Media_Chunk_Store {
 		return is_array( $r ) && ( $allow_cleanup || empty( $r['cleanup_pending'] ) ) && $r['owner'] === get_current_user_id() && $r['blog'] === get_current_blog_id() && hash_equals( $r['credential_scope'], hash( 'sha256', $credential_scope ) ) ? $r : File_Store::error( 'file_not_found', 404 );
 	}
 
+	/**
+	 * Build the public description of a transfer from its record.
+	 *
+	 * @param array $r Transfer record.
+	 * @return array Transfer ID, offset, size and ready flag.
+	 */
 	private static function describe( array $r ) {
 		return array(
 			'transfer_id' => $r['id'],
@@ -129,12 +183,28 @@ class Media_Chunk_Store {
 		);
 	}
 
+	/**
+	 * Get the public description of a transfer.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 * @return array|\WP_Error
+	 */
 	public static function status( $id, $credential_scope = 'local' ) {
 		$r = self::record( $id, $credential_scope );
 		return is_wp_error( $r ) ? $r : self::describe( $r );
 	}
 
-	/** Create an immutable source copy. Path/manifest come only from the authorized media service. */
+	/**
+	 * Create an immutable source copy. Path/manifest come only from the authorized media service.
+	 *
+	 * @param int   $attachment_id    Attachment ID.
+	 * @param mixed $path             Path of the source file.
+	 * @param array $manifest         Source file manifest (name, size, SHA-256).
+	 * @param mixed $credential_scope Scope of the credentials that own the transfer.
+	 * @param mixed $request_id       Identifier of the request, used to make retries safe.
+	 * @param int   $chunk_limit      Maximum number of blocks to copy in one call.
+	 */
 	public static function snapshot_source( $attachment_id, $path, array $manifest, $credential_scope, $request_id, $chunk_limit = 0 ) {
 		$scope = 'source:' . $credential_scope;
 		$state = self::begin( $manifest['file_name'], $manifest['size'], $manifest['sha256'], $scope, $request_id );
@@ -143,7 +213,14 @@ class Media_Chunk_Store {
 		return self::copy_source_step( $state['transfer_id'], $attachment_id, $path, $scope, $chunk_limit );
 	}
 
-	/** Initialize without reading file contents; the digest becomes available only after copying. */
+	/**
+	 * Initialize without reading file contents; the digest becomes available only after copying.
+	 *
+	 * @param int   $attachment_id    Attachment ID.
+	 * @param mixed $path             Path of the source file.
+	 * @param mixed $credential_scope Scope of the credentials that own the transfer.
+	 * @param mixed $request_id       Identifier of the request, used to make retries safe.
+	 */
 	public static function start_source_snapshot( $attachment_id, $path, $credential_scope, $request_id ) {
 		if ( ! is_int( $attachment_id ) || $attachment_id < 1 || ! is_string( $request_id ) || ! preg_match( '/^[A-Za-z0-9_-]{16,128}$/D', $request_id ) ) {
 			return File_Store::error( 'invalid_request_id' ); }
@@ -191,11 +268,22 @@ class Media_Chunk_Store {
 		return self::copy_source_step( $id, $attachment_id, $path, $scope, 1 );
 	}
 
+	/**
+	 * Keep only the file stat fields that identify an unchanged source file.
+	 *
+	 * @param array $stat Result of stat() for the source file.
+	 * @return array
+	 */
 	private static function source_stat( array $stat ) {
 		return array_intersect_key( $stat, array_flip( array( 'dev', 'ino', 'size', 'mtime', 'ctime' ) ) );
 	}
 
-	/** Private checkpoint lookup; returns no path or serialized hash state. */
+	/**
+	 * Private checkpoint lookup; returns no path or serialized hash state.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 */
 	public static function snapshot_info( $id, $credential_scope = 'local' ) {
 		$r = self::record( $id, 'source:' . $credential_scope );
 		if ( is_wp_error( $r ) ) {
@@ -203,11 +291,28 @@ class Media_Chunk_Store {
 		return isset( $r['source_attachment_id'] ) ? self::snapshot_description( $r ) : File_Store::error( 'file_not_found', 404 );
 	}
 
-	/** Path is re-resolved by the authorized media service on every advance. */
+	/**
+	 * Path is re-resolved by the authorized media service on every advance.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param int    $attachment_id    Attachment ID.
+	 * @param mixed  $path             Path of the source file.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 */
 	public static function advance_snapshot( $id, $attachment_id, $path, $credential_scope = 'local' ) {
 		return self::copy_source_step( $id, $attachment_id, $path, 'source:' . $credential_scope, 1 );
 	}
 
+	/**
+	 * Copy the next block of a source file into its snapshot.
+	 *
+	 * @param mixed $id            Transfer ID.
+	 * @param int   $attachment_id Attachment ID.
+	 * @param mixed $path          Path of the source file.
+	 * @param mixed $scope         Credential scope, prefixed with source:.
+	 * @param mixed $chunk_limit   Maximum number of blocks to copy in one call.
+	 * @return array|\WP_Error Snapshot state, or an error.
+	 */
 	private static function copy_source_step( $id, $attachment_id, $path, $scope, $chunk_limit ) {
 		if ( ! File_Store::valid_id( $id ) ) {
 			return File_Store::error( 'file_not_found', 404 ); }
@@ -311,10 +416,22 @@ class Media_Chunk_Store {
 			Job_Lock::release( $lock ); }
 	}
 
+	/**
+	 * Sign the saved hash state of a snapshot so a tampered checkpoint is detected.
+	 *
+	 * @param array $r Transfer record.
+	 * @return string
+	 */
 	private static function snapshot_hash_mac( array $r ) {
 		return hash_hmac( 'sha256', $r['id'] . ':' . $r['offset'] . ':' . $r['snapshot_hash_runtime'] . ':' . $r['snapshot_hash_state'], wp_salt( 'auth' ) );
 	}
 
+	/**
+	 * Rebuild the running SHA-256 hash of a snapshot from its signed checkpoint.
+	 *
+	 * @param array $r Transfer record.
+	 * @return \HashContext|false
+	 */
 	private static function restore_snapshot_hash( array $r ) {
 		if ( 0 === $r['offset'] ) {
 			return hash_init( 'sha256' ); }
@@ -335,6 +452,12 @@ class Media_Chunk_Store {
 			return File_Store::error( 'chunk_integrity', 409 ); }
 	}
 
+	/**
+	 * Build the public description of a source snapshot from its record.
+	 *
+	 * @param array $r Transfer record.
+	 * @return array
+	 */
 	private static function snapshot_description( array $r ) {
 		return array(
 			'snapshot_id'   => $r['id'],
@@ -348,11 +471,25 @@ class Media_Chunk_Store {
 		);
 	}
 
-	/** Authenticate each fixed-size block independently; never rehash the entire snapshot per read. */
+	/**
+	 * Authenticate each fixed-size block independently; never rehash the entire snapshot per read.
+	 *
+	 * @param mixed $id     Transfer ID.
+	 * @param int   $offset Byte offset of the block.
+	 * @param mixed $bytes  Bytes of the block.
+	 */
 	private static function chunk_signature( $id, $offset, $bytes ) {
 		return hash_hmac( 'sha256', $id . ':' . $offset . ':' . $bytes, wp_salt( 'auth' ), true );
 	}
 
+	/**
+	 * Read one authenticated block of a ready source snapshot.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param int    $offset           Byte offset of the block.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 * @return array|\WP_Error Block data with its signature, or an error.
+	 */
 	public static function read_snapshot( $id, $offset, $credential_scope = 'local' ) {
 		$scope = 'source:' . $credential_scope;
 		$r     = self::record( $id, $scope );
@@ -412,7 +549,14 @@ class Media_Chunk_Store {
 			Job_Lock::release( $lock ); }
 	}
 
-	/** Append the next chunk or acknowledge an identical committed retry. */
+	/**
+	 * Append the next chunk or acknowledge an identical committed retry.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param int    $offset           Byte offset of the block.
+	 * @param mixed  $bytes            Bytes of the block.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 */
 	public static function append( $id, $offset, $bytes, $credential_scope = 'local' ) {
 		$r = self::record( $id, $credential_scope );
 		if ( is_wp_error( $r ) ) {
@@ -470,7 +614,12 @@ class Media_Chunk_Store {
 			Job_Lock::release( $lock ); }
 	}
 
-	/** Server-only resolution; recheck bytes before consuming staged content. */
+	/**
+	 * Server-only resolution; recheck bytes before consuming staged content.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 */
 	public static function resolve( $id, $credential_scope = 'local' ) {
 		$r = self::record( $id, $credential_scope );
 		if ( is_wp_error( $r ) ) {
@@ -492,7 +641,12 @@ class Media_Chunk_Store {
 		);
 	}
 
-	/** Copy verified bytes to a WordPress temporary file while holding the transfer lock. */
+	/**
+	 * Copy verified bytes to a WordPress temporary file while holding the transfer lock.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 */
 	public static function copy_ready( $id, $credential_scope = 'local' ) {
 		$r = self::record( $id, $credential_scope );
 		if ( is_wp_error( $r ) ) {
@@ -523,7 +677,13 @@ class Media_Chunk_Store {
 		}
 	}
 
-	/** Freeze validated receiver semantics before the first attachment mutation. */
+	/**
+	 * Freeze validated receiver semantics before the first attachment mutation.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param array  $metadata         Attachment metadata.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 */
 	public static function bind_finalization( $id, array $metadata, $credential_scope = 'local' ) {
 		$r = self::record( $id, $credential_scope );
 		if ( is_wp_error( $r ) ) {
@@ -552,7 +712,13 @@ class Media_Chunk_Store {
 			Job_Lock::release( $lock ); }
 	}
 
-	/** Read or persist a successful receiver outcome; retries never replace it. */
+	/**
+	 * Read or persist a successful receiver outcome; retries never replace it.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 * @param mixed  $result           Result of the finalization.
+	 */
 	public static function finalization_result( $id, $credential_scope = 'local', $result = null ) {
 		$r = self::record( $id, $credential_scope );
 		if ( is_wp_error( $r ) ) {
@@ -579,6 +745,12 @@ class Media_Chunk_Store {
 			Job_Lock::release( $lock ); }
 	}
 
+	/**
+	 * Sort metadata keys recursively so equal metadata always hashes the same.
+	 *
+	 * @param mixed $value Value.
+	 * @return mixed
+	 */
 	private static function canonical_metadata( $value ) {
 		if ( ! is_array( $value ) ) {
 			return $value; }
@@ -593,7 +765,7 @@ class Media_Chunk_Store {
 	/**
 	 * Remove a journalled orphan only while both transfer locks are held.
 	 *
-	 * @param string $id Private transfer identifier.
+	 * @param string $id     Private transfer identifier.
 	 * @param array  $record Stored byte manifest.
 	 * @return true|\WP_Error Cleanup acknowledgement or retryable error.
 	 */
@@ -700,6 +872,13 @@ class Media_Chunk_Store {
 		return $removed;
 	}
 
+	/**
+	 * Delete a transfer and its staged file.
+	 *
+	 * @param mixed  $id               Transfer ID.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 * @return true|\WP_Error
+	 */
 	public static function discard( $id, $credential_scope = 'local' ) {
 		$access = self::access();
 		if ( is_wp_error( $access ) ) {

@@ -22,9 +22,23 @@ defined( 'ABSPATH' ) || exit;
 
 /** Preflight whole selections and never accept file paths from a peer. */
 class Media_Library_Sync_Service {
+	/**
+	 * SVG transfers in progress during this request.
+	 *
+	 * @var array
+	 */
 	private static $active_svg_transfers = array();
-	/** Whether this request generates at most one missing image size. */
+	/**
+	 * Whether this request generates at most one missing image size.
+	 *
+	 * @var bool
+	 */
 	private $bounded_metadata = false;
+	/**
+	 * Image sizes still to be generated, set by pending_image_sizes().
+	 *
+	 * @var array|bool
+	 */
 	private $metadata_pending = false;
 
 	const FILE_LIMIT  = 16777216;
@@ -43,9 +57,9 @@ class Media_Library_Sync_Service {
 	/**
 	 * Recheck queued local selection without loading or persisting file bytes.
 	 *
-	 * @param string $action Push or pull.
-	 * @param array  $input Selection and connection.
-	 * @param bool   $chunked Internal staged transport; retain selection and permission checks.
+	 * @param string $action        Push or pull.
+	 * @param array  $input         Selection and connection.
+	 * @param bool   $chunked       Internal staged transport; retain selection and permission checks.
 	 * @param array  $confirmed_ids Server-owned completed sources; never caller input.
 	 * @return true|\WP_Error
 	 */
@@ -79,7 +93,8 @@ class Media_Library_Sync_Service {
 	/**
 	 * Resolve authorized uploads and reject a selection exceeding byte limits.
 	 *
-	 * @param array $ids Selected attachment IDs.
+	 * @param array $ids    Selected attachment IDs.
+	 * @param bool  $inline Whether the files travel inline in the payload.
 	 * @return array|\WP_Error
 	 */
 	private function selected_files( array $ids, $inline = true ) {
@@ -101,7 +116,11 @@ class Media_Library_Sync_Service {
 		return $files;
 	}
 
-	/** Describe authorized source bytes for a resumable transfer, without a public path. */
+	/**
+	 * Describe authorized source bytes for a resumable transfer, without a public path.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 */
 	public function source_manifest( $attachment_id ) {
 		$access = $this->authorize();
 		if ( is_wp_error( $access ) ) {
@@ -134,7 +153,14 @@ class Media_Library_Sync_Service {
 			fclose( $stream ); }
 	}
 
-	/** Freeze authorized bytes once; later reads use only the private snapshot and current attachment permissions. */
+	/**
+	 * Freeze authorized bytes once; later reads use only the private snapshot and current attachment permissions.
+	 *
+	 * @param int    $attachment_id    Attachment ID.
+	 * @param mixed  $request_id       Identifier of the request, used to make retries safe.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 * @param bool   $bounded          Whether to limit the work done in one call.
+	 */
 	public function source_snapshot( $attachment_id, $request_id, $credential_scope = 'local', $bounded = false ) {
 		if ( ! is_string( $request_id ) || ! preg_match( '/^[A-Za-z0-9_-]{16,128}$/D', $request_id ) ) {
 			return File_Store::error( 'invalid_request_id' ); }
@@ -154,7 +180,12 @@ class Media_Library_Sync_Service {
 		return is_wp_error( $path ) ? $path : Media_Chunk_Store::snapshot_source( $attachment_id, $path, $manifest, $credential_scope, $request_id, $bounded ? 1 : 0 );
 	}
 
-	/** Advance only one source block, without recomputing its complete manifest. */
+	/**
+	 * Advance only one source block, without recomputing its complete manifest.
+	 *
+	 * @param mixed  $snapshot_id      Snapshot ID.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 */
 	public function advance_source_snapshot( $snapshot_id, $credential_scope = 'local' ) {
 		$info = Media_Chunk_Store::snapshot_info( $snapshot_id, $credential_scope );
 		if ( is_wp_error( $info ) ) {
@@ -166,7 +197,14 @@ class Media_Library_Sync_Service {
 		return is_wp_error( $path ) ? $path : Media_Chunk_Store::advance_snapshot( $snapshot_id, $id, $path, $credential_scope );
 	}
 
-	/** Read one authorized source slice without allocating the complete file. */
+	/**
+	 * Read one authorized source slice without allocating the complete file.
+	 *
+	 * @param int   $attachment_id   Attachment ID.
+	 * @param int   $offset          Byte offset of the block.
+	 * @param mixed $expected_size   Expected file size in bytes.
+	 * @param mixed $expected_sha256 Expected SHA-256 of the file.
+	 */
 	public function read_source_chunk( $attachment_id, $offset, $expected_size, $expected_sha256 ) {
 		$access = $this->authorize();
 		if ( is_wp_error( $access ) ) {
@@ -204,7 +242,8 @@ class Media_Library_Sync_Service {
 	/**
 	 * Group saved migration IDs by current decoded bytes and transport item limit.
 	 *
-	 * @param array $ids Authorized saved attachment identities.
+	 * @param array $ids     Authorized saved attachment identities.
+	 * @param bool  $chunked Whether the transfer uses chunks.
 	 * @return array|\WP_Error
 	 */
 	public function migration_batches( array $ids, $chunked = false ) {
@@ -237,7 +276,7 @@ class Media_Library_Sync_Service {
 	 * Execute a connected-site operation with its closed input contract.
 	 *
 	 * @param string $action Browse, push or pull.
-	 * @param array  $input Parsed caller input.
+	 * @param array  $input  Parsed caller input.
 	 * @return array|\WP_Error
 	 */
 	public function execute( $action, array $input ) {
@@ -353,12 +392,22 @@ class Media_Library_Sync_Service {
 		return $this->prepare_media_payload( $input, false );
 	}
 
-	/** Internal preparation for chunk transport; retains graph and mapping envelopes. */
+	/**
+	 * Internal preparation for chunk transport; retains graph and mapping envelopes.
+	 *
+	 * @param array $input Request input.
+	 */
 	public function prepare_chunk_media( array $input ) {
 		return $this->prepare_media_payload( $input, true );
 	}
 
-	/** Bind current authorized metadata to one completed source snapshot. */
+	/**
+	 * Bind current authorized metadata to one completed source snapshot.
+	 *
+	 * @param mixed  $snapshot_id      Snapshot ID.
+	 * @param array  $input            Request input.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 */
 	public function prepare_snapshot_media( $snapshot_id, array $input, $credential_scope = 'local' ) {
 		$snapshot = Media_Chunk_Store::snapshot_info( $snapshot_id, $credential_scope );
 		if ( is_wp_error( $snapshot ) ) {
@@ -394,6 +443,13 @@ class Media_Library_Sync_Service {
 		return is_wp_error( $bound ) ? $bound : $payload;
 	}
 
+	/**
+	 * Build the payload that sends an attachment, with its metadata and ACF media links, to another site.
+	 *
+	 * @param array $input   Request input.
+	 * @param mixed $chunked Whether the transfer uses chunks.
+	 * @return array|\WP_Error
+	 */
 	private function prepare_media_payload( array $input, $chunked ) {
 		$graph_hashes  = $input['acf_graph_hashes'] ?? null;
 		$media_version = $input['acf_attachment_media_version'] ?? null;
@@ -500,7 +556,13 @@ class Media_Library_Sync_Service {
 		return $this->receive_media_payload( $input );
 	}
 
-	/** Shared relationship preparation/finalization; staged bytes remain server-resolved. */
+	/**
+	 * Shared relationship preparation/finalization; staged bytes remain server-resolved.
+	 *
+	 * @param array $input         Request input.
+	 * @param mixed $verified_file Verified staged file, or null when no file was staged.
+	 * @param bool  $defer_fields  Server-selected pull mode: apply fields after the complete ID map exists.
+	 */
 	private function receive_media_payload( array $input, $verified_file = null, $defer_fields = false ) {
 		$authors = array_key_exists( 'media_authors', $input ) ? Sync_Media_Authors::run( null !== $verified_file ? 'prepare_staged' : 'prepare', $input, $verified_file ?? array() ) : null;
 		if ( is_wp_error( $authors ) ) {
@@ -595,7 +657,7 @@ class Media_Library_Sync_Service {
 	/**
 	 * Receive one validated Content Sync payload, including anonymous external media.
 	 *
-	 * @param array $input Validated transport input.
+	 * @param array $input        Validated transport input.
 	 * @param bool  $defer_fields Server-selected pull mode; apply fields after building the complete map.
 	 * @return array|\WP_Error
 	 */
@@ -604,7 +666,16 @@ class Media_Library_Sync_Service {
 		return $this->receive_items( array( 'media' => array( $input ) ), true, $defer_fields );
 	}
 
-	/** Receive an owner-scoped staged file; filesystem paths never come from input. */
+	/**
+	 * Receive an owner-scoped staged file; filesystem paths never come from input.
+	 *
+	 * @param mixed  $transfer_id      Transfer ID.
+	 * @param array  $input            Request input.
+	 * @param string $credential_scope Scope of the credentials that own the transfer.
+	 * @param bool   $defer_fields     Server-selected pull mode: apply fields after the complete ID map exists.
+	 * @param array  $envelope         ACF media envelope fields received with the file.
+	 * @param bool   $bounded_metadata Whether metadata work is limited per call.
+	 */
 	public function receive_staged_file( $transfer_id, array $input, $credential_scope = 'local', $defer_fields = false, array $envelope = array(), $bounded_metadata = false ) {
 		$access = $this->authorize();
 		if ( is_wp_error( $access ) ) {
@@ -707,9 +778,10 @@ class Media_Library_Sync_Service {
 	/**
 	 * Apply shared byte validation and destination locking.
 	 *
-	 * @param array $input Media items.
-	 * @param bool  $content_sync Server-selected single-file transport mode.
-	 * @param bool  $defer_fields Apply pull metadata after the media map is complete.
+	 * @param array $input         Media items.
+	 * @param bool  $content_sync  Server-selected single-file transport mode.
+	 * @param bool  $defer_fields  Apply pull metadata after the media map is complete.
+	 * @param mixed $verified_file Verified staged file, or null when no file was staged.
 	 * @return array|\WP_Error
 	 */
 	private function receive_items( array $input, $content_sync = false, $defer_fields = false, $verified_file = null ) {
@@ -844,7 +916,12 @@ class Media_Library_Sync_Service {
 			Job_Lock::release( $lock ); }
 	}
 
-	/** Shared metadata rules for inline and staged media receivers. */
+	/**
+	 * Shared metadata rules for inline and staged media receivers.
+	 *
+	 * @param array $item   Received media item.
+	 * @param array $fields Metadata fields to check.
+	 */
 	private function validate_received_metadata( array &$item, array $fields ) {
 		$name = sanitize_file_name( $item['file_name'] );
 		if ( '' === $name || $name !== $item['file_name'] || ! wp_check_filetype( $name, Sync_SVG::mimes() )['type'] ) {
@@ -871,8 +948,9 @@ class Media_Library_Sync_Service {
 	/**
 	 * Walk indexed candidates without changing stale entries or scanning unindexed files.
 	 *
-	 * @param array $item Validated incoming file.
-	 * @param bool  $content_sync Resolve source identities before hash candidates.
+	 * @param array $item          Validated incoming file.
+	 * @param bool  $content_sync  Resolve source identities before hash candidates.
+	 * @param mixed $verified_file Verified staged file, or null when no file was staged.
 	 * @return int|\WP_Error Existing attachment or zero.
 	 */
 	private function duplicate( array $item, $content_sync = false, $verified_file = null ) {
@@ -952,9 +1030,10 @@ class Media_Library_Sync_Service {
 	/**
 	 * Verify an authorized, bounded uploads candidate against current bytes.
 	 *
-	 * @param int    $id Candidate attachment.
-	 * @param string $algorithm Hash algorithm.
-	 * @param string $digest Expected digest.
+	 * @param int    $id            Candidate attachment.
+	 * @param string $algorithm     Hash algorithm.
+	 * @param string $digest        Expected digest.
+	 * @param mixed  $expected_size Expected file size in bytes.
 	 * @return int|\WP_Error
 	 */
 	private function candidate( $id, $algorithm, $digest, $expected_size = null ) {
@@ -974,7 +1053,9 @@ class Media_Library_Sync_Service {
 	/**
 	 * Describe current attachment bytes for a confirmed ACF reference.
 	 *
-	 * @param int $id Local attachment ID.
+	 * @param int  $id       Local attachment ID.
+	 * @param bool $chunked  Whether the transfer uses chunks.
+	 * @param bool $original Whether to prove the original file instead of a resized copy.
 	 * @return array|\WP_Error
 	 */
 	public function reference_proof( $id, $chunked = false, $original = false ) {
@@ -1063,6 +1144,13 @@ class Media_Library_Sync_Service {
 		return $this->candidate( $id, 'sha256', (string) hash_file( 'sha256', $path ), filesize( $path ) );
 	}
 
+	/**
+	 * Return the contents of an SVG after sanitizing it.
+	 *
+	 * @param mixed $path File path.
+	 * @param mixed $name Name.
+	 * @return string|false Sanitized SVG, or false when the file is not an SVG.
+	 */
 	private function sanitized_svg( $path, $name ) {
 		if ( 'svg' !== strtolower( pathinfo( $name, PATHINFO_EXTENSION ) ) || ! is_file( $path ) ) {
 			return false; }
@@ -1132,8 +1220,8 @@ class Media_Library_Sync_Service {
 	/**
 	 * Recover a journalled move or the attachment's initial INSERT.
 	 *
-	 * @param string $transfer_id Private transfer identifier.
-	 * @param array  $item Validated attachment metadata.
+	 * @param string $transfer_id   Private transfer identifier.
+	 * @param array  $item          Validated attachment metadata.
 	 * @param array  $verified_file Independently verified staged bytes.
 	 * @return int|\WP_Error Existing/new attachment ID, zero before any move, or error.
 	 */
@@ -1243,8 +1331,8 @@ class Media_Library_Sync_Service {
 	/**
 	 * Import a server-resolved temporary file through the standard media pipeline.
 	 *
-	 * @param string $tmp Verified temporary path.
-	 * @param array  $item Validated attachment metadata.
+	 * @param string $tmp         Verified temporary path.
+	 * @param array  $item        Validated attachment metadata.
 	 * @param string $transfer_id Optional resumable transfer identifier.
 	 * @return int|\WP_Error Attachment identifier or import error.
 	 */
@@ -1349,6 +1437,12 @@ class Media_Library_Sync_Service {
 		return max( 1, min( 50, (int) floor( 24000000 / $pixels ) ) );
 	}
 
+	/**
+	 * Find the image sizes WordPress still has to generate for an attachment.
+	 *
+	 * @param mixed $id Local attachment ID.
+	 * @return array Missing sub-size names.
+	 */
 	private function pending_image_sizes( $id ) {
 		// SVG metadata can contain dimensions, but WordPress does not generate raster subsizes for it.
 		$this->metadata_pending = $this->bounded_metadata && 'image/svg+xml' !== get_post_mime_type( $id ) && wp_attachment_is_image( $id ) && (bool) wp_get_missing_image_subsizes( $id );
@@ -1388,7 +1482,7 @@ class Media_Library_Sync_Service {
 	/**
 	 * Preserve all source identities across repeated and reverse transfers.
 	 *
-	 * @param int   $id Destination attachment.
+	 * @param int   $id   Destination attachment.
 	 * @param array $item Source payload.
 	 * @return void
 	 */
@@ -1421,7 +1515,7 @@ class Media_Library_Sync_Service {
 	 * Require complete, internally consistent per-source acknowledgements.
 	 *
 	 * @param array $result Remote result.
-	 * @param array $ids Requested sources.
+	 * @param array $ids    Requested sources.
 	 * @return bool
 	 */
 	private function valid_result( array $result, array $ids ) {
@@ -1442,7 +1536,13 @@ class Media_Library_Sync_Service {
 		return $counts['created'] === $result['created'] && $counts['skipped'] === $result['skipped'] && $counts['failed'] === $result['failed'];
 	}
 
-	/** Verify the connected peer before starting a resumable media transfer. */
+	/**
+	 * Verify the connected peer before starting a resumable media transfer.
+	 *
+	 * @param int   $site_id     ID of the connected site.
+	 * @param mixed $direction   Transfer direction: push or pull.
+	 * @param mixed $fingerprint Fingerprint of the connected peer, used to detect a changed peer.
+	 */
 	public function negotiate_chunks( $site_id, $direction, $fingerprint ) {
 		// One answer per connection and run: asking again before every image added a full
 		// WordPress request (about a second) per file to every content sync.
@@ -1458,7 +1558,13 @@ class Media_Library_Sync_Service {
 		return $result;
 	}
 
-	/** Ask the peer for its chunk contract. */
+	/**
+	 * Ask the peer for its chunk contract.
+	 *
+	 * @param int   $site_id     ID of the connected site.
+	 * @param mixed $direction   Transfer direction: push or pull.
+	 * @param mixed $fingerprint Fingerprint of the connected peer, used to detect a changed peer.
+	 */
 	private function negotiate_chunks_uncached( $site_id, $direction, $fingerprint ) {
 		$data = $this->chunk_request( $site_id, $direction, $fingerprint, array( 'action' => 'capabilities' ) );
 		if ( is_wp_error( $data ) ) {
@@ -1484,7 +1590,14 @@ class Media_Library_Sync_Service {
 		);
 	}
 
-	/** One bounded peer step, rechecking the saved connection on every request. */
+	/**
+	 * One bounded peer step, rechecking the saved connection on every request.
+	 *
+	 * @param int   $site_id     ID of the connected site.
+	 * @param mixed $direction   Transfer direction: push or pull.
+	 * @param mixed $fingerprint Fingerprint of the connected peer, used to detect a changed peer.
+	 * @param array $payload     Request payload.
+	 */
 	public function chunk_request( $site_id, $direction, $fingerprint, array $payload ) {
 		$action = $payload['action'] ?? null;
 		$limits = array(
@@ -1558,9 +1671,9 @@ class Media_Library_Sync_Service {
 	/**
 	 * Peer POST with bounded response; never echo credentials or remote error text.
 	 *
-	 * @param array  $site Stored connection.
+	 * @param array  $site     Stored connection.
 	 * @param string $endpoint Server-selected route.
-	 * @param array  $payload Parsed data.
+	 * @param array  $payload  Parsed data.
 	 * @return array|\WP_Error
 	 */
 	private function remote( array $site, $endpoint, array $payload ) {
@@ -1590,7 +1703,7 @@ class Media_Library_Sync_Service {
 	/**
 	 * Stable safe failures; interrupted transfers may already have changed data.
 	 *
-	 * @param string $code Error suffix.
+	 * @param string $code   Error suffix.
 	 * @param int    $status HTTP status.
 	 * @return \WP_Error
 	 */
