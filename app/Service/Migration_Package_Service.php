@@ -18,9 +18,17 @@ defined( 'ABSPATH' ) || exit;
 
 /** No content is imported by preparation; all entries validate before publication. */
 class Migration_Package_Service {
-	/** WooCommerce content excluded during the most recent full manifest inspection. */
+	/**
+	 * WooCommerce content excluded during the most recent full manifest inspection.
+	 *
+	 * @var bool
+	 */
 	private $woocommerce_excluded = false;
-	/** Content that needs the PRO addon (missing or unlicensed) skipped during the most recent inspection. */
+	/**
+	 * Content that needs the PRO addon (missing or unlicensed) skipped during the most recent inspection.
+	 *
+	 * @var bool
+	 */
 	private $pro_excluded = false;
 
 	/** Legacy manifest bound retained for callers; no longer enforced. */
@@ -31,10 +39,10 @@ class Migration_Package_Service {
 	/**
 	 * Validate the manifest and every regular archive entry without extracting.
 	 *
-	 * @param string   $path Server-resolved ZIP path, never a public input.
-	 * @param bool     $check_only Validate without collecting unselected output steps.
+	 * @param string   $path          Server-resolved ZIP path, never a public input.
+	 * @param bool     $check_only    Validate without collecting unselected output steps.
 	 * @param array    $selected_keys Optional keys required to exist in check-only mode.
-	 * @param int|null $only_index Return one dependency-ordered step and total count; null selects the first.
+	 * @param int|null $only_index    Return one dependency-ordered step and total count; null selects the first.
 	 * @return array|\WP_Error Manifest steps with authorized scope.
 	 */
 	public function inspect( $path, $check_only = false, array $selected_keys = array(), $only_index = null ) {
@@ -204,7 +212,14 @@ class Migration_Package_Service {
 	}
 
 
-	/** Copy decoded entry bytes with bounded memory and verify before parsing. */
+	/**
+	 * Copy decoded entry bytes with bounded memory and verify before parsing.
+	 *
+	 * @param mixed $zip    Open migration ZIP archive.
+	 * @param mixed $name   Entry name inside the archive.
+	 * @param mixed $path   Path of the file or entry.
+	 * @param mixed $cursor Resume cursor.
+	 */
 	public function copy_entry( $zip, $name, $path, &$cursor = null ) {
 		$stat = $zip->statName( $name );
 		if ( ! is_array( $stat ) || ! isset( $stat['size'], $stat['crc'] ) || ! is_int( $stat['size'] ) || $stat['size'] < 0 ) {
@@ -273,7 +288,15 @@ class Migration_Package_Service {
 	}
 
 
-	/** Validate row iterators in slices, retaining the archive list-of-rows contract. */
+	/**
+	 * Validate row iterators in slices, retaining the archive list-of-rows contract.
+	 *
+	 * @param mixed $path    Path of the file or entry.
+	 * @param mixed $format  File format.
+	 * @param mixed $parser  Parser for the file format.
+	 * @param array $options Options.
+	 * @param array $scope   Validation scope.
+	 */
 	private function validate_rows( $path, $format, $parser, array $options, array $scope ) {
 		$iterable = in_array( $format, array( 'csv', 'xml', 'xlsx', 'ods' ), true );
 		$streamed = $iterable;
@@ -353,7 +376,16 @@ class Migration_Package_Service {
 	}
 
 
-	/** Validate normalized workbook/object rows in slices; source-owned files inherit TTL cleanup. */
+	/**
+	 * Validate normalized workbook/object rows in slices; source-owned files inherit TTL cleanup.
+	 *
+	 * @param mixed $path        Path of the file or entry.
+	 * @param mixed $parser      Parser for the file format.
+	 * @param array $options     Options.
+	 * @param array $scope       Validation scope.
+	 * @param array $checkpoint  Checkpoint to resume from.
+	 * @param bool  $json_object Whether the sheet is a JSON object rather than a list.
+	 */
 	private function validate_sheet_slice( $path, $parser, array $options, array $scope, array &$checkpoint, $json_object = false ) {
 		$snapshot  = $path . '.rows-' . (int) ( $checkpoint['resource'] ?? 0 ) . '.json';
 		$temporary = $snapshot . '.tmp';
@@ -426,7 +458,14 @@ class Migration_Package_Service {
 		}
 	}
 
-	/** Archive objects must become a numeric list; duplicate keys retain the last value. */
+	/**
+	 * Archive objects must become a numeric list; duplicate keys retain the last value.
+	 *
+	 * @param mixed $path     Path of the file or entry.
+	 * @param mixed $snapshot Snapshot data.
+	 * @param array $state    Saved state of the job or transfer.
+	 * @throws \RuntimeException When the stored data is missing, invalid or cannot be read or written.
+	 */
 	private function object_snapshot_slice( $path, $snapshot, array $state ) {
 		$dir = $snapshot . '.work';
 		if ( is_link( $dir ) || ( ! is_dir( $dir ) && ! mkdir( $dir, 0700 ) ) ) {
@@ -506,11 +545,11 @@ class Migration_Package_Service {
 	/**
 	 * Validate an entry in bounded row batches without publishing incomplete data.
 	 *
-	 * @param string $path Private immutable entry.
-	 * @param string $format Parser name.
-	 * @param object $parser Format handler.
-	 * @param array  $options Parser settings.
-	 * @param array  $scope Authorized content scope.
+	 * @param string $path       Private immutable entry.
+	 * @param string $format     Parser name.
+	 * @param object $parser     Format handler.
+	 * @param array  $options    Parser settings.
+	 * @param array  $scope      Authorized content scope.
 	 * @param array  $checkpoint Durable parent-owned cursor.
 	 * @return array|\WP_Error
 	 */
@@ -605,7 +644,13 @@ class Migration_Package_Service {
 		);
 	}
 
-	/** Public preparation advances one entry slice; partial file IDs never leave the server. */
+	/**
+	 * Public preparation advances one entry slice; partial file IDs never leave the server.
+	 *
+	 * @param mixed $id     ID.
+	 * @param int   $offset Offset to start at.
+	 * @param int   $limit  Maximum number of items.
+	 */
 	public function prepare_public( $id, $offset = 0, $limit = 100 ) {
 		if ( ! is_int( $offset ) || $offset < 0 || ! is_int( $limit ) || $limit < 1 || $limit > 100 ) {
 			return $this->error( 'cursor', 400 ); }
@@ -749,6 +794,15 @@ class Migration_Package_Service {
 			Job_Lock::release( $lock ); }
 	}
 
+	/**
+	 * Build one page of prepared migration steps, within the size and count limits.
+	 *
+	 * @param mixed $id     ID.
+	 * @param array $state  Saved state of the job or transfer.
+	 * @param int   $offset Offset to start at.
+	 * @param int   $limit  Maximum number of items.
+	 * @return array|\WP_Error
+	 */
 	private function prepared_page( $id, array $state, $offset, $limit ) {
 		$total = $state['store']['count'];
 		if ( $offset > $total ) {
@@ -786,7 +840,7 @@ class Migration_Package_Service {
 	/**
 	 * Publish deterministic private import file IDs only after full validation.
 	 *
-	 * @param string     $id Existing uploaded or exported ZIP file ID.
+	 * @param string     $id         Existing uploaded or exported ZIP file ID.
 	 * @param int|null   $only_index Internal dependency-ordered entry cursor; null advances public preparation.
 	 * @param array|null $checkpoint Optional parent-owned row validation cursor.
 	 * @return array|\WP_Error
@@ -1067,7 +1121,7 @@ class Migration_Package_Service {
 	/**
 	 * Return a stable error without archive payload or filesystem paths.
 	 *
-	 * @param string $code Suffix.
+	 * @param string $code   Suffix.
 	 * @param int    $status HTTP status.
 	 * @return \WP_Error
 	 */

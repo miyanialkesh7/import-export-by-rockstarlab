@@ -17,9 +17,9 @@ class Migration_Map_Store {
 	 * Read a bounded page of the committed prefix in stable insertion order.
 	 *
 	 * @param int   $job_id Owning migration.
-	 * @param array $state Published checkpoint.
+	 * @param array $state  Published checkpoint.
 	 * @param int   $offset Zero-based ordinal.
-	 * @param int   $limit Maximum entries, at most 500.
+	 * @param int   $limit  Maximum entries, at most 500.
 	 * @return array|\WP_Error
 	 */
 	public static function page( $job_id, array $state, $offset = 0, $limit = 100 ) {
@@ -68,8 +68,8 @@ class Migration_Map_Store {
 	 * Validate the committed prefix while retaining only requested identities.
 	 *
 	 * @param int   $job_id Owning migration.
-	 * @param array $state Published checkpoint.
-	 * @param array $keys Required typed identity keys.
+	 * @param array $state  Published checkpoint.
+	 * @param array $keys   Required typed identity keys.
 	 * @return array|\WP_Error
 	 */
 	public static function select( $job_id, array $state, array $keys ) {
@@ -130,7 +130,13 @@ class Migration_Map_Store {
 		return $maps;
 	}
 
-	/** Existing identities that can conflict with one newly confirmed batch. */
+	/**
+	 * Existing identities that can conflict with one newly confirmed batch.
+	 *
+	 * @param int   $job_id Job ID.
+	 * @param array $state  Saved state of the map.
+	 * @param array $maps   Source ID => local ID maps.
+	 */
 	public static function conflicts( $job_id, array $state, array $maps ) {
 		if ( ! isset( $state['map_count'] ) ) {
 			return $state['maps'] ?? array(); }
@@ -156,7 +162,13 @@ class Migration_Map_Store {
 		return $result;
 	}
 
-	/** Append one confirmed child batch without hydrating earlier identities. */
+	/**
+	 * Append one confirmed child batch without hydrating earlier identities.
+	 *
+	 * @param int   $job_id Job ID.
+	 * @param array $state  Saved state of the map.
+	 * @param array $maps   Source ID => local ID maps.
+	 */
 	public static function append( $job_id, array $state, array $maps ) {
 		if ( ! isset( $state['map_count'] ) ) {
 			$previous = $state['maps'] ?? array();
@@ -201,7 +213,7 @@ class Migration_Map_Store {
 	 * Restore committed maps, keeping legacy inline checkpoints readable.
 	 *
 	 * @param int   $job_id Owning migration.
-	 * @param array $state Published checkpoint.
+	 * @param array $state  Published checkpoint.
 	 * @return array|\WP_Error
 	 */
 	public static function read( $job_id, array $state ) {
@@ -238,7 +250,7 @@ class Migration_Map_Store {
 	 * Write new identities before the caller publishes their checkpoint count.
 	 *
 	 * @param int   $job_id Owning migration, locked by the worker.
-	 * @param array $state Hydrated worker state.
+	 * @param array $state  Hydrated worker state.
 	 * @return array|\WP_Error Compact state, or a persistence failure.
 	 */
 	public static function checkpoint( $job_id, array $state ) {
@@ -303,8 +315,8 @@ class Migration_Map_Store {
 	 * Append only unseen identities from one bounded input page.
 	 *
 	 * @param int   $job_id Owning locked job.
-	 * @param array $page At most 500 validated identities.
-	 * @param int   $count Next ordinal, advanced after successful writes.
+	 * @param array $page   At most 500 validated identities.
+	 * @param int   $count  Next ordinal, advanced after successful writes.
 	 * @return true|\WP_Error
 	 */
 	private static function append_page( $job_id, array $page, &$count ) {
@@ -341,7 +353,12 @@ class Migration_Map_Store {
 		return true;
 	}
 
-	/** Validate the same typed identity format on storage and readback. */
+	/**
+	 * Validate the same typed identity format on storage and readback.
+	 *
+	 * @param mixed $key Identity key of the mapped item.
+	 * @param mixed $id  Local ID.
+	 */
 	private static function valid( $key, $id ) {
 		return is_string( $key ) && strlen( $key ) <= 191 && preg_match( '/^(post_type|taxonomy|user):[a-z0-9_-]+:([1-9][0-9]*)$/D', $key, $match ) && (string) (int) $match[2] === $match[2] && is_int( $id ) && $id > 0;
 	}

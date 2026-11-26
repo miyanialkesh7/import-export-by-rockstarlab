@@ -49,9 +49,9 @@ class Sync_ACF_Media {
 	/**
 	 * Freeze raw references and actual file evidence; include every linked file.
 	 *
-	 * @param array      $posts Source records.
-	 * @param array      $images Existing media collection, updated on success.
-	 * @param array|null $site PUSH peer to probe before media transfer.
+	 * @param array      $posts   Source records.
+	 * @param array      $images  Existing media collection, updated on success.
+	 * @param array|null $site    PUSH peer to probe before media transfer.
 	 * @param bool       $collect Collect transport images; false for read-only graph snapshots.
 	 * @return array|\WP_Error
 	 */
@@ -164,8 +164,9 @@ class Sync_ACF_Media {
 	/**
 	 * Validate the field contract, then resolve and verify actual local files.
 	 *
-	 * @param array      $posts Received records (before or after domain replacement).
+	 * @param array      $posts   Received records (before or after domain replacement).
 	 * @param array|null $mapping Null validates evidence before downloading files.
+	 * @param bool       $chunked Whether the transfer uses chunks.
 	 * @return array|\WP_Error
 	 */
 	public static function prepare( array $posts, $mapping = null, $chunked = true ) {
@@ -240,7 +241,7 @@ class Sync_ACF_Media {
 	/**
 	 * Hold media fields out of the native importer until confirmed finalization.
 	 *
-	 * @param array $posts Validated received posts.
+	 * @param array $posts       Validated received posts.
 	 * @param array $assignments Prepared fields.
 	 * @return array
 	 */
@@ -258,8 +259,9 @@ class Sync_ACF_Media {
 	 * Recheck definitions, permissions and files; persist and read back raw IDs.
 	 *
 	 * @param array $assignments Validated media assignments.
-	 * @param array $posts Confirmed source-to-local post map.
-	 * @param bool  $read_only Verify without writing.
+	 * @param array $posts       Confirmed source-to-local post map.
+	 * @param bool  $read_only   Verify without writing.
+	 * @param bool  $chunked     Whether the transfer uses chunks.
 	 * @return true|\WP_Error
 	 */
 	public static function finalize( array $assignments, array $posts, $read_only = false, $chunked = true ) {
@@ -358,7 +360,7 @@ class Sync_ACF_Media {
 	/**
 	 * Parse raw IDs without guessing from URLs or titles.
 	 *
-	 * @param mixed $value Stored value.
+	 * @param mixed $value    Stored value.
 	 * @param bool  $multiple Cardinality.
 	 * @return array|\WP_Error
 	 */

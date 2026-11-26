@@ -22,7 +22,7 @@ class Sync_Job_Service {
 	/**
 	 * Identify only this runner's queue records, never legacy history jobs.
 	 *
-	 * @param object|null $job Persisted record.
+	 * @param object|null $job              Persisted record.
 	 * @param bool        $include_children Internal worker lookup.
 	 * @return bool
 	 */
@@ -55,9 +55,9 @@ class Sync_Job_Service {
 	/**
 	 * Validate start/controls, including direct PHP calls.
 	 *
-	 * @param string $name Ability suffix.
-	 * @param array  $input Caller input.
-	 * @param string $edition Server-selected namespace provider.
+	 * @param string $name                Ability suffix.
+	 * @param array  $input               Caller input.
+	 * @param string $edition             Server-selected namespace provider.
 	 * @param int    $migration_parent_id Internal active parent.
 	 * @return array|\WP_Error
 	 */
@@ -97,9 +97,9 @@ class Sync_Job_Service {
 	/**
 	 * Queue immutable input and connection fingerprint, without persisting a credential.
 	 *
-	 * @param string $operation Existing sync ability suffix.
-	 * @param array  $input Validated start input.
-	 * @param string $edition Server-selected provider.
+	 * @param string $operation           Existing sync ability suffix.
+	 * @param array  $input               Validated start input.
+	 * @param string $edition             Server-selected provider.
 	 * @param int    $migration_parent_id Internal active parent.
 	 * @return array|\WP_Error
 	 */
@@ -169,8 +169,9 @@ class Sync_Job_Service {
 	/**
 	 * Recheck local selection, current provider/license and saved connection identity.
 	 *
-	 * @param array $params Trusted immutable queue parameters.
-	 * @param array $source_post_ids Internal deferred comment destinations; never used for execution.
+	 * @param array $params              Trusted immutable queue parameters.
+	 * @param array $source_post_ids     Internal deferred comment destinations; never used for execution.
+	 * @param array $confirmed_media_ids IDs of the media items the peer confirmed.
 	 * @return true|\WP_Error
 	 */
 	public function preflight( array $params, array $source_post_ids = array(), array $confirmed_media_ids = array() ) {
@@ -243,7 +244,8 @@ class Sync_Job_Service {
 	/**
 	 * Authorize the queue record and reject malformed execution identity.
 	 *
-	 * @param int $id Job ID.
+	 * @param int $id                  Job ID.
+	 * @param int $migration_parent_id ID of the migration job this job belongs to.
 	 * @return object|\WP_Error
 	 */
 	private function record( $id, $migration_parent_id = 0 ) {
@@ -295,8 +297,9 @@ class Sync_Job_Service {
 	/**
 	 * Pause/resume/cancel before the indivisible transfer begins.
 	 *
-	 * @param int    $id Queue ID.
-	 * @param string $action Lifecycle action.
+	 * @param int    $id                  Queue ID.
+	 * @param string $action              Lifecycle action.
+	 * @param int    $migration_parent_id ID of the migration job this job belongs to.
 	 * @return array|\WP_Error
 	 */
 	public function transition( $id, $action, $migration_parent_id = 0 ) {
@@ -382,7 +385,7 @@ class Sync_Job_Service {
 	/**
 	 * Restore the queued user, validating user/site against the actual row.
 	 *
-	 * @param object   $job Trusted queue record.
+	 * @param object   $job      Trusted queue record.
 	 * @param callable $callback Worker operation.
 	 * @return mixed
 	 */
@@ -493,11 +496,22 @@ class Sync_Job_Service {
 		}
 	}
 
+	/**
+	 * Tell whether a job stopped at a point where the remote result is unknown (transferring or finalizing media).
+	 *
+	 * @param array $state Saved state of the job or transfer.
+	 * @return bool
+	 */
 	private function uncertain_state( array $state ) {
 		return 'transferring' === ( $state['stage'] ?? '' ) || 'finalize' === ( $state['media']['phase'] ?? '' );
 	}
 
-	/** Read confirmed sources only from the persisted worker checkpoint. */
+	/**
+	 * Read confirmed sources only from the persisted worker checkpoint.
+	 *
+	 * @param array $params Job parameters.
+	 * @param array $state  Saved state of the job or transfer.
+	 */
 	private function confirmed_media_ids( array $params, array $state ) {
 		if ( ! $this->chunked_media( $params ) ) {
 			return array(); }
@@ -508,12 +522,22 @@ class Sync_Job_Service {
 		return $ids;
 	}
 
-	/** Only explicitly versioned media jobs use the staged transport. */
+	/**
+	 * Only explicitly versioned media jobs use the staged transport.
+	 *
+	 * @param array $params Job parameters.
+	 */
 	private function chunked_media( array $params ) {
 		return 1 === ( $params['media_chunk_version'] ?? null ) && in_array( $params['operation'] ?? '', array( 'sync-media-push', 'sync-media-pull' ), true );
 	}
 
-	/** Advance one file step and atomically persist the returned checkpoint. */
+	/**
+	 * Advance one file step and atomically persist the returned checkpoint.
+	 *
+	 * @param mixed $job    Job record.
+	 * @param array $params Job parameters.
+	 * @param array $state  Saved state of the job or transfer.
+	 */
 	private function media_step( $job, array $params, array $state ) {
 		if ( ! in_array( $state['stage'] ?? '', array( 'queued', 'media_push' ), true ) ) {
 			return $this->error( 'invalid_checkpoint', 400 ); }
@@ -584,7 +608,12 @@ class Sync_Job_Service {
 		return $this->save( $job->id, $state, $columns );
 	}
 
-	/** Publish every confirmed outcome, including the file awaiting cleanup. */
+	/**
+	 * Publish every confirmed outcome, including the file awaiting cleanup.
+	 *
+	 * @param mixed $job   Job record.
+	 * @param array $state Saved state of the job or transfer.
+	 */
 	private function media_result_columns( $job, array $state ) {
 		$result = $state['aggregate'] ?? array(
 			'created' => 0,
@@ -608,7 +637,12 @@ class Sync_Job_Service {
 		);
 	}
 
-	/** Called only by the locked parent; persist each cleanup result before stopping. */
+	/**
+	 * Called only by the locked parent; persist each cleanup result before stopping.
+	 *
+	 * @param mixed $parent Parent migration job.
+	 * @param mixed $id     ID of the media item.
+	 */
 	public function cancel_parent_media( $parent, $id ) {
 		$lock = Job_Lock::acquire( $id );
 		if ( ! $lock || is_wp_error( $lock ) ) {
@@ -657,7 +691,13 @@ class Sync_Job_Service {
 		}
 	}
 
-	/** Cancel only after staged resources are discarded in the captured owner context. */
+	/**
+	 * Cancel only after staged resources are discarded in the captured owner context.
+	 *
+	 * @param mixed $job    Job record.
+	 * @param array $params Job parameters.
+	 * @param array $state  Saved state of the job or transfer.
+	 */
 	private function media_cancel( $job, array $params, array $state ) {
 		$driver = 'sync-media-pull' === $params['operation'] ? new Media_Chunk_Pull() : new Media_Chunk_Push();
 		$next   = $driver->cleanup( (int) $params['input']['site_id'], $params['connection_fingerprint'], $state['media'], true );
@@ -677,7 +717,7 @@ class Sync_Job_Service {
 	/**
 	 * Persist in-flight checkpoint before entering the existing domain workflow.
 	 *
-	 * @param object $job Queue record.
+	 * @param object $job    Queue record.
 	 * @param array  $params Immutable parameters.
 	 * @return array|\WP_Error
 	 */
@@ -764,8 +804,8 @@ class Sync_Job_Service {
 	/**
 	 * Persist one complete checkpoint atomically.
 	 *
-	 * @param int   $id Queue ID.
-	 * @param array $state Checkpoint state.
+	 * @param int   $id      Queue ID.
+	 * @param array $state   Checkpoint state.
 	 * @param array $columns Additional columns in the same write.
 	 * @return array|\WP_Error
 	 */
@@ -783,9 +823,9 @@ class Sync_Job_Service {
 	/**
 	 * Mark failure while preserving the last linked history and uncertain-outcome flag.
 	 *
-	 * @param int    $id Queue ID.
-	 * @param string $code Safe stable failure code.
-	 * @param bool   $uncertain Transfer may already have changed content.
+	 * @param int    $id          Queue ID.
+	 * @param string $code        Safe stable failure code.
+	 * @param bool   $uncertain   Transfer may already have changed content.
 	 * @param string $own_message Readable reason written by this plugin, if known.
 	 * @return array|\WP_Error
 	 */
@@ -819,7 +859,7 @@ class Sync_Job_Service {
 	/**
 	 * Return stable failures without raw remote data.
 	 *
-	 * @param string $code Error suffix.
+	 * @param string $code   Error suffix.
 	 * @param int    $status HTTP status.
 	 * @return \WP_Error
 	 */

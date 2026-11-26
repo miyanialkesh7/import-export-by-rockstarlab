@@ -32,18 +32,27 @@ class Migration_Manifest_Reader {
 	 * @var int
 	 */
 	private $offset = 0;
-	/** @var resource|null Private normalized step spool. */
+	/**
+	 * Private normalized step spool.
+	 *
+	 * @var resource|null
+	 */
 	private $steps_stream;
-	/** @var int Number of spooled steps. */
+	/**
+	 * Number of spooled steps.
+	 *
+	 * @var int
+	 */
 	private $steps_count = 0;
 
 	/**
 	 * Decode a verified private file; schema validation belongs to the caller.
 	 *
-	 * @param string $path Verified private file.
+	 * @param string $path        Verified private file.
 	 * @param bool   $spool_steps Keep array steps on disk; consume through steps().
 	 * @return array
 	 * @throws \RuntimeException On unreadable or malformed input.
+	 * @throws \Throwable Any other error while reading; the reader is closed first and the error is rethrown.
 	 */
 	public function decode( $path, $spool_steps = false ) {
 		$this->close();
@@ -115,7 +124,12 @@ class Migration_Manifest_Reader {
 		}
 	}
 
-	/** Iterate the final steps member; overwritten members never escape. */
+	/**
+	 * Iterate the final steps member; overwritten members never escape.
+	 *
+	 * @param array $manifest File manifest (name, size, SHA-256).
+	 * @throws \RuntimeException When the stored data is missing, invalid or cannot be read or written.
+	 */
 	public function steps( array $manifest ) {
 		if ( ! is_resource( $this->steps_stream ) ) {
 			yield from $manifest['steps'];
@@ -133,7 +147,11 @@ class Migration_Manifest_Reader {
 			throw new \RuntimeException( esc_html__( 'Cannot read manifest spool.', 'import-export-by-rockstarlab' ) ); }
 	}
 
-	/** Count without materializing the final steps array. */
+	/**
+	 * Count without materializing the final steps array.
+	 *
+	 * @param array $manifest File manifest (name, size, SHA-256).
+	 */
 	public function count_steps( array $manifest ) {
 		return is_resource( $this->steps_stream ) ? $this->steps_count : count( $manifest['steps'] );
 	}
@@ -146,6 +164,9 @@ class Migration_Manifest_Reader {
 		$this->steps_count  = 0;
 	}
 
+	/**
+	 * Close the manifest when the reader is released.
+	 */
 	public function __destruct() {
 		$this->close(); }
 

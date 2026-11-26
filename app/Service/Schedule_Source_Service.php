@@ -20,7 +20,11 @@ class Schedule_Source_Service {
 	/** Modified-date filter field per export type (orders keep theirs in date_modified). */
 	const CHANGED_FIELD = array( 'woo_order' => 'date_modified' );
 
-	/** @var string Local MySQL time; empty exports everything. */
+	/**
+	 * Local MySQL time; empty exports everything.
+	 *
+	 * @var string
+	 */
 	private $changed_since = '';
 
 	/**

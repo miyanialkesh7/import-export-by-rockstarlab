@@ -14,11 +14,23 @@ defined( 'ABSPATH' ) || exit;
 
 /** The parent owns selection, ordering, maps and child lifecycle. */
 class Migration_Import_Service extends Migration_Service {
+	/**
+	 * Yield the stored import requests of a migration.
+	 *
+	 * @param array $state Saved state of the job or transfer.
+	 * @return \Generator
+	 */
 	public static function stored_requests( array $state ) {
 		if ( isset( $state['request_store'] ) ) {
 			yield from Archive_Step_Store::rows( $state['request_store'] ); } else {
 			yield from $state['requests'] ?? array(); }
 	}
+	/**
+	 * Count the stored import requests of a migration.
+	 *
+	 * @param array $state Saved state of the job or transfer.
+	 * @return int
+	 */
 	private static function request_count( array $state ) {
 		return $state['request_store']['count'] ?? count( $state['requests'] ?? array() );
 	}
@@ -35,7 +47,7 @@ class Migration_Import_Service extends Migration_Service {
 	/**
 	 * Include the active child's confirmed rows without trusting client counters.
 	 *
-	 * @param object $job Parent.
+	 * @param object $job   Parent.
 	 * @param array  $state Saved checkpoint.
 	 * @return array
 	 */
@@ -179,7 +191,7 @@ class Migration_Import_Service extends Migration_Service {
 	/**
 	 * Freeze every prepared step; callers cannot inject mappings or child jobs.
 	 *
-	 * @param array $input Validated public input.
+	 * @param array $input   Validated public input.
 	 * @param array $package Validated prepared entries.
 	 * @return array|\WP_Error
 	 */
@@ -422,7 +434,7 @@ class Migration_Import_Service extends Migration_Service {
 	/**
 	 * Restore ephemeral importer maps from durable checkpoints.
 	 *
-	 * @param int   $id Child job.
+	 * @param int   $id   Child job.
 	 * @param array $maps Durable maps.
 	 */
 	public static function restore_maps( $id, array $maps ) {
@@ -438,11 +450,11 @@ class Migration_Import_Service extends Migration_Service {
 	/**
 	 * Capture identities after each completed row, before importer finalization.
 	 *
-	 * @param int   $id Child ID.
-	 * @param array $maps Existing durable maps.
+	 * @param int   $id      Child ID.
+	 * @param array $maps    Existing durable maps.
 	 * @param array $request Server request.
-	 * @param array $item Prepared row.
-	 * @param mixed $result Importer result.
+	 * @param array $item    Prepared row.
+	 * @param mixed $result  Importer result.
 	 * @return array
 	 */
 	public static function capture_maps( $id, array $maps, array $request, array $item, $result ) {
@@ -461,9 +473,9 @@ class Migration_Import_Service extends Migration_Service {
 	/**
 	 * Resolve cross-step references only from this parent's durable maps.
 	 *
-	 * @param int   $id Child ID or zero for ordinary validation.
+	 * @param int   $id      Child ID or zero for ordinary validation.
 	 * @param array $request Normalized request.
-	 * @param array $rows Mapped rows.
+	 * @param array $rows    Mapped rows.
 	 * @return array|\WP_Error
 	 */
 	public static function prepare_rows( $id, array $request, array $rows ) {

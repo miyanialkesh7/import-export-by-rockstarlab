@@ -14,9 +14,9 @@ class Sync_ACF_Media_Fields {
 	/**
 	 * Blank typed relation fields without interpreting ordinary text as a lookup.
 	 *
-	 * @param mixed $value Portable ACF value.
-	 * @param array $field Installed field definition.
-	 * @param int   $depth Bounded nesting depth.
+	 * @param mixed $value        Portable ACF value.
+	 * @param array $field        Installed field definition.
+	 * @param int   $depth        Bounded nesting depth.
 	 * @param bool  $media_values Hold Image/File/Gallery for graph finalization.
 	 * @return mixed
 	 */
@@ -47,10 +47,10 @@ class Sync_ACF_Media_Fields {
 	/**
 	 * Visit typed portable leaves while preserving bounded ACF containers.
 	 *
-	 * @param mixed    $value Portable value.
-	 * @param array    $field Installed definition.
+	 * @param mixed    $value   Portable value.
+	 * @param array    $field   Installed definition.
 	 * @param callable $visitor Typed leaf transformation.
-	 * @param int      $depth Nesting depth.
+	 * @param int      $depth   Nesting depth.
 	 * @return mixed
 	 */
 	public static function walk( $value, array $field, $visitor, $depth = 0 ) {
@@ -107,9 +107,9 @@ class Sync_ACF_Media_Fields {
 	/**
 	 * Preserve scalar/container values while visiting their actual definitions.
 	 *
-	 * @param array    $row Portable row.
-	 * @param array    $fields Installed subfields.
-	 * @param int      $depth Nesting depth.
+	 * @param array    $row     Portable row.
+	 * @param array    $fields  Installed subfields.
+	 * @param int      $depth   Nesting depth.
 	 * @param callable $visitor Typed leaf transformation.
 	 * @return array|\WP_Error
 	 */
@@ -129,8 +129,8 @@ class Sync_ACF_Media_Fields {
 	/**
 	 * Verify the attachment object file itself, even without a self-reference.
 	 *
-	 * @param array      $posts Graph snapshots.
-	 * @param array|null $maps Confirmed maps, or null before transfer.
+	 * @param array      $posts   Graph snapshots.
+	 * @param array|null $maps    Confirmed maps, or null before transfer.
 	 * @param bool       $chunked Server-selected staged transport.
 	 * @return true|\WP_Error
 	 */
@@ -175,7 +175,11 @@ class Sync_ACF_Media_Fields {
 		return 1 === count( $found ) ? reset( $found ) : Migration_Sync_Maps::error();
 	}
 
-	/** Narrow the owning parent's graph context to one staged attachment. */
+	/**
+	 * Narrow the owning parent's graph context to one staged attachment.
+	 *
+	 * @param mixed $id ID of the media item.
+	 */
 	public static function chunk_request( $id ) {
 		$request = Sync_ACF_Graph::request();
 		if ( ! $request ) {
@@ -189,7 +193,7 @@ class Sync_ACF_Media_Fields {
 	/**
 	 * Confirm the source snapshot before sending portable media fields.
 	 *
-	 * @param array $ids Actual source attachment IDs.
+	 * @param array $ids    Actual source attachment IDs.
 	 * @param mixed $hashes Parent reference fingerprints.
 	 * @return true|\WP_Error
 	 */
@@ -245,7 +249,7 @@ class Sync_ACF_Media_Fields {
 	 * Refuse ambiguous shared attachment destinations before any graph writes.
 	 *
 	 * @param array $snapshots All frozen graph batches.
-	 * @param array $maps Confirmed typed identities.
+	 * @param array $maps      Confirmed typed identities.
 	 * @return true|\WP_Error
 	 */
 	public static function unique_targets( array $snapshots, array $maps ) {

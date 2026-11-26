@@ -11,7 +11,11 @@ defined( 'ABSPATH' ) || exit;
 
 /** Thin wrapper over the PHP FTP extension. */
 class Remote_FTP_Connection {
-	/** @var resource|\FTP\Connection|null */
+	/**
+	 * Open connection handle.
+	 *
+	 * @var resource|\FTP\Connection|null
+	 */
 	private $conn = null;
 
 	/**

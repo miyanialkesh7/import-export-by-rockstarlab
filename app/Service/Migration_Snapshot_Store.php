@@ -1,13 +1,28 @@
 <?php
-/** Graph batches become visible to a job when their reference is checkpointed. */
+/**
+ * Graph batches become visible to a job when their reference is checkpointed.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned tables: no WordPress API exists for them, and these are transient job rows that must not be cached.
 
 defined( 'ABSPATH' ) || exit;
+/**
+ * Stores snapshots of migration reference data in the database.
+ */
 class Migration_Snapshot_Store {
 
-	/** Write a graph batch or prepared source plan before publishing its checkpoint reference. */
+	/**
+	 * Write a graph batch or prepared source plan before publishing its checkpoint reference.
+	 *
+	 * @param int   $job_id  Job ID.
+	 * @param mixed $family  Kind of data in the snapshot.
+	 * @param mixed $index   Position.
+	 * @param array $records Reference records to store.
+	 */
 	public static function put( $job_id, $family, $index, array $records ) {
 		if ( ! is_numeric( $job_id ) || (int) $job_id < 1 || ! is_int( $index ) || $index < 0 || ! in_array( $family, array( 'acf', 'woo', 'woo_rows', 'woo_map', 'sources' ), true ) ) {
 			return self::error();
@@ -40,7 +55,11 @@ class Migration_Snapshot_Store {
 		);
 	}
 
-	/** Read and verify one persisted batch, or retain a legacy inline checkpoint. */
+	/**
+	 * Read and verify one persisted batch, or retain a legacy inline checkpoint.
+	 *
+	 * @param array $reference Stored reference to the snapshot data.
+	 */
 	public static function get( array $reference ) {
 		if ( ! isset( $reference['snapshot_version'] ) ) {
 			return $reference;
@@ -57,18 +76,31 @@ class Migration_Snapshot_Store {
 		return is_array( $records ) ? $records : self::error();
 	}
 
-	/** Load one batch at a time; callers must propagate an unavailable snapshot error. */
+	/**
+	 * Load one batch at a time; callers must propagate an unavailable snapshot error.
+	 *
+	 * @param array $snapshots Snapshot references.
+	 */
 	public static function iterate( array $snapshots ) {
 		foreach ( $snapshots as $index => $reference ) {
 			yield $index => self::get( $reference );
 		}
 	}
 
-	/** Read the ordering hint without loading the batch payload. */
+	/**
+	 * Read the ordering hint without loading the batch payload.
+	 *
+	 * @param array $reference Stored reference to the snapshot data.
+	 */
 	public static function type( array $reference ) {
 		return isset( $reference['snapshot_version'] ) ? ( $reference['post_type'] ?? '' ) : ( $reference[0]['post_type'] ?? '' );
 	}
 
+	/**
+	 * Build the error returned when a migration snapshot is missing or has changed.
+	 *
+	 * @return \WP_Error
+	 */
 	private static function error() {
 		return new \WP_Error( 'rsl_ie_migration_snapshot_unavailable', __( 'Migration reference snapshot is unavailable or changed.', 'import-export-by-rockstarlab' ), array( 'status' => 409 ) );
 	}

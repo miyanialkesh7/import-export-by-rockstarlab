@@ -31,7 +31,13 @@ class Spreadsheet_Spool {
 		return $path;
 	}
 
-	/** Start preparation without scanning the workbook. The job owns every artifact. */
+	/**
+	 * Start preparation without scanning the workbook. The job owns every artifact.
+	 *
+	 * @param mixed $id       ID of the spool.
+	 * @param array $request  Import request.
+	 * @param mixed $snapshot Snapshot of the source file the spool was built from.
+	 */
 	public static function create( $id, array $request, $snapshot = null ) {
 		$snapshot = $snapshot ?? self::path( $id );
 		clearstatcache( true, $request['file_path'] );
@@ -56,7 +62,15 @@ class Spreadsheet_Spool {
 		);
 	}
 
-	/** Advance one bounded parse/assembly/snapshot slice under the existing job lock. */
+	/**
+	 * Advance one bounded parse/assembly/snapshot slice under the existing job lock.
+	 *
+	 * @param mixed $id       ID of the spool.
+	 * @param array $request  Import request.
+	 * @param array $state    Saved state of the spool.
+	 * @param mixed $snapshot Snapshot of the source file the spool was built from.
+	 * @throws \RuntimeException When the stored data is missing, invalid or cannot be read or written.
+	 */
 	public static function advance( $id, array $request, array $state, $snapshot = null ) {
 		$path = $snapshot ?? self::path( $id );
 		$dir  = $path . '.work';
@@ -216,7 +230,13 @@ class Spreadsheet_Spool {
 		}
 	}
 
-	/** Drop uncommitted tail bytes before replaying a slice. */
+	/**
+	 * Drop uncommitted tail bytes before replaying a slice.
+	 *
+	 * @param mixed $path   Path of the spool output file.
+	 * @param int   $offset Byte offset to read from.
+	 * @throws \RuntimeException When the stored data is missing, invalid or cannot be read or written.
+	 */
 	private static function output( $path, $offset ) {
 		$stream = fopen( $path, 'c+b' );
 		if ( ! $stream ) {
@@ -231,7 +251,7 @@ class Spreadsheet_Spool {
 	 * Require a complete write.
 	 *
 	 * @param resource $stream Output stream.
-	 * @param string   $value Bytes to write.
+	 * @param string   $value  Bytes to write.
 	 * @return void
 	 * @throws \RuntimeException On short writes.
 	 */
@@ -244,7 +264,8 @@ class Spreadsheet_Spool {
 	/**
 	 * Remove only this job's snapshot and unfinished publication.
 	 *
-	 * @param int $id Job ID.
+	 * @param int   $id       Job ID.
+	 * @param mixed $snapshot Snapshot of the source file the spool was built from.
 	 * @return bool
 	 */
 	public static function discard( $id, $snapshot = null ) {

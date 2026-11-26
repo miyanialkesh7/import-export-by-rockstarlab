@@ -47,7 +47,7 @@ class Migration_Service {
 	/**
 	 * Execute a closed public contract, including direct PHP calls.
 	 *
-	 * @param string       $name Ability suffix.
+	 * @param string       $name  Ability suffix.
 	 * @param array|object $input Parsed input.
 	 * @return array|\WP_Error
 	 */
@@ -273,7 +273,7 @@ class Migration_Service {
 	/**
 	 * Serialize parent lifecycle with all child batches and packaging.
 	 *
-	 * @param int    $id Parent ID.
+	 * @param int    $id     Parent ID.
 	 * @param string $action Pause/resume/cancel.
 	 * @return array|\WP_Error
 	 */
@@ -404,7 +404,7 @@ class Migration_Service {
 	/**
 	 * Restore only the user/blog captured on this parent.
 	 *
-	 * @param object   $job Record.
+	 * @param object   $job      Record.
 	 * @param callable $callback Worker operation.
 	 * @return mixed|\WP_Error
 	 */
@@ -483,7 +483,7 @@ class Migration_Service {
 	/**
 	 * Build only from verified child records into a private atomic ZIP result.
 	 *
-	 * @param object $job Parent.
+	 * @param object $job   Parent.
 	 * @param array  $state Checkpoint.
 	 * @return array|\WP_Error
 	 */
@@ -611,8 +611,8 @@ class Migration_Service {
 	/**
 	 * Persist one complete parent checkpoint atomically.
 	 *
-	 * @param int   $id Parent ID.
-	 * @param array $state Checkpoint.
+	 * @param int   $id      Parent ID.
+	 * @param array $state   Checkpoint.
 	 * @param array $columns Other columns.
 	 * @return array|\WP_Error
 	 */
@@ -636,7 +636,7 @@ class Migration_Service {
 	/**
 	 * Stop without erasing child identity or the last successful checkpoint.
 	 *
-	 * @param int    $id Parent ID.
+	 * @param int    $id   Parent ID.
 	 * @param string $code Stable error code.
 	 * @return array|\WP_Error
 	 */
@@ -665,7 +665,7 @@ class Migration_Service {
 	/**
 	 * Advance durable cancellation, waiting for owned resource cleanup.
 	 *
-	 * @param object $job Parent under its worker lock.
+	 * @param object $job   Parent under its worker lock.
 	 * @param array  $state Persisted child IDs.
 	 */
 	private function cancel_batch( $job, array $state ) {
@@ -696,7 +696,12 @@ class Migration_Service {
 		return $saved;
 	}
 
-	/** Close unfinished owned children only after their resources are cleaned. */
+	/**
+	 * Close unfinished owned children only after their resources are cleaned.
+	 *
+	 * @param mixed $job   Parent migration job.
+	 * @param array $state Saved state of the migration.
+	 */
 	private function stop_children( $job, array $state ) {
 		foreach ( $state['children'] ?? array() as $id ) {
 			$child = rsl_ie()->Model->job->find( $id );
@@ -721,7 +726,7 @@ class Migration_Service {
 	/**
 	 * Safe diagnostic without source data or local paths.
 	 *
-	 * @param string $code Suffix.
+	 * @param string $code   Suffix.
 	 * @param int    $status HTTP status.
 	 * @return \WP_Error
 	 */

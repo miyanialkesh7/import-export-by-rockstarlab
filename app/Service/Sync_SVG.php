@@ -1,10 +1,23 @@
 <?php
-/** Sanitized SVG support (and Elementor Pro Lottie JSON files) scoped to media synchronization. */
+/**
+ * Sanitized SVG support (and Elementor Pro Lottie JSON files) scoped to media synchronization.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
 defined( 'ABSPATH' ) || exit;
+/**
+ * Handles SVG files during sync: availability and sanitizing.
+ */
 class Sync_SVG {
+	/**
+	 * Tell whether the SVG sanitizer of Elementor and the DOM extension are available.
+	 *
+	 * @return bool
+	 */
 	public static function available() {
 		return class_exists( '\Elementor\Core\Utils\Svg\Svg_Sanitizer' ) && class_exists( 'DOMDocument' ) && class_exists( 'SimpleXMLElement' );
 	}
@@ -12,6 +25,11 @@ class Sync_SVG {
 	public static function json_available() {
 		return defined( 'ELEMENTOR_PRO_VERSION' );
 	}
+	/**
+	 * Get the allowed MIME types, with SVG and JSON added when they can be handled safely.
+	 *
+	 * @return array
+	 */
 	public static function mimes() {
 		$mimes = get_allowed_mime_types();
 		if ( self::available() ) {

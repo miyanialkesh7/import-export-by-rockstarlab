@@ -15,7 +15,11 @@ defined( 'ABSPATH' ) || exit;
 
 /** Only the active parent supplies transfer fingerprints; peers never run jobs. */
 class Sync_ACF_Graph {
-	/** Only attachment-only batches use the large media metadata path. */
+	/**
+	 * Only attachment-only batches use the large media metadata path.
+	 *
+	 * @param mixed $posts Post payloads.
+	 */
 	public static function media_records( $posts ) {
 		if ( ! is_array( $posts ) || ! $posts || count( $posts ) > 50 ) {
 			return false;
@@ -32,8 +36,8 @@ class Sync_ACF_Graph {
 	 * Delegate nested product fields to the licensed provider.
 	 *
 	 * @param string $operation Phase.
-	 * @param array  $data Records.
-	 * @param array  $context Selection or maps.
+	 * @param array  $data      Records.
+	 * @param array  $context   Selection or maps.
 	 * @return mixed
 	 */
 	public static function products( $operation, array $data = array(), array $context = array() ) {
@@ -52,8 +56,8 @@ class Sync_ACF_Graph {
 	 * Delegate account graphs only to the licensed provider.
 	 *
 	 * @param string $operation Phase.
-	 * @param array  $data Phase data.
-	 * @param array  $context Phase maps or options.
+	 * @param array  $data      Phase data.
+	 * @param array  $context   Phase maps or options.
 	 * @return mixed
 	 */
 	public static function accounts( $operation, array $data = array(), array $context = array() ) {
@@ -65,8 +69,8 @@ class Sync_ACF_Graph {
 	 * Delegate term graphs to the licensed provider.
 	 *
 	 * @param string $operation Phase.
-	 * @param array  $data Phase data.
-	 * @param array  $context Selection or maps.
+	 * @param array  $data      Phase data.
+	 * @param array  $context   Selection or maps.
 	 * @return mixed
 	 */
 	public static function terms( $operation, array $data = array(), array $context = array() ) {
@@ -88,7 +92,7 @@ class Sync_ACF_Graph {
 	 * Reject aliased term owners across all frozen batches.
 	 *
 	 * @param array $snapshots Frozen source batches.
-	 * @param array $maps Confirmed destination identities.
+	 * @param array $maps      Confirmed destination identities.
 	 * @return true|\WP_Error
 	 */
 	public static function term_targets( array $snapshots, array $maps ) {
@@ -207,8 +211,8 @@ class Sync_ACF_Graph {
 	/**
 	 * Strip source reference values before native import and verify frozen data.
 	 *
-	 * @param array      $posts Actual exported payloads.
-	 * @param array|null $hashes Explicit peer source fingerprints.
+	 * @param array      $posts    Actual exported payloads.
+	 * @param array|null $hashes   Explicit peer source fingerprints.
 	 * @param bool|null  $products Explicit nested product protocol.
 	 * @return array|\WP_Error
 	 */
@@ -278,7 +282,7 @@ class Sync_ACF_Graph {
 	 * Compare validated hashes independent of JSON object property order.
 	 *
 	 * @param mixed $expected Expected fingerprints.
-	 * @param array $actual Observed fingerprints.
+	 * @param array $actual   Observed fingerprints.
 	 * @return bool
 	 */
 	public static function same_hashes( $expected, array $actual ) {
@@ -293,7 +297,7 @@ class Sync_ACF_Graph {
 	/**
 	 * Read only actual authorized reference metadata from a selected source batch.
 	 *
-	 * @param array  $ids Selected IDs.
+	 * @param array  $ids  Selected IDs.
 	 * @param string $type Expected post type.
 	 * @return array|\WP_Error
 	 */
@@ -369,11 +373,18 @@ class Sync_ACF_Graph {
 	/**
 	 * Validate reference evidence against the entire selected post graph.
 	 *
-	 * @param array $posts Frozen batch.
+	 * @param array $posts    Frozen batch.
 	 * @param array $selected Full source ID to type selection.
 	 * @return true|\WP_Error
 	 */
-	/** Keep only identities required by an ordinary post/media snapshot batch. */
+	/**
+	 * Keep only identities required by an ordinary post/media snapshot batch.
+	 *
+	 * @param array $posts     Post payloads.
+	 * @param array $context   Request context.
+	 * @param bool  $selection Selected items.
+	 * @param bool  $keys_only Whether to return only the keys.
+	 */
 	public static function batch_context( array $posts, array $context, $selection = false, $keys_only = false ) {
 		$needed = array();
 		foreach ( $posts as $post ) {
@@ -399,6 +410,13 @@ class Sync_ACF_Graph {
 		return $keys_only ? $needed : array_intersect_key( $context, $needed );
 	}
 
+	/**
+	 * Check the ACF references of a batch of posts before they are sent.
+	 *
+	 * @param array $posts    Post payloads.
+	 * @param array $selected Selected ACF fields.
+	 * @return true|\WP_Error
+	 */
 	public static function check( array $posts, array $selected ) {
 		$selected = self::batch_context( $posts, $selected, true );
 		if ( '@product' === ( $posts[0]['post_type'] ?? '' ) ) {
@@ -447,8 +465,8 @@ class Sync_ACF_Graph {
 	/**
 	 * Assign a frozen batch from confirmed source-to-destination typed maps.
 	 *
-	 * @param array $posts Frozen batch.
-	 * @param array $maps Complete confirmed maps.
+	 * @param array $posts     Frozen batch.
+	 * @param array $maps      Complete confirmed maps.
 	 * @param bool  $read_only Verify without writing.
 	 * @return true|\WP_Error
 	 */
@@ -495,7 +513,7 @@ class Sync_ACF_Graph {
 	/**
 	 * Use one authenticated, bounded peer protocol for read/check/finalize.
 	 *
-	 * @param array $site Validated connection.
+	 * @param array $site  Validated connection.
 	 * @param array $input Operation and bounded payload.
 	 * @return array|\WP_Error
 	 */

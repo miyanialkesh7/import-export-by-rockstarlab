@@ -11,7 +11,11 @@ defined( 'ABSPATH' ) || exit;
 
 /** Keep WooCommerce decisions and writes in the premium provider. */
 class Sync_Product_Links {
-	/** Validate explicit deferred payloads before any receiver writes. */
+	/**
+	 * Validate explicit deferred payloads before any receiver writes.
+	 *
+	 * @param array $posts Post payloads.
+	 */
 	public static function validate_deferred( array $posts ) {
 		foreach ( $posts as $post ) {
 			if ( is_array( $post ) && array_key_exists( 'woo_variations_deferred', $post ) ) {
@@ -32,7 +36,7 @@ class Sync_Product_Links {
 	/**
 	 * Scope transfer evidence to one child invocation.
 	 *
-	 * @param array    $hashes Frozen fingerprints.
+	 * @param array    $hashes   Frozen fingerprints.
 	 * @param callable $callback Child operation.
 	 * @return mixed
 	 */
@@ -49,7 +53,7 @@ class Sync_Product_Links {
 	/**
 	 * Present deferred product phases from the stored parent checkpoint.
 	 *
-	 * @param array  $state Parent state.
+	 * @param array  $state    Parent state.
 	 * @param string $fallback Existing phase label.
 	 * @return string
 	 */
@@ -82,8 +86,8 @@ class Sync_Product_Links {
 	/**
 	 * Dispatch a server-selected transfer phase.
 	 *
-	 * @param string $phase Export, prepare, strip or finalize.
-	 * @param array  $data Records or prepared assignments.
+	 * @param string $phase   Export, prepare, strip or finalize.
+	 * @param array  $data    Records or prepared assignments.
 	 * @param array  $context Maps and connection.
 	 * @return mixed
 	 */

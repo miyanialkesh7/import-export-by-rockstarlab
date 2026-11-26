@@ -1,5 +1,10 @@
 <?php
-/** Carry synced patterns (wp_block, referenced as <!-- wp:block {"ref":N} /-->) with synchronized content. */
+/**
+ * Carry synced patterns (wp_block, referenced as <!-- wp:block {"ref":N} /-->) with synchronized content.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 defined( 'ABSPATH' ) || exit;
@@ -327,7 +332,12 @@ class Sync_Synced_Patterns {
 		);
 	}
 
-	/** Keep {} where the original attributes had an empty object (json_decode turns it into []). */
+	/**
+	 * Keep {} where the original attributes had an empty object (json_decode turns it into []).
+	 *
+	 * @param mixed $value    Block attribute value.
+	 * @param mixed $original Original block attribute value.
+	 */
 	private static function keep_empty_objects( $value, $original ) {
 		if ( ! is_array( $value ) ) {
 			return $value;
@@ -342,7 +352,11 @@ class Sync_Synced_Patterns {
 		return $value;
 	}
 
-	/** Term IDs used by Query Loop taxQuery and Latest Posts categories. */
+	/**
+	 * Term IDs used by Query Loop taxQuery and Latest Posts categories.
+	 *
+	 * @param mixed $content Post content with blocks.
+	 */
 	private static function block_term_ids( $content ) {
 		$ids = array();
 		if ( false === strpos( $content, 'wp:query' ) && false === strpos( $content, 'wp:latest-posts' ) ) {
@@ -410,6 +424,10 @@ class Sync_Synced_Patterns {
 	/**
 	 * The local copy of a source pattern: one synced earlier from the same site, else an
 	 * existing pattern with the same slug and identical content (never another pattern).
+	 *
+	 * @param mixed $source_id ID of the pattern on the source site.
+	 * @param mixed $site      Source site URL.
+	 * @param array $p         Post payload.
 	 */
 	private static function find( $source_id, $site, array $p ) {
 		$type = $p['post_type'] ?? 'wp_block';

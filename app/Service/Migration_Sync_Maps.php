@@ -14,7 +14,7 @@ class Migration_Sync_Maps {
 	/**
 	 * Extract only confirmed selected identities; premium extraction stays in Pro.
 	 *
-	 * @param array $maps Persisted identities.
+	 * @param array $maps   Persisted identities.
 	 * @param array $params Child parameters.
 	 * @param array $result Confirmed public child result.
 	 * @return array|\WP_Error
@@ -51,7 +51,7 @@ class Migration_Sync_Maps {
 	/**
 	 * Normalize post results in source-to-destination direction for push and pull.
 	 *
-	 * @param array $input Child selection.
+	 * @param array $input  Child selection.
 	 * @param array $result Confirmed result.
 	 * @return array|\WP_Error
 	 */
@@ -71,9 +71,9 @@ class Migration_Sync_Maps {
 	/**
 	 * Require exactly the selected source IDs before publishing a typed map.
 	 *
-	 * @param string $kind Identity kind.
-	 * @param string $type Post type or taxonomy.
-	 * @param array  $ids Source selection.
+	 * @param string $kind    Identity kind.
+	 * @param string $type    Post type or taxonomy.
+	 * @param array  $ids     Source selection.
 	 * @param array  $mapping Source-to-target IDs.
 	 * @return array|\WP_Error
 	 */
@@ -120,7 +120,13 @@ class Migration_Sync_Maps {
 		return apply_filters( 'rsl_ie_migration_sync_resolve_maps', self::error(), $step['params'], $maps, $sources );
 	}
 
-	/** Apply one map page through the same edition-owned resolvers. */
+	/**
+	 * Apply one map page through the same edition-owned resolvers.
+	 *
+	 * @param array $step     Migration step being resolved.
+	 * @param array $maps     Source ID => local ID maps loaded so far.
+	 * @param array $previous Maps resolved so far.
+	 */
 	public static function resolve_page( array $step, array $maps, array $previous ) {
 		$step['params']['migration_map_page'] = true;
 		$input                                = self::resolve( $step, $maps );
@@ -148,8 +154,8 @@ class Migration_Sync_Maps {
 	/**
 	 * Resolve only declared source parents from confirmed maps of the exact type.
 	 *
-	 * @param array $input Comment selection without destination overrides.
-	 * @param array $maps Typed confirmed maps.
+	 * @param array $input   Comment selection without destination overrides.
+	 * @param array $maps    Typed confirmed maps.
 	 * @param array $sources Exact selected source parent IDs.
 	 * @return array|\WP_Error
 	 */

@@ -14,7 +14,11 @@ class Remote_SFTP_Connection {
 	/** SSH_FILEXFER_TYPE_DIRECTORY. */
 	const TYPE_DIRECTORY = 2;
 
-	/** @var \phpseclib3\Net\SFTP|null */
+	/**
+	 * Open SFTP connection.
+	 *
+	 * @var \phpseclib3\Net\SFTP|null
+	 */
 	private $sftp = null;
 
 	/**

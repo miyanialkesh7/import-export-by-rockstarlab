@@ -4,6 +4,7 @@
  *
  * @package RockStarLab\ImportExport\Service
  */
+
 namespace RockStarLab\ImportExport\Service;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPress.WP.AlternativeFunctions.file_system_operations_fclose,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents,WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_mkdir,WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
@@ -12,14 +13,30 @@ defined( 'ABSPATH' ) || exit;
 
 /** Retain archive membership on disk instead of in one unbounded PHP array. */
 class Migration_Entry_Index {
-	/** @var string Private temporary directory. */
+	/**
+	 * Private temporary directory.
+	 *
+	 * @var string
+	 */
 	private $directory;
-	/** @var int Number of names not yet consumed by the manifest. */
+	/**
+	 * Number of names not yet consumed by the manifest.
+	 *
+	 * @var int
+	 */
 	private $remaining = 0;
-	/** @var resource|null Exclusive lifetime lock, released by process termination. */
+	/**
+	 * Exclusive lifetime lock, released by process termination.
+	 *
+	 * @var resource|null
+	 */
 	private $owner;
 
-	/** Create an index owned by one inspection invocation. */
+	/**
+	 * Create an index owned by one inspection invocation.
+	 *
+	 * @throws \RuntimeException When the stored data is missing, invalid or cannot be read or written.
+	 */
 	public function __construct() {
 		$this->directory = rtrim( get_temp_dir(), '/\\' ) . '/rsl-archive-index-' . bin2hex( random_bytes( 16 ) );
 		if ( ! mkdir( $this->directory, 0700 ) ) {
@@ -32,13 +49,22 @@ class Migration_Entry_Index {
 		}
 	}
 
-	/** Resolve an ASCII archive name into a fixed-size private key. */
+	/**
+	 * Resolve an ASCII archive name into a fixed-size private key.
+	 *
+	 * @param mixed $name Archive entry name.
+	 */
 	private function path( $name ) {
 		$hash = hash( 'sha256', strtolower( $name ) );
 		return $this->directory . '/' . substr( $hash, 0, 2 ) . '/' . $hash;
 	}
 
-	/** False means a duplicate name, including a case-only alias. */
+	/**
+	 * False means a duplicate name, including a case-only alias.
+	 *
+	 * @param mixed $name Archive entry name.
+	 * @throws \RuntimeException When the stored data is missing, invalid or cannot be read or written.
+	 */
 	public function add( $name ) {
 		$path = $this->path( $name );
 		if ( file_exists( $path ) ) {
@@ -55,7 +81,12 @@ class Migration_Entry_Index {
 		return true;
 	}
 
-	/** Consume one exact spelling; a name cannot be used by two manifest steps. */
+	/**
+	 * Consume one exact spelling; a name cannot be used by two manifest steps.
+	 *
+	 * @param mixed $name Archive entry name.
+	 * @throws \RuntimeException When the stored data is missing, invalid or cannot be read or written.
+	 */
 	public function consume( $name ) {
 		$path = $this->path( $name );
 		if ( ! is_file( $path ) ) {

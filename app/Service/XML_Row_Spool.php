@@ -1,15 +1,32 @@
 <?php
-/** Private, expiring row snapshots for XML encodings without seekable byte boundaries. */
+/**
+ * Private, expiring row snapshots for XML encodings without seekable byte boundaries.
+ *
+ * @package RockStarLab\ImportExport\Service
+ */
+
 namespace RockStarLab\ImportExport\Service;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fclose,WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fread,WordPress.WP.AlternativeFunctions.file_system_operations_fwrite,WordPress.WP.AlternativeFunctions.file_system_operations_touch -- Streamed, chunked file handling for large imports, exports and media transfers: PHP stream handles, locks, private 0700 directories and atomic renames that WP_Filesystem does not provide (it also needs credentials, which cron and background requests lack).
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Spools the rows of an XML import to disk so they can be read back in batches.
+ */
 class XML_Row_Spool {
 	const TTL = 604800;
 
-	/** Parse a source once, then resume directly at a serialized row boundary. */
+	/**
+	 * Parse a source once, then resume directly at a serialized row boundary.
+	 *
+	 * @param mixed    $source   Path or content identity of the XML source.
+	 * @param mixed    $identity Identity of the request, used to detect changes.
+	 * @param mixed    $settings Record settings (element and options) that identify the parse.
+	 * @param mixed    $cursor   Resume cursor; updated as rows are read.
+	 * @param callable $records  Callback that yields the records of the source.
+	 * @throws \RuntimeException When the stored data is missing, invalid or cannot be read or written.
+	 */
 	public static function rows( $source, $identity, $settings, &$cursor, callable $records ) {
 		$root = File_Store::root();
 		if ( is_wp_error( $root ) ) {
@@ -101,6 +118,14 @@ class XML_Row_Spool {
 		}
 	}
 
+	/**
+	 * Write all bytes to a handle, retrying partial writes.
+	 *
+	 * @param mixed $handle Open file handle.
+	 * @param mixed $bytes  Bytes of the block.
+	 * @return void
+	 * @throws \RuntimeException When a write fails.
+	 */
 	private static function write( $handle, $bytes ) {
 		$offset = 0;
 		while ( $offset < strlen( $bytes ) ) {
