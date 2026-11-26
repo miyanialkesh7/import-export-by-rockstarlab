@@ -31,13 +31,13 @@ class XLSX_Formula_Store {
 		if ( ! is_file( $path ) ) {
 			if ( ! is_dir( $shard ) && ! mkdir( $shard, 0700 ) ) {
 				throw new \RuntimeException( esc_html__( 'Cannot create formula shard.', 'import-export-by-rockstarlab' ) ); }
-			$data = serialize( [ $id, $coordinate, $formula ] );
+			$data = serialize( array( $id, $coordinate, $formula ) );
 			if ( strlen( $data ) !== file_put_contents( $path, $data ) ) {
 				throw new \RuntimeException( esc_html__( 'Cannot store shared formula.', 'import-export-by-rockstarlab' ) ); }
 			return $formula;
 		}
 		$data   = file_get_contents( $path );
-		$master = false === $data ? false : unserialize( $data, [ 'allowed_classes' => false ] );
+		$master = false === $data ? false : unserialize( $data, array( 'allowed_classes' => false ) );
 		if ( ! is_array( $master ) || count( $master ) !== 3 || $master[0] !== $id || ! is_string( $master[1] ) || ! is_string( $master[2] ) ) {
 			throw new \RuntimeException( esc_html__( 'Invalid shared-formula record.', 'import-export-by-rockstarlab' ) ); }
 		$origin = Coordinate::indexesFromString( $master[1] );
