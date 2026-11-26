@@ -117,10 +117,10 @@ class FS {
 			wp_mkdir_p( $rsl_ie_dir );
 		}
 
-		return [
+		return array(
 			'path' => $rsl_ie_dir,
 			'url'  => $rsl_ie_url,
-		];
+		);
 	}
 
 	/**
@@ -180,10 +180,10 @@ class FS {
 			return new \WP_Error( 'upload_failed', __( 'Failed to process uploaded file.', 'import-export-by-rockstarlab' ) );
 		}
 
-		return [
+		return array(
 			'file' => $filename,
 			'path' => $file_path,
-		];
+		);
 	}
 
 	/**
@@ -198,11 +198,11 @@ class FS {
 			return $result;
 		}
 
-		return [
+		return array(
 			'id'   => wp_generate_uuid4(),
 			'name' => $result['file'],
 			'path' => $result['path'],
-		];
+		);
 	}
 
 	/**
@@ -370,11 +370,11 @@ class FS {
 
 		$file_path = $export_dir . '/' . $filename;
 
-		return [
+		return array(
 			'file' => $filename,
 			'path' => $file_path,
 			'dir'  => $export_dir,
 			'hash' => $secure_hash,
-		];
+		);
 	}
 }
