@@ -1,6 +1,8 @@
 <?php
 /**
  * Browse Remote Posts Modal Template
+ *
+ * @package RockStarLab\ImportExport\View
  */
 
 defined( 'ABSPATH' ) || exit;

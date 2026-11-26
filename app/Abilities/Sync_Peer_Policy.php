@@ -66,6 +66,7 @@ class Sync_Peer_Policy {
 	 *
 	 * @param array $comment Incoming record.
 	 * @param int   $post_id Resolved local destination.
+	 * @param bool  $explicit_mapping Whether the user chose the destination post, which allows moving an ordinary comment between posts and pages.
 	 * @return true|\WP_Error
 	 */
 	public static function comment_destination( array $comment, $post_id, $explicit_mapping = false ) {

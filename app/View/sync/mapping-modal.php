@@ -1,6 +1,8 @@
 <?php
 /**
  * Post Mapping Modal Template
+ *
+ * @package RockStarLab\ImportExport\View
  */
 
 defined( 'ABSPATH' ) || exit;

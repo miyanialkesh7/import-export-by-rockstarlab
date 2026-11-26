@@ -3,6 +3,8 @@
  * Sync Content Button for Post List Screen
  *
  * This button is rendered on the post list page (edit.php)
+ *
+ * @package RockStarLab\ImportExport\View
  */
 
 defined( 'ABSPATH' ) || exit;

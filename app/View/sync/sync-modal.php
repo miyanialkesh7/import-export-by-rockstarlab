@@ -3,6 +3,8 @@
  * Sync Content Modal Template
  *
  * @var array $sites Connected sites
+ *
+ * @package RockStarLab\ImportExport\View
  */
 
 defined( 'ABSPATH' ) || exit;

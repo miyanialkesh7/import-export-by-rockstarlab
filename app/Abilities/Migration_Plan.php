@@ -14,7 +14,14 @@ defined( 'ABSPATH' ) || exit;
 
 /** Providers declare supported families; execution still rechecks policy. */
 class Migration_Plan {
-	/** Missing plugin-defined content is excluded without blocking other archive entries. */
+	/**
+	 * Tell whether a manifest step depends on content this site cannot provide.
+	 *
+	 * Missing plugin-defined content is excluded without blocking other archive entries.
+	 *
+	 * @param array $step Manifest step with its type and, where relevant, taxonomy or post type.
+	 * @return bool True when the taxonomy, post type or WooCommerce data the step needs is not available.
+	 */
 	public static function unavailable_dependency( array $step ) {
 		$type      = $step['type'] ?? '';
 		$taxonomy  = $step['taxonomy'] ?? '';
@@ -26,7 +33,12 @@ class Migration_Plan {
 		return ! class_exists( 'WooCommerce' ) && self::requires_woocommerce( $step );
 	}
 
-	/** Whether a manifest step belongs to WooCommerce. */
+	/**
+	 * Whether a manifest step belongs to WooCommerce.
+	 *
+	 * @param array $step Manifest step with its type and, for taxonomy steps, the taxonomy name.
+	 * @return bool True for WooCommerce steps and product taxonomies.
+	 */
 	public static function requires_woocommerce( array $step ) {
 		$type     = $step['type'] ?? '';
 		$taxonomy = $step['taxonomy'] ?? '';

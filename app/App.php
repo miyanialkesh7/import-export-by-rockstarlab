@@ -6,37 +6,56 @@
  *
  * @package RockStarLab\ImportExport
  */
+
 namespace RockStarLab\ImportExport;
 
 defined( 'ABSPATH' ) or exit;
 
+/**
+ * Singleton that boots the plugin and gives access to its models and controllers.
+ */
 class App {
 
+	/**
+	 * The single App instance.
+	 *
+	 * @var static|null
+	 */
 	private static $instance = null;
 
 	/**
-	 * @var array Configuration array
+	 * Plugin configuration.
+	 *
+	 * @var array
 	 */
 	public $Config;
 
 	/**
-	 * @var \RockStarLab\ImportExport\View\View View instance
+	 * View loader.
+	 *
+	 * @var \RockStarLab\ImportExport\View\View
 	 */
 	public $View;
 
 	/**
-	 * @var \stdClass Controller container
+	 * Container holding the loaded controller instances.
+	 *
+	 * @var \stdClass
 	 */
 	public $Controller;
 
 	/**
-	 * @var \RockStarLab\ImportExport\Model\Model_Registry Model registry instance
+	 * Model registry.
+	 *
+	 * @var \RockStarLab\ImportExport\Model\Model_Registry
 	 */
 	public $Model;
 
 	/**
+	 * Get the single App instance, creating it on first use.
+	 *
 	 * @return static
-	 **/
+	 */
 	public static function getInstance() {
 		if ( is_null( static::$instance ) ) {
 			static::$instance = new static();
@@ -45,11 +64,17 @@ class App {
 		return static::$instance;
 	}
 
+	/**
+	 * Create the model registry. Private: use getInstance().
+	 */
 	private function __construct() {
 		// Initialize model registry.
 		$this->Model = new \RockStarLab\ImportExport\Model\Model_Registry();
 	}
 
+	/**
+	 * Prevent cloning of the singleton.
+	 */
 	private function __clone() {
 	}
 
@@ -108,12 +133,12 @@ class App {
 	}
 
 	/**
-	 * Autoload core modules in a specific directory
+	 * Autoload core modules in a specific directory.
 	 *
-	 * @param string
-	 * @param string
-	 * @param bool
-	 **/
+	 * @param string $layer Layer name, which is also the app/ sub-directory (for example Controller).
+	 * @param string $dir   Sub-directory inside the layer, with a trailing slash.
+	 * @return false|void False when the directory is empty.
+	 */
 	private function _load_modules( $layer, $dir = '/' ) {
 
 		$directory = RSL_IE_PATH . '/app/' . $layer . $dir;
@@ -140,7 +165,9 @@ class App {
 	}
 
 	/**
-	 * Autoload controllers in specific order
+	 * Autoload controllers in specific order.
+	 *
+	 * @param string[] $list Controller class names without the .php extension, in load order.
 	 */
 	private function _load_controllers( $list ) {
 

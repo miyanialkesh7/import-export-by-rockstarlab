@@ -11,14 +11,22 @@ namespace RockStarLab\ImportExport\View;
 
 defined( 'ABSPATH' ) or exit;
 
+/**
+ * Loads PHP view templates from the plugin's View directory.
+ */
 class View {
 
 	/**
-	 * Load view. Used on back-end side
+	 * Load view. Used on back-end side.
 	 *
-	 * @throws \Exception
-	 **/
-	function load( $path = '', $data = array(), $return = false, $base = null ) {
+	 * @param string      $path   View path without the .php extension, relative to the base directory.
+	 * @param array       $data   Variables made available to the view.
+	 * @param bool        $return Whether to return the rendered output instead of printing it.
+	 * @param string|null $base   Base directory relative to the plugin root, or null for app/View/.
+	 * @return string|void Rendered output when $return is true.
+	 * @throws \Exception When the view file does not exist.
+	 */
+	public function load( $path = '', $data = array(), $return = false, $base = null ) {
 
 		if ( is_null( $base ) ) {
 			$base = RSL_IE_PATH . '/app/View/';

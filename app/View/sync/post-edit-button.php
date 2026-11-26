@@ -3,6 +3,8 @@
  * Sync Button for Post Edit Screen (Classic Editor)
  *
  * @var WP_Post $post Current post object
+ *
+ * @package RockStarLab\ImportExport\View
  */
 
 defined( 'ABSPATH' ) || exit;
