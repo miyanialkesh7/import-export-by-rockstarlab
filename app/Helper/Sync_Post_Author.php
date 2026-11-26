@@ -12,6 +12,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Sends a post's author with synced content and matches it to a local user on the receiving site.
+ */
 class Sync_Post_Author {
 
 	/**
@@ -58,6 +61,8 @@ class Sync_Post_Author {
 	}
 
 	/**
+	 * Find the local user that matches the author of an incoming post.
+	 *
 	 * @param array $post_data Incoming post payload.
 	 * @return int Local user ID or 0.
 	 */

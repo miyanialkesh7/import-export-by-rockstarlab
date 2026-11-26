@@ -2,7 +2,7 @@
 /**
  * Case-insensitive text matching for export filters in any alphabet.
  *
- * stripos() and strtolower() ignore case only for Latin letters, so "мягк" did not find
+ * The built-in stripos() and strtolower() ignore case only for Latin letters, so "мягк" did not find
  * "Мягкая" and "ЗАКАЗ" did not find "заказ". These helpers use mbstring when it is available.
  *
  * @package RockStarLab\ImportExport
@@ -12,6 +12,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Case-insensitive text matching that works for non-Latin (UTF-8) text.
+ */
 class Text_Match {
 
 	/**

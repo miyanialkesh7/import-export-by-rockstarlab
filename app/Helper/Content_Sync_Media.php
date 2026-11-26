@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Finds, matches and normalizes media files that travel with synced content.
+ */
 class Content_Sync_Media {
 
 	/**
@@ -405,7 +408,7 @@ class Content_Sync_Media {
 	}
 
 	/**
-	 * filter_var( FILTER_VALIDATE_URL ) that also accepts http(s) URLs with non-Latin letters
+	 * Validate a URL like filter_var( FILTER_VALIDATE_URL ), but also accept http(s) URLs with non-Latin letters
 	 * or spaces in the path (WordPress keeps file names such as "Фото.jpg" raw in content).
 	 *
 	 * @param mixed $value Value.
@@ -438,7 +441,7 @@ class Content_Sync_Media {
 	 * as image-300x200.jpg. Those files must not become standalone attachments on
 	 * the destination site; import the canonical attachment file instead.
 	 *
-	 * @param string        $url Media URL.
+	 * @param string        $url    Media URL.
 	 * @param callable|null $exists Optional transport-owned URL probe.
 	 * @return string Canonical URL when resolved, otherwise the original URL.
 	 */
@@ -511,6 +514,13 @@ class Content_Sync_Media {
 		return (bool) array_intersect( self::source_url_hash_variants( $a ), self::source_url_hash_variants( $b ) );
 	}
 
+	/**
+	 * Turn a media URL from an import into its canonical form, so resized copies match the original file.
+	 *
+	 * @param mixed $url    Media URL from the import.
+	 * @param mixed $exists Optional callback telling whether a candidate URL exists.
+	 * @return string Canonical URL, or the cleaned URL when it is not an uploads URL.
+	 */
 	public static function canonicalize_import_media_url( $url, $exists = null ) {
 		$url = esc_url_raw( (string) $url );
 		if ( '' === $url || ! self::is_wordpress_uploads_url( $url ) ) {
@@ -544,7 +554,7 @@ class Content_Sync_Media {
 	/**
 	 * Resolve a generated intermediate-size image URL to a canonical source URL.
 	 *
-	 * @param string        $url Media URL.
+	 * @param string        $url    Media URL.
 	 * @param callable|null $exists Optional transport-owned URL probe.
 	 * @return string Canonical URL or empty string.
 	 */
@@ -1113,7 +1123,7 @@ class Content_Sync_Media {
 	/**
 	 * Extract images from ACF field recursively
 	 *
-	 * @param array $field ACF field data.
+	 * @param array $field   ACF field data.
 	 * @param int   $post_id Post ID.
 	 * @return array Array of image data
 	 */
@@ -1581,7 +1591,7 @@ class Content_Sync_Media {
 	 * Prepare image data for sync
 	 *
 	 * @param int    $attachment_id Attachment ID.
-	 * @param string $context Context where image was found.
+	 * @param string $context       Context where image was found.
 	 * @return array|null Image data or null
 	 */
 	public static function prepare_image_data( $attachment_id, $context = '' ) {
@@ -1704,7 +1714,7 @@ class Content_Sync_Media {
 	 * Get all known URLs for an attachment, grouped by dimensions.
 	 *
 	 * @param int   $attachment_id Attachment ID.
-	 * @param array $metadata Attachment metadata.
+	 * @param array $metadata      Attachment metadata.
 	 * @return array URL data.
 	 */
 	private static function get_attachment_source_urls( $attachment_id, $metadata ) {
@@ -1828,10 +1838,10 @@ class Content_Sync_Media {
 	/**
 	 * Check if image exists on remote site by hash
 	 *
-	 * @param string $file_hash File MD5 hash.
-	 * @param string $remote_url Remote site URL.
-	 * @param string $api_key API key.
-	 * @param int    $source_attachment_id Source attachment ID.
+	 * @param string $file_hash                   File MD5 hash.
+	 * @param string $remote_url                  Remote site URL.
+	 * @param string $api_key                     API key.
+	 * @param int    $source_attachment_id        Source attachment ID.
 	 * @param int    $source_origin_attachment_id Original source attachment ID, when this media was already synced from the remote site.
 	 * @return int|false Attachment ID if exists, false otherwise
 	 */

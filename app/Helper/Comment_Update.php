@@ -1,6 +1,6 @@
 <?php
 /**
- * wp_update_comment() that keeps the comment's GMT date.
+ * Wrapper around wp_update_comment() that keeps the comment's GMT date.
  *
  * @package RockStarLab\ImportExport
  */

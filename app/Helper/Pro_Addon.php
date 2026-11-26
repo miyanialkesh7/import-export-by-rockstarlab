@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Detects the PRO add-on and provides the upgrade links and promotional content shown without it.
+ */
 class Pro_Addon {
 
 	/**

@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Exports and imports Elementor documents and templates as portable data.
+ */
 class Elementor_Fields {
 
 	/**
@@ -204,8 +207,9 @@ class Elementor_Fields {
 	/**
 	 * Import a portable Elementor document packet.
 	 *
-	 * @param int   $post_id Post ID.
-	 * @param mixed $value   JSON string or decoded packet.
+	 * @param int   $post_id        Post ID.
+	 * @param mixed $value          JSON string or decoded packet.
+	 * @param bool  $download_media Whether to download the media files the document refers to.
 	 * @return bool
 	 */
 	public static function import_document( $post_id, $value, $download_media = true ) {
@@ -253,10 +257,11 @@ class Elementor_Fields {
 	/**
 	 * Import a single Elementor meta value.
 	 *
-	 * @param int    $post_id     Post ID.
-	 * @param string $key         Meta key.
-	 * @param mixed  $value       Meta value.
-	 * @param bool   $clear_cache Whether to clear Elementor cache after import.
+	 * @param int    $post_id        Post ID.
+	 * @param string $key            Meta key.
+	 * @param mixed  $value          Meta value.
+	 * @param bool   $clear_cache    Whether to clear Elementor cache after import.
+	 * @param bool   $download_media Whether to download the media files the value refers to.
 	 * @return bool
 	 */
 	public static function import_meta_value( $post_id, $key, $value, $clear_cache = true, $download_media = true ) {
@@ -307,8 +312,7 @@ class Elementor_Fields {
 	/**
 	 * Import the Elementor templates that came with a post in a file.
 	 *
-	 * @param int   $post_id        Post ID (media are attached to the templates themselves).
-	 * @param mixed $records        Template records.
+	 * @param mixed $records        Template records. Media is attached to the templates themselves.
 	 * @param bool  $download_media Import media URLs.
 	 * @return array<int,int> Source template ID => local template ID.
 	 */
@@ -353,8 +357,9 @@ class Elementor_Fields {
 	/**
 	 * Prepare _elementor_data for the target site.
 	 *
-	 * @param int   $post_id Post ID.
-	 * @param mixed $value   Elementor data.
+	 * @param int   $post_id        Post ID.
+	 * @param mixed $value          Elementor data.
+	 * @param bool  $download_media Whether to download the media files the data refers to.
 	 * @return string
 	 */
 	private static function prepare_elementor_data_for_import( $post_id, $value, $download_media = true ) {
@@ -709,11 +714,23 @@ class Elementor_Fields {
 		return in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'pdf', 'mp4', 'webm' ), true ) || ( 'json' === $ext && \RockStarLab\ImportExport\Service\Sync_SVG::json_available() );
 	}
 
+	/**
+	 * Tell whether a URL points to a file in a plugin or theme folder of this site.
+	 *
+	 * @param mixed $url URL to check.
+	 * @return bool
+	 */
 	private static function is_local_wp_asset_url( $url ) {
 		$path = (string) \RockStarLab\ImportExport\Helper\Content_Sync_Media::url_path( (string) $url );
 		return false !== strpos( $path, '/wp-content/plugins/' ) || false !== strpos( $path, '/wp-content/themes/' );
 	}
 
+	/**
+	 * Move a plugin or theme asset URL to this site, keeping its path.
+	 *
+	 * @param mixed $url URL from the source site.
+	 * @return string URL on this site, or the original URL when it has no path.
+	 */
 	private static function replace_local_url_host( $url ) {
 		$path = (string) \RockStarLab\ImportExport\Helper\Content_Sync_Media::url_path( (string) $url );
 		if ( '' === $path ) {

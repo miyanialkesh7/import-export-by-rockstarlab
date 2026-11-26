@@ -23,7 +23,11 @@ class Elementor_Refs {
 	/** Post meta marking a post whose references still wait for their targets. */
 	const PENDING_KEY = '_rsl_ie_elementor_pending_refs';
 
-	/** Posts remembered in this request. @var int[] */
+	/**
+	 * Posts remembered in this request.
+	 *
+	 * @var int[]
+	 */
 	public static $touched = array();
 
 	/** Dynamic tag settings that hold a post ID. */

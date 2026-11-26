@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Rewrites site URLs, attachment IDs and ACF references in content that is synced to another site.
+ */
 class Content_Sync_Replacer {
 
 	/**
@@ -137,10 +140,11 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in post data
 	 *
-	 * @param array  $post_data Post data array.
+	 * @param array  $post_data     Post data array.
 	 * @param string $source_domain Source domain to replace.
 	 * @param string $target_domain Target domain to replace with.
-	 * @param array  $image_map Mapping of old attachment IDs to new ones.
+	 * @param array  $image_map     Mapping of old attachment IDs to new ones.
+	 * @param array  $image_sources Source URLs of the transferred images, keyed by source attachment ID.
 	 * @return array Modified post data
 	 */
 	public static function replace_post_domains( $post_data, $source_domain, $target_domain, $image_map = array(), $image_sources = array() ) {
@@ -231,10 +235,11 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in content (handles Gutenberg blocks)
 	 *
-	 * @param string $content Post content.
+	 * @param string $content       Post content.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
-	 * @param array  $image_map Image ID mapping.
+	 * @param array  $image_map     Image ID mapping.
+	 * @param array  $image_sources Source URLs of the transferred images, keyed by source attachment ID.
 	 * @return string Modified content
 	 */
 	private static function replace_in_content( $content, $source_domain, $target_domain, $image_map = array(), $image_sources = array() ) {
@@ -256,10 +261,10 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in Gutenberg blocks
 	 *
-	 * @param string $content Content with blocks.
+	 * @param string $content       Content with blocks.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
-	 * @param array  $image_map Image ID mapping.
+	 * @param array  $image_map     Image ID mapping.
 	 * @return string Modified content
 	 */
 	private static function replace_in_blocks( $content, $source_domain, $target_domain, $image_map = array() ) {
@@ -310,10 +315,10 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in blocks recursively
 	 *
-	 * @param array  $blocks Parsed blocks.
+	 * @param array  $blocks        Parsed blocks.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
-	 * @param array  $image_map Image ID mapping.
+	 * @param array  $image_map     Image ID mapping.
 	 * @return array Modified blocks
 	 */
 	private static function replace_in_blocks_recursive( $blocks, $source_domain, $target_domain, $image_map = array() ) {
@@ -378,10 +383,11 @@ class Content_Sync_Replacer {
 	/**
 	 * Public wrapper for replace_in_meta, used by receive_content on push path.
 	 *
-	 * @param array  $meta Post meta array.
+	 * @param array  $meta          Post meta array.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
-	 * @param array  $image_map Image ID mapping.
+	 * @param array  $image_map     Image ID mapping.
+	 * @param array  $image_sources Source URLs of the transferred images, keyed by source attachment ID.
 	 * @return array Modified meta
 	 */
 	public static function replace_in_meta_public( $meta, $source_domain, $target_domain, $image_map = array(), $image_sources = array() ) {
@@ -542,8 +548,9 @@ class Content_Sync_Replacer {
 	 * have been remapped. Browsers often prefer srcset candidates over src, so both
 	 * attributes must point to URLs that really exist on the receiving site.
 	 *
-	 * @param string $content   Post content.
-	 * @param array  $image_map Source attachment ID => local attachment ID.
+	 * @param string $content       Post content.
+	 * @param array  $image_map     Source attachment ID => local attachment ID.
+	 * @param array  $image_sources Source URLs of the transferred images, keyed by source attachment ID.
 	 * @return string Updated content.
 	 */
 	public static function fix_local_image_urls_in_content( $content, $image_map = array(), $image_sources = array() ) {
@@ -712,10 +719,11 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in post meta
 	 *
-	 * @param array  $meta Post meta array.
+	 * @param array  $meta          Post meta array.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
-	 * @param array  $image_map Image ID mapping.
+	 * @param array  $image_map     Image ID mapping.
+	 * @param array  $image_sources Source URLs of the transferred images, keyed by source attachment ID.
 	 * @return array Modified meta
 	 */
 	private static function replace_in_meta( $meta, $source_domain, $target_domain, $image_map = array(), $image_sources = array() ) {
@@ -943,10 +951,11 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in serialized data
 	 *
-	 * @param mixed  $data Unserialized data.
+	 * @param mixed  $data          Unserialized data.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
-	 * @param array  $image_map Image ID mapping.
+	 * @param array  $image_map     Image ID mapping.
+	 * @param array  $image_sources Source URLs of the transferred images, keyed by source attachment ID.
 	 * @return mixed Modified data
 	 */
 	private static function replace_in_serialized( $data, $source_domain, $target_domain, $image_map = array(), $image_sources = array() ) {
@@ -973,6 +982,7 @@ class Content_Sync_Replacer {
 	 *
 	 * @param string $content       HTML content.
 	 * @param int    $attachment_id Local attachment ID.
+	 * @param array  $source_data   Source-site data about the image (its URLs and sizes).
 	 * @return string Updated content.
 	 */
 	private static function fix_local_image_tag_urls( $content, $attachment_id, $source_data = array() ) {
@@ -1089,7 +1099,7 @@ class Content_Sync_Replacer {
 	/**
 	 * Get source image data from either keyed or sequential image arrays.
 	 *
-	 * @param int   $old_id Source attachment ID.
+	 * @param int   $old_id        Source attachment ID.
 	 * @param array $image_sources Source image data.
 	 * @return array Source data.
 	 */
@@ -1110,7 +1120,7 @@ class Content_Sync_Replacer {
 	/**
 	 * Check whether an image URL belongs to the source attachment.
 	 *
-	 * @param string $url Source URL from HTML.
+	 * @param string $url         Source URL from HTML.
 	 * @param array  $source_urls Normalized source URLs.
 	 * @return bool True when URL matches.
 	 */
@@ -1126,7 +1136,7 @@ class Content_Sync_Replacer {
 	/**
 	 * Get source image dimensions from the source URL payload.
 	 *
-	 * @param string $url Source URL from HTML.
+	 * @param string $url         Source URL from HTML.
 	 * @param array  $source_urls Normalized source URLs.
 	 * @return string Dimension key or empty string.
 	 */
@@ -1201,10 +1211,12 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in array
 	 *
-	 * @param array  $array Array to process.
+	 * @param array  $array         Array to process.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
-	 * @param array  $image_map Image ID mapping.
+	 * @param array  $image_map     Image ID mapping.
+	 * @param array  $image_sources Source URLs of the transferred images, keyed by source attachment ID.
+	 * @param int    $depth         Current nesting level, used to stop runaway recursion.
 	 * @return array Modified array
 	 */
 	public static function replace_in_array( $array, $source_domain, $target_domain, $image_map = array(), $image_sources = array(), $depth = 0 ) {
@@ -1277,10 +1289,10 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in Elementor data
 	 *
-	 * @param array  $elements Elementor elements.
+	 * @param array  $elements      Elementor elements.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
-	 * @param array  $image_map Image ID mapping.
+	 * @param array  $image_map     Image ID mapping.
 	 * @return array Modified elements
 	 */
 	private static function replace_in_elementor( $elements, $source_domain, $target_domain, $image_map = array() ) {
@@ -1339,7 +1351,7 @@ class Content_Sync_Replacer {
 	/**
 	 * Replace domain in text
 	 *
-	 * @param string $text Text to process.
+	 * @param string $text          Text to process.
 	 * @param string $source_domain Source domain.
 	 * @param string $target_domain Target domain.
 	 * @return string Modified text
@@ -1702,6 +1714,8 @@ class Content_Sync_Replacer {
 	 * @param array $meta           Full post meta array (key → value, already deserialized).
 	 * @param int   $post_id        Target post ID.
 	 * @param int   $source_post_id Source-site post ID for this post.
+	 * @param array $post_ref_map   Source post ID => local post ID.
+	 * @param array $user_ref_map   Source user ID => local user ID.
 	 */
 	public static function translate_acf_post_reference_fields_in_meta( $meta, $post_id, $source_post_id, $post_ref_map = array(), $user_ref_map = array() ) {
 		if ( empty( $meta ) || ! function_exists( 'acf_get_field' ) ) {

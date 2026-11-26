@@ -12,6 +12,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) or exit;
 
+/**
+ * Shows an admin notice asking for a review, and remembers when it was dismissed.
+ */
 class Review_Notice {
 
 	/**

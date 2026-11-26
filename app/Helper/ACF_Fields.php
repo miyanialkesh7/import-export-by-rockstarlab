@@ -179,6 +179,12 @@ class ACF_Fields {
 		return true;
 	}
 
+	/**
+	 * Tell whether a value is a plain list of flexible-content layout names that still needs to be decoded.
+	 *
+	 * @param mixed $value Meta value to inspect.
+	 * @return bool True for a zero-based list of scalar layouts, false for anything else.
+	 */
 	private static function is_raw_flexible_layout_list( $value ) {
 		if ( ! is_array( $value ) || isset( $value['acf_type'] ) ) {
 			return false;
@@ -340,8 +346,10 @@ class ACF_Fields {
 	/**
 	 * Get field object without formatted value.
 	 *
-	 * @param string     $field_name Field name.
-	 * @param string|int $acf_id     ACF object id.
+	 * @param string     $field_name  Field name.
+	 * @param string|int $acf_id      ACF object id.
+	 * @param string     $object_type Object type the field belongs to (post, user, term, comment, ...), or an empty string.
+	 * @param string     $taxonomy    Taxonomy name when the field belongs to a term, otherwise an empty string.
 	 * @return array|null
 	 */
 	private static function get_field_object( $field_name, $acf_id, $object_type = '', $taxonomy = '' ) {
@@ -1107,6 +1115,12 @@ class ACF_Fields {
 		return $value;
 	}
 
+	/**
+	 * Read the file URL from an ACF media value.
+	 *
+	 * @param mixed $value Attachment ID, ACF media array or URL string.
+	 * @return string URL, or an empty string when none can be found.
+	 */
 	private static function media_url_from_value( $value ) {
 		if ( is_numeric( $value ) ) {
 			$url = wp_get_attachment_url( (int) $value );
@@ -1130,6 +1144,12 @@ class ACF_Fields {
 		return is_string( $value ) ? $value : '';
 	}
 
+	/**
+	 * Read a post ID from an ACF post value.
+	 *
+	 * @param mixed $value Post ID, WP_Post object or ACF post array.
+	 * @return int Post ID, or 0 when none can be found.
+	 */
 	private static function post_id_from_value( $value ) {
 		if ( is_numeric( $value ) ) {
 			return absint( $value );
@@ -1186,6 +1206,14 @@ class ACF_Fields {
 		return 1 === count( $ids ) ? (int) $ids[0] : 0;
 	}
 
+	/**
+	 * Resolve a portable post reference from an export to a local post ID.
+	 *
+	 * @param mixed $ref        Post ID, media URL or page path (slug) stored in the export.
+	 * @param int   $parent_id  Parent post that new media is attached to.
+	 * @param array $post_types Post types to search when the reference is a path.
+	 * @return int Local post ID, or 0 when it does not exist here.
+	 */
 	private static function post_id_from_portable_ref( $ref, $parent_id = 0, array $post_types = array() ) {
 		if ( is_numeric( $ref ) ) {
 			return absint( $ref );
@@ -1206,6 +1234,14 @@ class ACF_Fields {
 		return 0;
 	}
 
+	/**
+	 * Resolve an ACF media value to a local attachment ID, importing the file when needed.
+	 *
+	 * @param mixed $value                Attachment ID, media array or media URL.
+	 * @param int   $parent_id            Post the imported attachment is attached to.
+	 * @param int   $source_attachment_id ID of the attachment on the source site, used to remember where the file came from.
+	 * @return int Attachment ID, or 0 when it cannot be resolved.
+	 */
 	private static function attachment_id_from_value( $value, $parent_id = 0, $source_attachment_id = 0 ) {
 		static $url_to_attachment_cache = array();
 
@@ -1383,6 +1419,14 @@ class ACF_Fields {
 		};
 	}
 
+	/**
+	 * Remember the source URL and source ID of an imported attachment so a later import can match it again.
+	 *
+	 * @param int    $attachment_id        Local attachment ID.
+	 * @param string $source_url           URL of the file on the source site.
+	 * @param int    $source_attachment_id Attachment ID on the source site.
+	 * @return void
+	 */
 	private static function store_imported_media_identity( int $attachment_id, string $source_url = '', int $source_attachment_id = 0 ): void {
 		if ( $attachment_id <= 0 ) {
 			return;
@@ -1925,6 +1969,14 @@ class ACF_Fields {
 		return ! empty( $attachments[0] ) ? absint( $attachments[0] ) : 0;
 	}
 
+	/**
+	 * Replace media URLs in one HTML attribute with the URL of the imported local file.
+	 *
+	 * @param mixed $tag       HTML tag markup.
+	 * @param mixed $attribute Attribute name to rewrite, for example src or href.
+	 * @param int   $parent_id Post the imported media is attached to.
+	 * @return string The tag with the attribute updated.
+	 */
 	private static function replace_media_url_attribute( $tag, $attribute, $parent_id = 0 ) {
 		return preg_replace_callback(
 			'/\b' . preg_quote( $attribute, '/' ) . '=(["\'])([^"\']+)\1/i',
@@ -1946,6 +1998,12 @@ class ACF_Fields {
 		);
 	}
 
+	/**
+	 * Tell whether a URL points to a media file in the uploads folder.
+	 *
+	 * @param mixed $url URL to check.
+	 * @return bool
+	 */
 	private static function is_media_url( $url ) {
 		return is_string( $url )
 			&& \RockStarLab\ImportExport\Helper\Content_Sync_Media::is_valid_url( $url )
@@ -2005,6 +2063,13 @@ class ACF_Fields {
 		return $tmp;
 	}
 
+	/**
+	 * Find a term ID by its name, falling back to its slug.
+	 *
+	 * @param mixed $name     Term name or slug.
+	 * @param mixed $taxonomy Taxonomy name.
+	 * @return int Term ID, or 0 when the taxonomy or term does not exist.
+	 */
 	private static function term_id_from_name( $name, $taxonomy ) {
 		$name     = trim( $name );
 		$taxonomy = sanitize_key( (string) $taxonomy );
@@ -2022,6 +2087,14 @@ class ACF_Fields {
 		return is_wp_error( $created ) ? 0 : (int) $created['term_id'];
 	}
 
+	/**
+	 * Read a meta value without ACF formatting for the given object type.
+	 *
+	 * @param mixed $object_type Object type: post, user, comment, term, taxonomy or menu.
+	 * @param mixed $object_id   ID of the object.
+	 * @param mixed $key         Meta key.
+	 * @return mixed The stored meta value.
+	 */
 	private static function get_raw_meta_value( $object_type, $object_id, $key ) {
 		switch ( sanitize_key( (string) $object_type ) ) {
 			case 'user':
@@ -2037,6 +2110,15 @@ class ACF_Fields {
 		}
 	}
 
+	/**
+	 * Save a meta value without ACF formatting for the given object type.
+	 *
+	 * @param mixed $object_type Object type: post, user, comment, term, taxonomy or menu.
+	 * @param mixed $object_id   ID of the object.
+	 * @param mixed $key         Meta key.
+	 * @param mixed $value       Value to store.
+	 * @return void
+	 */
 	private static function update_raw_meta_value( $object_type, $object_id, $key, $value ) {
 		switch ( sanitize_key( (string) $object_type ) ) {
 			case 'user':

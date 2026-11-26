@@ -11,6 +11,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Exports and imports SEO plugin data (Yoast SEO, Rank Math) with posts and terms.
+ */
 class Seo_Fields {
 
 	/**
@@ -167,6 +170,7 @@ class Seo_Fields {
 	 * @param string   $taxonomy  Taxonomy.
 	 * @param array    $term_info Term payload.
 	 * @param callable $url       Maps a URL of the other site to this site (images to the local copies).
+	 * @param array    $image_map Source attachment ID => local attachment ID for images that travelled with the post.
 	 * @return void
 	 */
 	public static function apply_synced_term_seo( $term_id, $taxonomy, array $term_info, callable $url, array $image_map = array() ) {
@@ -646,8 +650,9 @@ class Seo_Fields {
 	 * Existing Rank Math schema rows are replaced so updates do not leave stale
 	 * schema duplicates behind. Multiple schemas with the same @type are preserved.
 	 *
-	 * @param int   $post_id Post ID.
-	 * @param mixed $value   JSON string or decoded schema array.
+	 * @param int   $post_id        Post ID.
+	 * @param mixed $value          JSON string or decoded schema array.
+	 * @param bool  $download_media Whether to download the media files the schemas refer to.
 	 * @return int Number of imported schema rows.
 	 */
 	public static function import_rank_math_schemas( $post_id, $value, $download_media = false ) {

@@ -13,6 +13,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Scans a folder and imports its files into the media library.
+ */
 class Media_Sync {
 
 	/**
@@ -55,7 +58,7 @@ class Media_Sync {
 	 * Scan folder and return list of files matching options
 	 *
 	 * @param string $folder_path Absolute path to folder.
-	 * @param array  $options Options (recursive, file_types).
+	 * @param array  $options     Options (recursive, file_types).
 	 * @return array|\WP_Error Array of files or WP_Error on failure.
 	 */
 	public static function scan_folder( $folder_path, $options = array() ) {
@@ -121,6 +124,8 @@ class Media_Sync {
 	/**
 	 * Find registered image derivatives without guessing from filename suffixes.
 	 * Read metadata in bounded batches; retain every attachment's primary file.
+	 *
+	 * @param mixed $folder_path Absolute path of the uploads folder to inspect.
 	 */
 	private static function generated_image_files( $folder_path ) {
 		global $wpdb;
@@ -171,7 +176,7 @@ class Media_Sync {
 	 * Check if file is duplicate in media library
 	 *
 	 * @param string $file_path Absolute path to file.
-	 * @param string $method Detection method: hash|filename|filesize.
+	 * @param string $method    Detection method: hash|filename|filesize.
 	 * @return int|false Attachment ID if duplicate found, false otherwise.
 	 */
 	public static function check_duplicate( $file_path, $method = 'hash' ) {
@@ -311,7 +316,7 @@ class Media_Sync {
 	 * Import a single file into WordPress media library
 	 *
 	 * @param string $file_path Absolute path to file.
-	 * @param array  $options Import options.
+	 * @param array  $options   Import options.
 	 * @return int|\WP_Error Attachment ID on success, WP_Error on failure.
 	 */
 	public static function import_file( $file_path, $options = array() ) {
@@ -602,7 +607,7 @@ class Media_Sync {
 		}
 	}
 
-	/** // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct DB query required here.
+	/**
 	 * Find RML folder by name and parent
 	 *
 	 * @param string $name      Folder name.
@@ -626,7 +631,7 @@ class Media_Sync {
 	/**
 	 * Get allowed file types based on option
 	 *
-	 * @param string $type Type: all|images|custom.
+	 * @param string $type         Type: all|images|custom.
 	 * @param array  $custom_types Custom file extensions.
 	 * @return array Array of allowed extensions.
 	 */
@@ -643,7 +648,7 @@ class Media_Sync {
 	/**
 	 * Extensions of one file-type option, before the site's MIME allowlist is applied.
 	 *
-	 * @param string $type Type: all|images|videos|audio|documents|custom.
+	 * @param string $type         Type: all|images|videos|audio|documents|custom.
 	 * @param array  $custom_types Custom file extensions.
 	 * @return array
 	 */

@@ -15,6 +15,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Resolves the OpenAI API key: the WordPress AI Client handles requests on 7.0+, and older versions use the plugin's own key option.
+ */
 class OpenAI_API_Key {
 
 	/**

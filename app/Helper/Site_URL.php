@@ -9,6 +9,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Builds URLs for the site the current request is served from.
+ */
 class Site_URL {
 
 	/**

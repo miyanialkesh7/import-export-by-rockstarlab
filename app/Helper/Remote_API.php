@@ -32,7 +32,7 @@ class Remote_API {
 	 * The same REST route for sites without pretty permalinks.
 	 *
 	 * @param string $remote_url Site URL.
-	 * @param string $route Route below the plugin namespace.
+	 * @param string $route      Route below the plugin namespace.
 	 * @return string
 	 */
 	public static function build_query_url( $remote_url, $route ) {
@@ -54,6 +54,13 @@ class Remote_API {
 		return JSON_ERROR_NONE === json_last_error();
 	}
 
+	/**
+	 * Build the REST URL of a route on a remote site.
+	 *
+	 * @param mixed $remote_url Remote site URL.
+	 * @param mixed $route      Route path inside the plugin REST namespace.
+	 * @return string Full URL of the route.
+	 */
 	public static function build_url( $remote_url, $route ) {
 		return trailingslashit( $remote_url ) . 'wp-json/' . self::REST_NAMESPACE . '/' . ltrim( $route, '/' );
 	}

@@ -12,16 +12,19 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Facade with static helpers for updating and reading the progress of a job.
+ */
 class Progress_Tracker {
 
 	/**
 	 * Update job progress with item counts
 	 *
-	 * @param int $job_id   Job ID to update.
-	 * @param int $total    Total number of items.
+	 * @param int $job_id    Job ID to update.
+	 * @param int $total     Total number of items.
 	 * @param int $processed Number of items processed.
-	 * @param int $success  Number of successful items.
-	 * @param int $failed   Number of failed items.
+	 * @param int $success   Number of successful items.
+	 * @param int $failed    Number of failed items.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */
 	public static function update_progress( $job_id, $total, $processed, $success, $failed ) {
@@ -31,9 +34,9 @@ class Progress_Tracker {
 	/**
 	 * Calculate and update percentage progress
 	 *
-	 * @param int $job_id Job ID to update.
+	 * @param int $job_id    Job ID to update.
 	 * @param int $processed Number of items processed.
-	 * @param int $total Total number of items.
+	 * @param int $total     Total number of items.
 	 * @return bool|int False on failure, percentage on success
 	 */
 	public static function update_percentage( $job_id, $processed, $total ) {
@@ -151,7 +154,7 @@ class Progress_Tracker {
 	/**
 	 * Batch update progress (for chunked operations)
 	 *
-	 * @param int   $job_id Job ID.
+	 * @param int   $job_id       Job ID.
 	 * @param array $batch_result Batch processing result.
 	 * @return bool Success
 	 */
@@ -217,7 +220,7 @@ class Progress_Tracker {
 	/**
 	 * Mark job as failed and optionally log error
 	 *
-	 * @param int    $job_id       Job ID to mark as failed.
+	 * @param int    $job_id        Job ID to mark as failed.
 	 * @param string $error_message Optional. Error message to log.
 	 * @return int|WP_Error Number of rows affected or WP_Error
 	 */

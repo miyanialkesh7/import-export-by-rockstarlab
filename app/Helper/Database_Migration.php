@@ -12,6 +12,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Creates, upgrades and removes the plugin's database tables, including per-site tables on multisite.
+ */
 class Database_Migration {
 
 	/**
@@ -651,7 +654,7 @@ class Database_Migration {
 	}
 
 	/**
-	 * wpmu_drop_tables: drop this plugin's tables together with a deleted network site.
+	 * Filter for wpmu_drop_tables: drop this plugin's tables together with a deleted network site.
 	 *
 	 * @param string[] $tables  Tables WordPress drops.
 	 * @param int      $blog_id Deleted site.

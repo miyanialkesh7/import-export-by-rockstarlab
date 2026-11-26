@@ -13,6 +13,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Restores serialized values from import files or another site without creating objects.
+ */
 class Serialized {
 
 	/**

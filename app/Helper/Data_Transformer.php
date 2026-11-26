@@ -12,6 +12,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Cleans, validates and converts field values during import and export.
+ */
 class Data_Transformer {
 
 	/**
@@ -71,7 +74,7 @@ class Data_Transformer {
 	 * Validate required fields in data array
 	 * Checks if all required fields are present and not empty
 	 *
-	 * @param array $data           Data array to validate.
+	 * @param array $data            Data array to validate.
 	 * @param array $required_fields Array of required field names.
 	 * @return bool|array True if all fields valid, array of error messages if validation fails
 	 */
@@ -91,7 +94,7 @@ class Data_Transformer {
 	 * Apply multiple transformations to a field value.
 	 * Supports search/replace, regex, case changes, prefix/suffix, and PRO integrations.
 	 *
-	 * @param mixed $value          Value to transform.
+	 * @param mixed $value           Value to transform.
 	 * @param array $transformations {
 	 *     Array of transformation rules to apply sequentially.
 	 *

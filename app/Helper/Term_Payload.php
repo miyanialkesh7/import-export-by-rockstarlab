@@ -10,6 +10,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Adds the terms and term meta of a post to the sync payload and applies them on the receiving site.
+ */
 class Term_Payload {
 
 	/** Register the payload filter (every sender of post, product and taxonomy sync applies it). */
@@ -57,7 +60,11 @@ class Term_Payload {
 	/** Largest serialized size of one meta value sent with a post (bytes). */
 	const MAX_META_BYTES = 65536;
 
-	/** Terms created while a resolve runs (term_id => true), per nesting level. */
+	/**
+	 * Terms created while a resolve runs (term_id => true), per nesting level.
+	 *
+	 * @var array
+	 */
 	private static $watch = array();
 
 	/**

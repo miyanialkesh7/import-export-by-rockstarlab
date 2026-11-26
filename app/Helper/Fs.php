@@ -14,6 +14,9 @@ namespace RockStarLab\ImportExport\Helper;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * File-system helpers for import/export files: uploads, validation, cleanup and file paths.
+ */
 class FS {
 
 	/**
