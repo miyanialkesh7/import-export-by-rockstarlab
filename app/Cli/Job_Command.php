@@ -50,7 +50,7 @@ class Job_Command {
 		$result = Cli_Helper::result( (int) $args[0] );
 		if ( in_array( $result['status'] ?? '', Cli_Helper::ACTIVE, true ) || 'paused' === ( $result['status'] ?? '' ) ) {
 			$format = $assoc['format'] ?? 'table';
-			'table' === $format ? WP_CLI::log( sprintf( /* translators: 1: job ID, 2: job status, 3: processed items, 4: total items. */ __( 'Job %1$d: %2$s, %3$d of %4$d', 'import-export-by-rockstarlab' ), (int) $result['job_id'], $result['status'], (int) $result['processed'], (int) $result['total'] ) ) : WP_CLI::print_value( $result, [ 'format' => $format ] );
+			'table' === $format ? WP_CLI::log( sprintf( /* translators: 1: job ID, 2: job status, 3: processed items, 4: total items. */ __( 'Job %1$d: %2$s, %3$d of %4$d', 'import-export-by-rockstarlab' ), (int) $result['job_id'], $result['status'], (int) $result['processed'], (int) $result['total'] ) ) : WP_CLI::print_value( $result, array( 'format' => $format ) );
 			return;
 		}
 		Cli_Helper::finish( $result, $assoc['format'] ?? 'table' );
@@ -116,11 +116,11 @@ class Job_Command {
 		Cli_Helper::require_admin();
 		$result = Cli_Helper::call(
 			'rsl-ie/job-errors',
-			[
+			array(
 				'job_id' => (int) $args[0],
 				'limit'  => 500,
 				'csv'    => isset( $assoc['csv'] ),
-			]
+			)
 		);
 		if ( isset( $assoc['csv'] ) ) {
 			if ( empty( $result['csv'] ) ) {
@@ -131,12 +131,12 @@ class Job_Command {
 				WP_CLI::success( sprintf( /* translators: %s: file path. */ __( 'Failed rows saved to %s', 'import-export-by-rockstarlab' ), $assoc['csv'] ) );
 			}
 		}
-		$rows = (array) ( $result['errors'] ?? [] );
+		$rows = (array) ( $result['errors'] ?? array() );
 		if ( ! $rows && 'table' === ( $assoc['format'] ?? 'table' ) ) {
 			WP_CLI::success( __( 'No failed rows.', 'import-export-by-rockstarlab' ) );
 			return;
 		}
-		WP_CLI\Utils\format_items( $assoc['format'] ?? 'table', Cli_Helper::rows( $rows, [ 'row', 'field', 'message', 'hint' ] ), [ 'row', 'field', 'message', 'hint' ] );
+		WP_CLI\Utils\format_items( $assoc['format'] ?? 'table', Cli_Helper::rows( $rows, array( 'row', 'field', 'message', 'hint' ) ), array( 'row', 'field', 'message', 'hint' ) );
 	}
 
 	/**
@@ -176,10 +176,10 @@ class Job_Command {
 		Cli_Helper::require_admin();
 		$started = Cli_Helper::call(
 			'rsl-ie/job-restart',
-			[
+			array(
 				'job_id'     => (int) $args[0],
 				'request_id' => Cli_Helper::request_id( 'rerun-' . (int) $args[0] ),
-			]
+			)
 		);
 		$new     = (int) ( $started['job_id'] ?? 0 );
 		if ( ! $new ) {
@@ -204,7 +204,7 @@ class Job_Command {
 	 */
 	public function cancel( $args, $assoc ) {
 		Cli_Helper::require_admin();
-		Cli_Helper::call( 'rsl-ie/job-cancel', [ 'job_id' => (int) $args[0] ] );
+		Cli_Helper::call( 'rsl-ie/job-cancel', array( 'job_id' => (int) $args[0] ) );
 		WP_CLI::success( sprintf( /* translators: %d: job ID. */ __( 'Job %d cancelled.', 'import-export-by-rockstarlab' ), (int) $args[0] ) );
 	}
 
@@ -229,11 +229,20 @@ class Job_Command {
 	 */
 	public function favorite( $args, $assoc ) {
 		Cli_Helper::require_admin();
-		$result = Cli_Helper::call( 'rsl-ie/job-favorite', [ 'job_id' => (int) $args[0], 'favorite' => empty( $assoc['remove'] ) ] );
-		WP_CLI::success( sprintf( ! empty( $result['is_favorite'] )
+		$result = Cli_Helper::call(
+			'rsl-ie/job-favorite',
+			array(
+				'job_id'   => (int) $args[0],
+				'favorite' => empty( $assoc['remove'] ),
+			)
+		);
+		WP_CLI::success(
+			sprintf(
+				! empty( $result['is_favorite'] )
 				? /* translators: %d: job ID. */ __( 'Job %d added to favorites.', 'import-export-by-rockstarlab' )
 				: /* translators: %d: job ID. */ __( 'Job %d removed from favorites.', 'import-export-by-rockstarlab' ),
 				(int) $args[0]
-			) );
+			)
+		);
 	}
 }
